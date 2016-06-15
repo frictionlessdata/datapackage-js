@@ -2,7 +2,7 @@
 
 [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/frictionlessdata/chat)
 
-A model for working with Data Packages in Node and the browser.
+Official javascript library for Data Packages in Node and the browser.
 
 ## Install
 
@@ -23,8 +23,10 @@ npm install datapackage-render
 ```
 var datapacakge = require('datapackage');
 
-// or instantiate with a path and load
+// instantiate with a path
 var dp = new datapackage.DataPackage('/path/on/disk/to/package/')
+
+// then load datapackage.json info
 dp.load()
   .then(function() {
     // 'abc'
