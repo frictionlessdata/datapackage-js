@@ -1,0 +1,22 @@
+{
+  "name": "datapackage",
+  "version": "0.1.0",
+  "author": "Open Knowledge Labs <labs@okfn.org>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frictionlessdata/datapackage-js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.3.4",
+    "csv-parse": ">=1.0.0",
+    "stream-transform": ">=0.1.0",
+    "datapackage-read": ">=0.2.2",
+    "marked": ""
+  },
+  "devDependencies": {
+    "mocha": ""
+  },
+  "engines": {
+  }
+}
