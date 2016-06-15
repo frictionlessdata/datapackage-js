@@ -54,14 +54,14 @@ describe('DataPackage', function() {
   
   it('instantiates with object', function() {
     var dp = new spec.DataPackage(dp1);
-    assert.deepEqual(dp.data, dp1);
+    assert.deepEqual(dp.metadata, dp1);
   });
 
   it('loads', function(done) {
     var dp = new spec.DataPackage('test/fixtures/dp1');
     dp.load()
       .then(function() {
-        assert.equal(dp.data.name, 'abc');
+        assert.equal(dp.metadata.name, 'abc');
         assert.equal(dp.resources.length, 1);
         assert.equal(dp.resources[0].fullPath(), 'test/fixtures/dp1/data.csv');
         done();
@@ -76,7 +76,7 @@ describe('Resource', function() {
   }
   it('instantiates', function() {
     var res = new spec.Resource(resource);
-    assert.equal(res.data, resource);
+    assert.equal(res.metadata, resource);
     assert.equal(res.base, '');
   });
   it('fullPath works', function() {
@@ -123,7 +123,7 @@ function makeStream(text) {
 describe('csvToStream', function() {
   it('casting works', function(done) {
     var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
     spec.objectStreamToArray(stream).
       then(function(output) { 
         assert.equal(output.length, 3);
@@ -137,7 +137,7 @@ describe('csvToStream', function() {
   var dp = new spec.DataPackage(jsonContent);
 
   it('parse works for strings', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.strictEqual(typeof output[0].string, 'string');
@@ -156,7 +156,7 @@ describe('csvToStream', function() {
       });
   });
   it('parse works for numbers', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.strictEqual(typeof output[0].number, 'number');
@@ -175,7 +175,7 @@ describe('csvToStream', function() {
       });
   });
   it('parse works for integers', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.strictEqual(typeof output[0].integer, 'number');
@@ -194,7 +194,7 @@ describe('csvToStream', function() {
       });
   });
   it('parse works for booleans', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.strictEqual(typeof output[0].boolean, 'boolean');
@@ -213,7 +213,7 @@ describe('csvToStream', function() {
       });
   });
   it('parse works for dates', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.strictEqual(typeof output[0].date, 'number');
@@ -233,7 +233,7 @@ describe('csvToStream', function() {
       });
   });
   it('parse works for objects', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.strictEqual(typeof output[0].object, 'object');
@@ -253,7 +253,7 @@ describe('csvToStream', function() {
       done();
   });
   it('parse works for arrays', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.strictEqual(typeof output[0].object, 'object');
@@ -276,7 +276,7 @@ describe('csv dialect support', function() {
   it('works with delimiter', function(done) {
     var content = fs.createReadStream('test/fixtures/csv-dialects/data-del.csv')
     var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(content, dp.resources[0].data.schema, {delimiter: '\t'});
+    var stream = spec.csvToStream(content, dp.resources[0].metadata.schema, {delimiter: '\t'});
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.equal(output.length, 3);
@@ -287,7 +287,7 @@ describe('csv dialect support', function() {
   it('works with quoteChar', function(done) {
     var content = fs.createReadStream('test/fixtures/csv-dialects/data-qc.csv')
     var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(content, dp.resources[0].data.schema, {quoteChar: "'"});
+    var stream = spec.csvToStream(content, dp.resources[0].metadata.schema, {quoteChar: "'"});
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.equal(output.length, 3);
@@ -298,7 +298,7 @@ describe('csv dialect support', function() {
   it('works with doubleQuote', function(done) {
     var content = fs.createReadStream('test/fixtures/csv-dialects/data-dq.csv')
     var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(content, dp.resources[0].data.schema, {doubleQuote: '"'});
+    var stream = spec.csvToStream(content, dp.resources[0].metadata.schema, {doubleQuote: '"'});
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.equal(output.length, 3);
@@ -309,7 +309,7 @@ describe('csv dialect support', function() {
   it('works with all csv dialects', function(done) {
     var content = fs.createReadStream('test/fixtures/csv-dialects/data-all.csv')
     var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(content, dp.resources[0].data.schema, {delimiter: '\t', quoteChar: "'", doubleQuote: '"'});
+    var stream = spec.csvToStream(content, dp.resources[0].metadata.schema, {delimiter: '\t', quoteChar: "'", doubleQuote: '"'});
     spec.objectStreamToArray(stream).
       then(function(output) {
         assert.equal(output.length, 3);

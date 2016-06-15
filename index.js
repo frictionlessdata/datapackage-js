@@ -16,7 +16,7 @@ var fs = require('fs')
 
 // Instantiate a datapackage
 exports.DataPackage = function(datapackageJsonOrPath) {
-  this.data = {};
+  this.metadata = {};
   this.resources = [];
   this.path = null;
   if (datapackageJsonOrPath) {
@@ -31,9 +31,9 @@ exports.DataPackage = function(datapackageJsonOrPath) {
 // setter method to set datapackage json (and set up resource objects)
 exports.DataPackage.prototype.setDataPackageJson = function(data) {
   var that = this;
-  this.data = data;
+  this.metadata = data;
   this.resources = [];
-  this.data.resources.forEach(function(resource, idx) {
+  this.metadata.resources.forEach(function(resource, idx) {
     var res = new exports.Resource(resource, that.path);
     that.resources.push(res);
   });
@@ -65,7 +65,7 @@ exports.DataPackage.prototype.getResource = function(resourceIdentifier) {
     resourceIndex = parseInt(resourceIdentifier)
   } else {
     this.resources.forEach(function(res, idx) {
-      if (res.data.name === resourceIdentifier) {
+      if (res.metadata.name === resourceIdentifier) {
         resourceIndex = idx;
       }
     });
@@ -83,24 +83,24 @@ exports.DataPackage.prototype.getResource = function(resourceIdentifier) {
 // Resource object
 exports.Resource = function(resourceObject, base) {
   this.base = base || '';
-  this.data = resourceObject;
+  this.metadata = resourceObject;
 }
 
 // TODO: support urls vs just paths ...
 exports.Resource.prototype.fullPath = function() {
-  return path.join(this.base, this.data.path);
+  return path.join(this.base, this.metadata.path);
 }
 
 // give me a raw (binary) resource stream
 // TODO: use the base path when locating the data ...
 exports.Resource.prototype.rawStream = function() {
-  if (this.data.url) {
-    return request(this.data.url);
-  } else if (this.data.path) {
+  if (this.metadata.url) {
+    return request(this.metadata.url);
+  } else if (this.metadata.path) {
     return fs.createReadStream(this.fullPath());
-  } else if (resource.data) {
+  } else if (resource.metadata) {
     // TODO: what happens if it is already JSON objects ...?
-    return _streamFromString(this.data.data);
+    return _streamFromString(this.metadata.data);
   } else {
     return null
   }
@@ -120,12 +120,12 @@ function _streamFromString(string) {
 // for tabular data this is a stream of the row objects
 // TODO: for geo probably something a bit different
 exports.Resource.prototype.stream = function() {
-  if (this.data.format && this.data.format != 'csv') {
+  if (this.metadata.format && this.metadata.format != 'csv') {
     throw Exception('We can only handle CSV data at the moment');
   }
 
   var stream = this.rawStream();
-  return exports.csvToStream(this.rawStream(), this.data.schema);
+  return exports.csvToStream(this.rawStream(), this.metadata.schema);
 }
 
 // get resource data as array of objects

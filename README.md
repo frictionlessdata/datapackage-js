@@ -29,7 +29,8 @@ var dp = new datapackage.DataPackage('/path/on/disk/to/package/')
 // then load datapackage.json info
 dp.load()
   .then(function() {
-    // 'abc'
+    // all the datapackage.json data is available via the metadata attribute
+    // e.g. this will produce 'abc'
     console.log(dp.data.name);
   });
 
@@ -51,6 +52,9 @@ var resource = dp.resources[0]
 
 // will return the full path (url or on disk for the resource)
 resource.fullPath()
+
+// all data package resource properties are available via metadata attribute
+resource.metadata.title
 
 // get the raw data file stream
 resource.rawStream()
