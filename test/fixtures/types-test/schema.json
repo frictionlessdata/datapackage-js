@@ -26,6 +26,14 @@
           {
             "name": "date",
             "type": "date"
+          },
+          {
+            "name": "object",
+            "type": "object"
+          },
+          {
+            "name": "array",
+            "type": "array"
           }
         ]
       }

@@ -219,6 +219,7 @@ describe('csvToStream', function() {
         assert.strictEqual(typeof output[0].date, 'number');
         assert.strictEqual(output[0].date, 1463788800000);
         assert.strictEqual(output[1].date, 1462060800000);
+        // TODO: these fail - i think maybe because of time of day issues (??)
         // assert.strictEqual(output[2].date, 1463827423000);
         // assert.strictEqual(output[3].date, 1463947200000);
         // assert.strictEqual(output[4].date, 1461355200000);
@@ -230,6 +231,43 @@ describe('csvToStream', function() {
         // assert.strictEqual(output[10].date, 997902000000);
         done();
       });
+  });
+  it('parse works for objects', function(done) {
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    spec.objectStreamToArray(stream).
+      then(function(output) {
+        assert.strictEqual(typeof output[0].object, 'object');
+        assert.strictEqual(output[0].object.key, 'value');
+        assert.deepEqual(output[0].object, {key: 'value'});
+        assert.deepEqual(output[1].object.key, {inner_key: 'value'});
+        assert.deepEqual(output[2].object, {});
+        assert.strictEqual(output[3].object.key, 1);
+        assert.strictEqual(output[4].object.key, '');
+        assert.deepEqual(output[5].object, {key: true});
+        assert.deepEqual(output[6].object, {'': ''});
+        assert.deepEqual(output[7].object, {true: 1});
+        assert.deepEqual(output[8].object, {1: 1});       //         ~~~~~
+        assert.deepEqual(output[8].object, {'1': 1});     // should both pass test?
+        assert.deepEqual(output[9].object, {key0: {key1: {key2: {}}}});
+      });
+      done();
+  });
+  it('parse works for arrays', function(done) {
+    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].data.schema);
+    spec.objectStreamToArray(stream).
+      then(function(output) {
+        assert.strictEqual(typeof output[0].object, 'object');
+        assert.strictEqual(output[0].array[0], 1);
+        assert.deepEqual(output[0].array, [1,2,3,4,5]);
+        assert.deepEqual(output[1].array, [0, [1,2,3,4,5]]);
+        assert.deepEqual(output[2].array, []);
+        assert.strictEqual(output[3].array[0], '1');
+        assert.notStrictEqual(output[3].array[0], 1);
+        assert.strictEqual(typeof output[4].array[1], 'boolean');
+        assert.strictEqual(output[5].array[0], '');
+        assert.deepEqual(output[6].array, [[[[0]]]]);
+      });
+      done();
   });
 });
 
