@@ -1,87 +1,44 @@
-# DataPackage.js
+# DataPackage-js
 
 [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/frictionlessdata/chat)
+[![Travis Build Status](https://travis-ci.org/frictionlessdata/datapackage-js.svg?branch=master)](https://travis-ci.org/frictionlessdata/datapackage-js)
+[![Coverage Status](https://coveralls.io/repos/github/frictionlessdata/datapackage-js/badge.svg?branch=master)](https://coveralls.io/github/frictionlessdata/datapackage-js?branch=master)
 
-Official javascript library for Data Packages in Node and the browser.
+A model for working with [Data Packages].
 
-## Install
+  [Data Packages]: http://dataprotocols.org/data-packages/
 
-**npm coming soon**.
 
-For now clone from github!
+> Version v0.2.0 has renewed API introduced in NOT backward-compatibility manner. Previous version could be found [here](https://github.com/frictionlessdata/datapackage-js/tree/2bcf8e516fb1d871bd6b155962871f5cfd563c52).
 
-<!--
-[![NPM](https://nodei.co/npm/datapackage.png)](https://nodei.co/npm/datapackage-render/)
-
-```
-npm install datapackage-render
-```
--->
-
-# Usage
+## Installation
 
 ```
-var datapacakge = require('datapackage');
-
-// instantiate with a path
-var dp = new datapackage.DataPackage('/path/on/disk/to/package/')
-
-// then load datapackage.json info
-dp.load()
-  .then(function() {
-    // all the datapackage.json data is available via the metadata attribute
-    // e.g. this will produce 'abc'
-    console.log(dp.data.name);
-  });
-
-
-// you can also load direct from JSON object
-var dpJson = {
-  'name': 'abc'
-};
-var dp = new datapackage.DataPackage(dpJson);
+git clone https://github.com/frictionlessdata/datapackage-js.git
 ```
 
-### Resources
+## Examples
 
-```
-var dp = a data package with some resources
+### Reading a Data Package and its resource
 
-// Access the Data Pacakge data resources
-var resource = dp.resources[0]
+### Validating a Data Package
 
-// will return the full path (url or on disk for the resource)
-resource.fullPath()
+### Retrieving all validation errors from a Data Package
 
-// all data package resource properties are available via metadata attribute
-resource.metadata.title
+### Creating a Data Package
 
-// get the raw data file stream
-resource.rawStream()
+### Using a schema that's not in the local cache
 
-// get the data stream as set of JS objects (one for each row)
-// this only works for tabular data at present
-// data is automatically typecast
-resource.stream()
-```
+### Push/pull Data Package to storage
 
-### csvToSTream
+## Developer notes
 
-Convenience function to load and convert a CSV to a stream using a [JSON Table Schema][jts] and [CSV Dialect description][dialect].
+These notes are intended to help people that want to contribute to this
+package itself. If you just want to use it, you can safely ignore them.
 
-[jts]: http://frictionlessdata.io/guides/json-table-schema/
-[dialect]: http://dataprotocols.org/csv-dialect/
+### Updating the local schemas cache
 
-```
-// returns a Node **object** stream
-// the csv dialect is optional
-var stream = datapackage.csvToStream(rawDataStream, jsonTableSchema, csvDialect)
+We cache the schemas from <https://github.com/dataprotocols/schemas>
+using git-subtree. To update it, use:
 
-stream.on('readable', function() {
-  while(row = stream.read()) {
-    // something like {'col-1': 'abc', 'col-2': 2, ...}
-    console.log(row);
-  }
-});
-```
-
+    git subtree pull --prefix datapackage/schemas https://github.com/dataprotocols/schemas.git master --squash
