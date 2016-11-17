@@ -1,0 +1,12 @@
+string,number,integer,boolean,date,object,array
+Word,0,0,true,2016-05-21,{""key"": ""value""},"[1,2,3,4,5]"
+Two words,-100.58,5,false,2016-05,{""key"": {""inner_key"": ""value""}},"[0,[1,2,3,4,5]]"
+test@mail.com,-1,1000000,True,2016-05-21	14:43:43,{},"[]"
+http://www.testwebsite.com,3.14,-1000,False,2016-may-23,{""key"": 1},"[""1"",""2"",""3"",""4"",""5""]"
+CAPITALIZED,0.00001,15,FALSE,2016-APR-23,{""key"": """"},"[true, false]"
+"list,of,words",001,12,TRUE,2016-sep,{""key"": true},"["""",2,""3"",true,{}]"
+text\nwith\nnew\nlines,1.0001,2,TrUe,2016-JAN,{"""": """"},"[[[[0]]]]"
+" ",-0.4,123456,FaLse,05-03-2016,{""true"": 1},"[1]"
+,-0,3.04,0,05-FEB-2016,{""1"": ""1""},"[1]"
+0123456789,0123456789,01,1,01-03-16,{""key0"": {""key1"":{""key2"":{}}}},"[]"
+!@#$%^&*()_+{}[]:;""\|<.>,17,4.9,TRUE,08-16,{},"[]"
