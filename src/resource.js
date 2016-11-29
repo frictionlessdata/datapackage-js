@@ -40,9 +40,7 @@ export default class Resource {
   }
 
   get table() {
-    const resourceField = this._getSourceKey()
-    return new jts.Table(this.descriptor['schema'],
-                         this.descriptor[resourceField])
+    return new jts.Table(this.descriptor['schema'], this.source)
   }
 
   _getSourceKey() {
