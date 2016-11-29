@@ -14,13 +14,13 @@ describe('Resource', () => {
       'data': {'foo': 'bar'}
     }
     let resource = new Resource(resourceDesc)
-    assert(resource.getDescriptor() === resourceDesc, 'Invalid descriptor')
+    assert(resource.descriptor === resourceDesc, 'Invalid descriptor')
   })
 
   it('contains no source by default', () => {
     const resourceDesc = {}
     let resource = new Resource(resourceDesc)
-    assert(resource.getSource() === undefined, 'Invalid source')
+    assert(resource.source === undefined, 'Invalid source')
   })
 
   it('returns the expected test data', () => {
@@ -28,7 +28,7 @@ describe('Resource', () => {
       'data': 'foo'
     }
     let resource = new Resource(resourceDesc)
-    assert(resource.getSource() === 'foo', 'Invalid source')
+    assert(resource.source === 'foo', 'Invalid source')
   })
 
   it('returns the expected name', () => {
@@ -36,7 +36,7 @@ describe('Resource', () => {
       'name': 'FooBar'
     }
     let resource = new Resource(resourceDesc)
-    assert(resource.getName() === resourceDesc['name'], 'Invalid name')
+    assert(resource.name === resourceDesc['name'], 'Invalid name')
   })
 
   it('recognizes that data type is local', () => {
@@ -44,7 +44,7 @@ describe('Resource', () => {
       'path': 'foo/bar.txt'
     }
     let resource = new Resource(resouceDesc)
-    assert(resource.getType() === 'local', 'Invalid data type')
+    assert(resource.type === 'local', 'Invalid data type')
   })
 
   it('recognizes that data type is remote', () => {
@@ -52,7 +52,7 @@ describe('Resource', () => {
       'path': 'http://www.foo.org/bar.txt'
     }
     let resource = new Resource(resouceDesc)
-    assert(resource.getType() === 'remote', 'Invalid data type')
+    assert(resource.type === 'remote', 'Invalid data type')
   })
 
   it('recognizes that data is inline', () => {
@@ -60,10 +60,10 @@ describe('Resource', () => {
       'data': 'foo, bar'
     }
     let resource = new Resource(resouceDesc)
-    assert(resource.getType() === 'inline', 'Inline data not found')
+    assert(resource.type === 'inline', 'Inline data not found')
   })
 
-  it('getTable() returns jts.Table', (done) => {
+  it('table getter returns jts.Table', (done) => {
     const resourceDesc = {
       'data': 'http://foofoo.org/data.csv',
       'schema': { 'fields': [
@@ -72,7 +72,7 @@ describe('Resource', () => {
     }
 
     let resource = new Resource(resourceDesc)
-    resource.getTable().then((res) => {
+    resource.table.then((res) => {
       assert(res instanceof jts.Table, 'Returned object is not instance of Table')
       done()
     }).catch((err) => {
