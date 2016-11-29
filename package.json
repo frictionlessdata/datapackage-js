@@ -12,6 +12,7 @@
     "node": ">=4"
   },
   "dependencies": {
+    "jsontableschema": "^0.2.2",
     "lodash": "^4.13.1"
   },
   "devDependencies": {
@@ -37,7 +38,8 @@
     "mocha-lcov-reporter": "^1.2.0",
     "superagent-mock": "^1.1.0",
     "webpack": "^1.12.11",
-    "webpack-dev-server": "^1.14.1"
+    "webpack-dev-server": "^1.14.1",
+    "nock": "^9.0.2"
   },
   "scripts": {
     "build:lib": "babel src --out-dir lib",
