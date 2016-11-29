@@ -15,6 +15,7 @@
         "loose": true,
         "spec": true
       }
-    ]
+    ],
+    "transform-async-to-generator"
   ]
 }
