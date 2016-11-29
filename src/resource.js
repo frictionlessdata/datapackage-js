@@ -20,7 +20,7 @@ export default class Resource {
   }
 
   get type() {
-    const resourceField = this._getResourceField()
+    const resourceField = this._getSourceKey()
 
     if (resourceField === 'data') {
       return 'inline'
@@ -36,16 +36,16 @@ export default class Resource {
   }
 
   get source() {
-    return this.descriptor[this._getResourceField()]
+    return this.descriptor[this._getSourceKey()]
   }
 
   get table() {
-    const resourceField = this._getResourceField()
+    const resourceField = this._getSourceKey()
     return new jts.Table(this.descriptor['schema'],
                          this.descriptor[resourceField])
   }
 
-  _getResourceField() {
+  _getSourceKey() {
     const inlineData = this.descriptor['data']
     const path = this.descriptor['path']
 
