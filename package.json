@@ -20,6 +20,7 @@
     "babel-cli": "^6.8.0",
     "babel-istanbul": "^0.8.0",
     "babel-loader": "^6.2.1",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
     "babel-plugin-transform-es2015-arrow-functions": "^6.8.0",
     "babel-plugin-transform-es2015-classes": "^6.8.0",
     "babel-plugin-transform-es2015-for-of": "^6.8.0",
@@ -36,10 +37,10 @@
     "json-loader": "^0.5.4",
     "mocha": "^2.4.5",
     "mocha-lcov-reporter": "^1.2.0",
+    "nock": "^9.0.2",
     "superagent-mock": "^1.1.0",
     "webpack": "^1.12.11",
-    "webpack-dev-server": "^1.14.1",
-    "nock": "^9.0.2"
+    "webpack-dev-server": "^1.14.1"
   },
   "scripts": {
     "build:lib": "babel src --out-dir lib",
