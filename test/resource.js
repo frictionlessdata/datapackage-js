@@ -1,5 +1,6 @@
 'use strict'
 
+import 'babel-polyfill'
 import { assert } from 'chai'
 import jts from 'jsontableschema'
 import Resource from '../src/resource'
@@ -63,7 +64,7 @@ describe('Resource', () => {
     assert(resource.type === 'inline', 'Inline data not found')
   })
 
-  it('table getter returns jts.Table', (done) => {
+  it('table getter returns jts.Table', async (done) => {
     const resourceDesc = {
       'data': 'http://foofoo.org/data.csv',
       'schema': { 'fields': [
@@ -72,11 +73,12 @@ describe('Resource', () => {
     }
 
     let resource = new Resource(resourceDesc)
-    resource.table.then((res) => {
-      assert(res instanceof jts.Table, 'Returned object is not instance of Table')
+    try {
+      let table = await resource.table
+      assert(table instanceof jts.Table, 'Returned object is not instance of Table')
       done()
-    }).catch((err) => {
-      done(err)
-    })
+    } catch (err) {
+      done(Error(err))
+    }
   })
 })
