@@ -6,7 +6,7 @@ import jts from 'jsontableschema'
 import Resource from '../src/resource'
 import _ from 'lodash'
 
-import dp1 from './data/dp1/datapackage.json'
+import dp1 from '../data/dp1/datapackage.json'
 
 describe('Resource', () => {
 
@@ -89,8 +89,11 @@ describe('Resource', () => {
          'data': 'http://foofoo.org/data.csv',
        }
        let resource = new Resource(resourceDesc)
-       let table = await resource.table
-       assert(table === null, 'Returned value not null')
+       try {
+         let table = await resource.table
+       } catch (err) {
+         assert(err === null, 'Returned value not null')
+       }
      })
 
   describe('Tests with dp1 from data', () => {
@@ -128,7 +131,7 @@ describe('Resource', () => {
          let resource = new Resource({
            "name": "dp1",
            "format": "csv",
-           "path": "test/data/dp1/data.csv",
+           "path": "data/dp1/data.csv",
            "schema": {
              "fields": [
                {
@@ -142,12 +145,16 @@ describe('Resource', () => {
              ]
            }
          })
-         let table = await resource.table
-         if (table) {
-           table.iter((row) => {})
-           done()
-         } else {
-           done(Error('table not initialized'))
+         try {
+           let table = await resource.table
+           let data = await table.read(false, false, 1)
+           if (data.toString() === "gb,100") {
+             done()
+           } else {
+             done(Error('Invalid data'))
+           }
+         } catch (err) {
+           done(`Table not initialized, resource.table returned ${err}`)
          }
        })
 
