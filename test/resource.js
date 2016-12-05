@@ -67,7 +67,7 @@ describe('Resource', () => {
     assert(resource.type === 'inline', 'Inline data not found')
   })
 
-  it('table getter returns jts.Table', async(done) => {
+  it('table getter returns jts.Table', async() => {
     const resourceDesc = {
       'data': 'http://foofoo.org/data.csv',
       'schema': {
@@ -78,15 +78,20 @@ describe('Resource', () => {
     }
 
     let resource = new Resource(resourceDesc)
-    try {
-      let table = await resource.table
-      assert(table instanceof jts.Table,
-             'Returned object is not instance of Table')
-      done()
-    } catch (err) {
-      done(Error(err))
-    }
+    let table = await resource.table
+    assert(table instanceof jts.Table,
+           'Returned object is not instance of Table')
   })
+
+  it('table getter returns null if jsontableschama.Table throws an error',
+     async() => {
+       const resourceDesc = {
+         'data': 'http://foofoo.org/data.csv',
+       }
+       let resource = new Resource(resourceDesc)
+       let table = await resource.table
+       assert(table === null, 'Returned value not null')
+     })
 
   describe('Tests with dp1 from data', () => {
     let dpResources = []
@@ -117,16 +122,6 @@ describe('Resource', () => {
         assert(resource.source === res.path)
       })
     })
-
-    it('raises Error when loading table when schema is not defined',
-       async(done) => {
-         let resource = new Resource(dp1.resources[0])
-         try {
-           let table = await resource.table
-         } catch (err) {
-           done()
-         }
-       })
 
     it('returns \'local\' type', () => {
       let resource = new Resource(dp1.resources[0])
