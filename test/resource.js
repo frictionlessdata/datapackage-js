@@ -6,7 +6,7 @@ import jts from 'jsontableschema'
 import Resource from '../src/resource'
 import _ from 'lodash'
 
-import dp1 from '../data/dp1/datapackage.json'
+import dp1 from './data/dp1/datapackage.json'
 
 describe('Resource', () => {
 
@@ -122,6 +122,34 @@ describe('Resource', () => {
         assert(resource.source === res.path)
       })
     })
+
+    it('initialize jsontableschema.Table with csv file',
+       async(done) => {
+         let resource = new Resource({
+           "name": "dp1",
+           "format": "csv",
+           "path": "test/data/dp1/data.csv",
+           "schema": {
+             "fields": [
+               {
+                 "name": "name",
+                 "type": "string"
+               },
+               {
+                 "name": "size",
+                 "type": "integer"
+               }
+             ]
+           }
+         })
+         let table = await resource.table
+         if (table) {
+           table.iter((row) => {})
+           done()
+         } else {
+           done(Error('table not initialized'))
+         }
+       })
 
     it('returns \'local\' type', () => {
       let resource = new Resource(dp1.resources[0])
