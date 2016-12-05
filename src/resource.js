@@ -41,7 +41,7 @@ export default class Resource {
    * @returns {String}
    */
   get type() {
-    const resourceField = this._getSourceKey()
+    const resourceField = this.sourceKey
 
     if (resourceField === 'data') {
       return 'inline'
@@ -63,17 +63,26 @@ export default class Resource {
    * @returns {String|Array|Object}
    */
   get source() {
-    return this.descriptor[this._getSourceKey()]
+    return this.descriptor[this.sourceKey]
   }
 
   /**
    * Initializes the jsontableschema.Table class with the provided descriptor.
+   * If data is not tabular or schema is not defined or not valid the promise
+   * resolves to `null`
+   *
    * See https://github.com/frictionlessdata/jsontableschema-js#table
    *
    * @returns {Promise}
    */
   get table() {
-    return new jts.Table(this.descriptor['schema'], this.source)
+    return new Promise((resolve) => {
+      new jts.Table(this.descriptor['schema'], this.source).then((res) => {
+        resolve(res)
+      }).catch(() => {
+        resolve(null)
+      })
+    })
   }
 
   /**
@@ -83,7 +92,7 @@ export default class Resource {
    * @returns {String}
    * @private
    */
-  _getSourceKey() {
+  get sourceKey() {
     const inlineData = this.descriptor['data']
     const path = this.descriptor['path']
 
