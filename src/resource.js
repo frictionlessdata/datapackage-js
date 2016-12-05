@@ -41,7 +41,7 @@ export default class Resource {
    * @returns {String}
    */
   get type() {
-    const resourceField = this.sourceKey
+    const resourceField = this._sourceKey
 
     if (resourceField === 'data') {
       return 'inline'
@@ -63,7 +63,7 @@ export default class Resource {
    * @returns {String|Array|Object}
    */
   get source() {
-    return this.descriptor[this.sourceKey]
+    return this.descriptor[this._sourceKey]
   }
 
   /**
@@ -76,11 +76,11 @@ export default class Resource {
    * @returns {Promise}
    */
   get table() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       new jts.Table(this.descriptor['schema'], this.source).then((res) => {
         resolve(res)
       }).catch(() => {
-        resolve(null)
+        reject(null)
       })
     })
   }
@@ -92,7 +92,7 @@ export default class Resource {
    * @returns {String}
    * @private
    */
-  get sourceKey() {
+  get _sourceKey() {
     const inlineData = this.descriptor['data']
     const path = this.descriptor['path']
 
