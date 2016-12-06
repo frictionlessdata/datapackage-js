@@ -89,11 +89,8 @@ describe('Resource', () => {
          'data': 'http://foofoo.org/data.csv',
        }
        let resource = new Resource(resourceDesc)
-       try {
-         let table = await resource.table
-       } catch (err) {
-         assert(err === null, 'Returned value not null')
-       }
+       let table = await resource.table
+       assert(table === null, 'Returned value not null')
      })
 
   describe('Tests with dp1 from data', () => {
@@ -154,7 +151,7 @@ describe('Resource', () => {
              done(Error('Invalid data'))
            }
          } catch (err) {
-           done(`Table not initialized, resource.table returned ${err}`)
+           done(Error(`Table not initialized, resource.table returned: ${err}`))
          }
        })
 
