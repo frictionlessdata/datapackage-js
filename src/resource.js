@@ -1,4 +1,3 @@
-'use strict'
 
 import url from 'url'
 import jts from 'jsontableschema'

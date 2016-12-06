@@ -1,0 +1,50 @@
+---
+extends:
+  airbnb
+environment:
+  es6
+env:
+  node: true
+  browser: true
+parserOptions:
+  sourceType: module
+rules:
+  quotes:
+    - 2
+    - single
+    - avoid-escape
+  semi:
+    - 2
+    - never
+  comma-style:
+    - 2
+    - first
+  comma-dangle:
+    - 2
+    - never
+  no-empty:
+    - 2
+    - allowEmptyCatch: true
+  no-use-before-define:
+    - 2
+    - nofunc
+  one-var:
+    - 1
+    - var: always
+      let: always
+      const: always
+  eqeqeq:
+    - 1
+    - smart
+  no-unused-vars:
+    - 1
+  no-param-reassign:
+    - 1
+  no-cond-assign:
+    - 2
+    - except-parens
+  arrow-parens:
+    - 2
+    - as-needed
+  no-underscore-dangle:
+    - 0
