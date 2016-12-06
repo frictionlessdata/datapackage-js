@@ -4,7 +4,19 @@
     {
       "name": "random",
       "format": "csv",
-      "path": "data.csv"
+      "path": "data.csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "size",
+            "type": "number"
+          }
+        ]
+      }
     }
   ],
   "views": [
@@ -16,8 +28,14 @@
         },
         "mark": "bar",
         "encoding": {
-          "x": {"field": "name", "type": "ordinal"},
-          "y": {"field": "size", "type": "quantitative"}
+          "x": {
+            "field": "name",
+            "type": "ordinal"
+          },
+          "y": {
+            "field": "size",
+            "type": "quantitative"
+          }
         }
       }
     }
