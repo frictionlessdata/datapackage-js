@@ -76,13 +76,16 @@ export default class Resource {
    * @returns {Promise}
    */
   get table() {
-    return new Promise((resolve, reject) => {
-      new jts.Table(this.descriptor['schema'], this.source).then((res) => {
-        resolve(res)
-      }).catch(() => {
-        reject(null)
+    if (!this._table) {
+      this._table = new Promise((resolve) => {
+        new jts.Table(this.descriptor['schema'], this.source).then((res) => {
+          resolve(res)
+        }).catch(() => {
+          resolve(null)
+        })
       })
-    })
+    }
+    return this._table
   }
 
   /**
