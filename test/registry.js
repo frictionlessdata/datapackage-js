@@ -1,9 +1,11 @@
-import isBrowser from '../src/util/is-browser';
-import Registry from '../src/registry';
 import path from 'path';
 import fetchMock from 'fetch-mock';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+
+import Registry from '../src/registry'
+import Util from '../src/utils'
+
 chai.should();
 chai.use(chaiAsPromised);
 
@@ -38,24 +40,23 @@ describe('Data Package Registry', () => {
     });
 
     it('returns undefined if profileId is inexistent', () => {
-      const registry = new Registry(DEFAULT_REGISTRY_URL);
+      const registry = new Registry(true);
       return registry.get('inexistent-profile-id').should.eventually.be.undefined;
     });
 
     it('returns the profile by its ID', () => {
       const baseProfile = { title: 'base' };
-      const registry = new Registry(DEFAULT_REGISTRY_URL);
+      const registry = new Registry(true);
       return registry.get('base').should.eventually.be.deep.equal(baseProfile);
     });
   });
 
-  describe('#getProfiles', () => {
+  describe('#profiles', () => {
     it('resolve into non-empty object when registry is not empty', () => {
       fetchMock.mock(DEFAULT_REGISTRY_URL, 'id,title,schema,specification\n1,2,3,4');
 
-      const registry = new Registry(DEFAULT_REGISTRY_URL);
-
-      return registry.getProfiles().should.eventually.be.not.empty;
+      const registry = new Registry(true);
+      return registry.profiles.should.eventually.be.not.empty;
     });
 
     it('resolve into empty object when registry is empty', () => {
@@ -63,7 +64,7 @@ describe('Data Package Registry', () => {
 
       const registry = new Registry(DEFAULT_REGISTRY_URL);
 
-      return registry.getProfiles().should.eventually.be.empty;
+      return registry.profiles.should.eventually.be.empty;
     });
 
     it('has the profiles mapped by their ids', () => {
@@ -71,7 +72,7 @@ describe('Data Package Registry', () => {
 
       const registry = new Registry(DEFAULT_REGISTRY_URL);
 
-      return registry.getProfiles()
+      return registry.profiles
                .then((profiles) => {
                  profiles.should.include.key('1');
                });
@@ -82,7 +83,7 @@ describe('Data Package Registry', () => {
 
       const registry = new Registry(DEFAULT_REGISTRY_URL);
 
-      return registry.getProfiles().should.eventually.be.rejected;
+      return registry.profiles.should.eventually.be.rejected;
     });
 
     it('caches the registry after the first load', () => {
@@ -90,24 +91,24 @@ describe('Data Package Registry', () => {
 
       const registry = new Registry(DEFAULT_REGISTRY_URL);
 
-      return registry.getProfiles()
+      return registry.profiles
                .then(() => {
                  fetchMock.restore();
                  fetchMock.mock(DEFAULT_REGISTRY_URL, 500);
 
-                 return registry.getProfiles().should.eventually.be.fulfilled;
+                 return registry.profiles.should.eventually.be.fulfilled;
                });
     });
   });
 
-  if (isBrowser) {
+  if (Util.isBrowser) {
     describe('in browser', () => {
-      describe('#getProfiles', () => {
+      describe('#profiles', () => {
         it('uses the default remote registry by default', () => {
           fetchMock.mock(DEFAULT_REGISTRY_URL, 'id,title,schema,specification\n1,2,3,4');
           const registry = new Registry();
 
-          return registry.getProfiles()
+          return registry.profiles
                    .then(() => {
                      fetchMock.called(DEFAULT_REGISTRY_URL).should.be.true;
                    });
@@ -119,26 +120,25 @@ describe('Data Package Registry', () => {
       describe('#get', () => {
         it('prefers loading the local copies of the profiles', () => {
           fetchMock.mock('.*', 500);
-          const registryPath = fixturePath('base_and_tabular_registry.csv');
-          const registry = new Registry(registryPath);
+          const registry = new Registry(false);
 
           return registry.get('base').should.eventually.exist;
         });
       });
 
-      describe('#getProfiles', () => {
+      describe('#profiles', () => {
         it('uses the local cache by default', () => {
           fetchMock.mock('.*', 500);
           const registry = new Registry();
 
-          return registry.getProfiles().should.eventually.be.not.empty;
+          return registry.profiles.should.eventually.be.not.empty;
         });
 
         it('accepts a local registry', () => {
           const registryPath = fixturePath('base_and_tabular_registry.csv');
           const registry = new Registry(registryPath);
 
-          return registry.getProfiles().should.eventually.be.not.empty;
+          return registry.profiles.should.eventually.be.not.empty;
         });
       });
     });
