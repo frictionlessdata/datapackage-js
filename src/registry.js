@@ -1,55 +1,51 @@
-import parse from 'csv-parse';
 import path from 'path';
-import readFileOrURL from './util/read-file-or-url';
-import isBrowser from './util/is-browser';
-import isRemoteURL from './util/is-remote-url';
+import Utils from './utils'
 
-const DEFAULT_REGISTRY_PATH = (isBrowser) ? 'http://schemas.datapackages.org/registry.csv' :
-                                            path.join(__dirname, '..', 'schemas', 'registry.csv');
+const DEFAULT_REMOTE_PATH = 'http://schemas.datapackages.org/registry.csv'
 
-function _csvParse(text) {
-  return new Promise((resolve, reject) => {
-    parse(text, { columns: true }, (err, output) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(output);
-      }
-    });
-  });
+let fs
+let DEFAULT_LOCAL_PATH
+if (!Utils.isBrowser) {
+  fs = require('fs');
+  DEFAULT_LOCAL_PATH = path.join(__dirname, '..', 'schemas', 'registry.csv')
 }
 
 class Registry {
-  constructor(pathOrURL = DEFAULT_REGISTRY_PATH) {
-    this._registry = this._loadRegistry(pathOrURL);
-    this._base_path = this._loadBasePath(pathOrURL);
+  constructor(remote) {
+    if (remote || Utils.isBrowser) {
+      this._registry = this._loadRegistry(DEFAULT_REMOTE_PATH)
+      this._base_path = this._loadBasePath(DEFAULT_REMOTE_PATH)
+    } else {
+      this._registry = this._loadRegistry(DEFAULT_LOCAL_PATH);
+      this._base_path = this._loadBasePath(DEFAULT_LOCAL_PATH);
+    }
   }
 
-  getProfiles() {
+  get profiles() {
     // Returns the available profiles' metadata.
     return this._registry;
   }
 
-  getBasePath() {
+  get basePath() {
     // If there's a Registry cache, returns its absolute base path
     return this._base_path;
   }
 
   get(profileId) {
     // Return the profile with the specified ID if it exists
-    return this.getProfiles()
-             .then((registry) => registry[profileId])
-             .then((profile) => this._loadProfile(profile));
+    return this.profiles
+      .then((registry) => registry[profileId])
+      .then((profile) => this._loadProfile(profile));
   }
 
   _loadRegistry(pathOrURL) {
-    return readFileOrURL(pathOrURL)
-             .then((text) => _csvParse(text))
-             .then((registry) => this._groupProfilesById(registry));
+    return Utils.readFileOrURL(pathOrURL)
+      .then((text) => Utils._csvParse(text))
+      .then((registry) => this._groupProfilesById(registry));
   }
 
   _loadBasePath(pathOrURL) {
-    if (!isBrowser && !isRemoteURL(pathOrURL)) {
+    if (!Utils.isBrowser && !Utils.isRemoteURL(pathOrURL)) {
       return path.dirname(path.resolve(pathOrURL));
     }
   }
@@ -61,14 +57,14 @@ class Registry {
 
     let profilePath;
 
-    if (!isBrowser && this.getBasePath() && profile.schema_path) {
-      profilePath = path.join(this.getBasePath(), profile.schema_path);
+    if (!Utils.isBrowser && this.basePath && profile.schema_path) {
+      profilePath = path.join(this.basePath, profile.schema_path);
     } else {
       profilePath = profile.schema;
     }
 
-    return readFileOrURL(profilePath)
-             .then((text) => JSON.parse(text));
+    return Utils.readFileOrURL(profilePath)
+      .then((text) => JSON.parse(text));
   }
 
   _groupProfilesById(registry) {
