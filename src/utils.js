@@ -55,7 +55,7 @@ class Utils {
     return result
   }
 
-  static tv4Errors(values) {
+  static errorsToStringArray(values) {
     const result = []
     _.forEach(values, error => {
       let errorMessage = error.message
