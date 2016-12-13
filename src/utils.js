@@ -1,8 +1,8 @@
-import parse from 'csv-parse';
+import parse from 'csv-parse'
 import 'isomorphic-fetch'
 import _ from 'lodash'
 
-const isBrowser = typeof window !== 'undefined';
+const isBrowser = typeof window !== 'undefined'
 
 let fs
 if (!isBrowser) {
@@ -21,9 +21,8 @@ class Utils {
   static readFileOrURL(pathOrURL) {
     function _readURL(_url) {
       return fetch(_url)
-        .then((response) => {
+        .then(response => {
           if (!response.ok) {
-            console.log(response.text())
             throw new Error('Bad response from server')
           }
 
@@ -84,3 +83,5 @@ class Utils {
 }
 
 export default Utils
+
+/* eslint global-require: "off" */
