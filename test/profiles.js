@@ -1,8 +1,6 @@
 import 'babel-polyfill'
-import chai from 'chai'
-import chaiAsPromised from 'chai-as-promised'
+import { assert } from 'chai'
 import fs from 'fs'
-import _ from 'lodash'
 
 import {
   _setupBaseAndTabularRegistryMocks,
@@ -11,10 +9,6 @@ import {
 
 import Util from '../src/utils'
 import Profiles from '../src/profiles'
-
-chai.should()
-chai.use(chaiAsPromised)
-const assert = chai.assert
 
 describe('Profiles', () => {
   const DEFAULT_REGISTRY_URL = 'http://schemas.datapackages.org/registry.csv'
@@ -62,11 +56,9 @@ describe('Profiles', () => {
 
     it('returns true for valid local descriptor', async () => {
       const profiles = await new Profiles(false)
-        , datapackage = fs.readFileSync('data/dp1/datapackage.json')
+        , datapackage = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
 
-      _.forEach(datapackage.resources, descriptor => {
-        assert(profiles.validate(descriptor) === true)
-      })
+      assert(profiles.validate(datapackage))
     })
 
     it('returns true for valid string descriptor', async () => {
