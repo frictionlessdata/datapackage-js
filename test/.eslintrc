@@ -12,3 +12,5 @@ rules:
     - 0
   vars-on-top:
     - 0
+  no-undef:
+    - 0
