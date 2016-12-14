@@ -47,7 +47,7 @@ class Profiles {
    * @return {Object}
    */
   retrieve(profile = 'base') {
-    return this._allProfiles[profile]
+    return this._allProfiles[profile] || null
   }
 
   /**

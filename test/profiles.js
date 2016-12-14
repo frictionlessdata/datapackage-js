@@ -22,11 +22,11 @@ describe('Profiles', () => {
       _setupBaseAndTabularRegistryMocks(DEFAULT_REGISTRY_URL)
     })
 
-    it('returns undefined if profile ID doesn\'t exist', async () => {
+    it('returns `null` if profile ID doesn\'t exist', async () => {
       const profiles = await new Profiles(true)
         , retrieved = profiles.retrieve('inexistent-profile-id')
 
-      assert(retrieved === undefined, 'Value should be undefined')
+      assert(retrieved === null, 'Value should be null')
     })
 
     it('returns remote profile by its ID', async () => {
