@@ -54,8 +54,8 @@ class Profiles {
    * Validate a descriptor against a profile. You can provide custom schema
    * or specify the profile id.
    *
-   * @param {String|JSON} descriptor The descriptor that needs to be validated
-   * @param {String|JSON} profile Schema to validate against
+   * @param {Object} descriptor The descriptor that needs to be validated
+   * @param {Object} profile Schema to validate against
    * @return {Promise} Resolves `true` or array of strings which explain the
    *   errors.
    */
@@ -69,22 +69,11 @@ class Profiles {
       return Utils.errorsToStringArray(validation.errors)
     }
 
-    let json = descriptor
-
-    if (typeof descriptor === 'string') {
-      const lint = jsonlint(descriptor)
-      if (lint.error) {
-        return Utils.errorsToStringArray(new Error(lint.error))
-      }
-
-      json = JSON.parse(descriptor)
-    }
-
     if (_.isObject(profile) && !_.isArray(profile) && !_.isFunction(profile)) {
-      return _tv4validation(json, profile)
+      return _tv4validation(descriptor, profile)
     }
 
-    return _tv4validation(json, this.retrieve(profile))
+    return _tv4validation(descriptor, this.retrieve(profile))
   }
 
   // ------ Private methods  -------

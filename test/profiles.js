@@ -2,26 +2,11 @@ import 'babel-polyfill'
 import { assert } from 'chai'
 import fs from 'fs'
 
-import {
-  _setupBaseAndTabularRegistryMocks,
-  fetchMock
-} from './_mocks'
-
 import Util from '../src/utils'
 import { Profiles, validate } from '../src/profiles'
 
 describe('Profiles', () => {
-  const DEFAULT_REGISTRY_URL = 'http://schemas.datapackages.org/registry.csv'
-
-  afterEach(() => {
-    fetchMock.restore()
-  })
-
   describe('#retrieve', () => {
-    beforeEach(() => {
-      _setupBaseAndTabularRegistryMocks(DEFAULT_REGISTRY_URL)
-    })
-
     it('returns `null` if profile ID doesn\'t exist', async () => {
       const profiles = await new Profiles(true)
         , retrieved = profiles.retrieve('inexistent-profile-id')
@@ -30,11 +15,11 @@ describe('Profiles', () => {
     })
 
     it('returns remote profile by its ID', async () => {
-      const baseProfile = { title: 'base' }
-        , profiles = await new Profiles(true)
+      const profiles = await new Profiles(true)
+        , baseProfile = fs.readFileSync('schemas/data-package.json', 'utf8')
         , retrieved = profiles.retrieve('base')
 
-      assert.deepEqual(retrieved, baseProfile)
+      assert.deepEqual(retrieved, JSON.parse(baseProfile))
     })
 
     it('returns local schema by its ID', async () => {
@@ -59,13 +44,6 @@ describe('Profiles', () => {
         , datapackage = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
 
       assert(profiles.validate(datapackage))
-    })
-
-    it('returns true for valid string descriptor', async () => {
-      const profiles = await new Profiles(false)
-        , descriptor = '{"name":"test","resources":[]}'
-
-      assert(profiles.validate(descriptor) === true)
     })
 
     it('returns array of lint errors for invalid json string', async () => {
@@ -113,7 +91,7 @@ describe('Profiles', () => {
 describe('#Validate', () => {
   it('returns true for valid descriptor', async () => {
     const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
-      , validation = await new validate(dp1)
+      , validation = await validate(JSON.parse(dp1))
 
     assert(validation === true)
   })
