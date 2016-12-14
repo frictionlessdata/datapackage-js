@@ -1,6 +1,7 @@
 import parse from 'csv-parse'
 import 'isomorphic-fetch'
 import _ from 'lodash'
+import path from 'path'
 
 const isBrowser = typeof window !== 'undefined'
 
@@ -79,6 +80,20 @@ class Utils {
         }
       })
     })
+  }
+
+  /**
+   * Loads the base path (dirname) of the path.
+   *
+   * @param pathOrURL
+   * @return {String|null}
+   * @private
+   */
+  static getDirname(pathOrURL) {
+    if (!Utils.isBrowser && !Utils.isRemoteURL(pathOrURL)) {
+      return path.dirname(path.resolve(pathOrURL))
+    }
+    return null
   }
 }
 

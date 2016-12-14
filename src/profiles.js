@@ -26,7 +26,7 @@ class Profiles {
     return new Promise((resolve, reject) => {
       this._loadRegistry(PATH).then(registry => {
         self._registry = registry
-        self._basePath = this._getDirname(PATH)
+        self._basePath = Utils.getDirname(PATH)
         this._getProfiles().then(profiles => {
           self._allProfiles = profiles
           resolve(self)
@@ -99,20 +99,6 @@ class Profiles {
     return Utils.readFileOrURL(pathOrURL)
       .then(text => Utils._csvParse(text))
       .then(registry => Profiles._groupProfilesById(registry))
-  }
-
-  /**
-   * Loads the base path (dirname) of the path.
-   *
-   * @param pathOrURL
-   * @return {String|null}
-   * @private
-   */
-  _getDirname(pathOrURL) {
-    if (!Utils.isBrowser && !Utils.isRemoteURL(pathOrURL)) {
-      return path.dirname(path.resolve(pathOrURL))
-    }
-    return null
   }
 
   /**
