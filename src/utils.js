@@ -11,14 +11,31 @@ if (!isBrowser) {
 }
 
 class Utils {
-  static isRemoteURL(path) {
-    return path.match(/\w+:\/\/.+/)
+  /**
+   * Checks if the provided path is a remote URL
+   *
+   * @param pathOrURL
+   * @return {Array|null}
+   */
+  static isRemoteURL(pathOrURL) {
+    return pathOrURL.match(/\w+:\/\/.+/)
   }
 
+  /**
+   * Check if we're running in browser.
+   *
+   * @return {boolean}
+   */
   static get isBrowser() {
     return isBrowser
   }
 
+  /**
+   * Given path to a file, read the contents of the file.
+   *
+   * @param pathOrURL {String}
+   * @return {Promise}
+   */
   static readFileOrURL(pathOrURL) {
     function _readURL(_url) {
       return fetch(_url)
@@ -31,10 +48,10 @@ class Utils {
         })
     }
 
-    function _readFile(path) {
+    function _readFile(localPath) {
       // WARN: This only works on NodeJS
       return new Promise((resolve, reject) => {
-        fs.readFile(path, 'utf8', (err, data) => {
+        fs.readFile(localPath, 'utf8', (err, data) => {
           if (err) {
             reject(err)
           } else {
@@ -55,6 +72,13 @@ class Utils {
     return result
   }
 
+  /**
+   * Given Error or Array of Errors, convert it to Array with Strings containing
+   * the Error message(s).
+   *
+   * @param values
+   * @return {Array}
+   */
   static errorsToStringArray(values) {
     const result = []
     _.forEach(values, error => {
@@ -70,6 +94,13 @@ class Utils {
     return result
   }
 
+  /**
+   * Simple Promise wrapper around csv-parse.parse
+   *
+   * @param text
+   * @return {Promise}
+   * @private
+   */
   static _csvParse(text) {
     return new Promise((resolve, reject) => {
       parse(text, { columns: true }, (err, output) => {
@@ -87,7 +118,6 @@ class Utils {
    *
    * @param pathOrURL
    * @return {String|null}
-   * @private
    */
   static getDirname(pathOrURL) {
     if (!Utils.isBrowser && !Utils.isRemoteURL(pathOrURL)) {
