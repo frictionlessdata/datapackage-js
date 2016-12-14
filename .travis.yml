@@ -9,7 +9,7 @@ node_js:
   - 6
 
 script:
-  - npm run test:travis
+  - npm run test
   - npm run review
 
 after_script:
