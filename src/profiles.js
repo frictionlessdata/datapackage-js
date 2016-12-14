@@ -1,12 +1,11 @@
 import tv4 from 'tv4'
-import jsonlint from 'json-lint'
 import _ from 'lodash'
 import path from 'path'
 
 import Utils from './utils'
 
 const PROFILES_CACHED = {}
-const DEFAULT_REMOTE_PATH = 'http://schemas.datapackages.org/registry.csv'
+  , DEFAULT_REMOTE_PATH = 'http://schemas.datapackages.org/registry.csv'
 let DEFAULT_LOCAL_PATH
 if (!Utils.isBrowser) {
   DEFAULT_LOCAL_PATH = path.join(__dirname, '..', 'schemas', 'registry.csv')
