@@ -8,7 +8,7 @@ import {
 } from './_mocks'
 
 import Util from '../src/utils'
-import Profiles from '../src/profiles'
+import { Profiles, validate } from '../src/profiles'
 
 describe('Profiles', () => {
   const DEFAULT_REGISTRY_URL = 'http://schemas.datapackages.org/registry.csv'
@@ -107,5 +107,20 @@ describe('Profiles', () => {
 
       assert(path === null)
     })
+  })
+})
+
+describe('#Validate', () => {
+  it('returns true for valid descriptor', async () => {
+    const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
+      , validation = await new validate(dp1)
+
+    assert(validation === true)
+  })
+
+  it('returns array of errors for invalid descriptor', async () => {
+    const validation = await validate({})
+
+    assert(validation instanceof Array)
   })
 })
