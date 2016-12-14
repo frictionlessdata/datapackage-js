@@ -11,21 +11,22 @@ if (!Utils.isBrowser) {
   DEFAULT_LOCAL_PATH = path.join(__dirname, '..', 'schemas', 'registry.csv')
 }
 
+/**
+ * Base class for retrieving profile schemas and validating datapackage
+ * descriptors against profiles.
+ *
+ * @returns {Promise}
+ */
 class Profiles {
-
   constructor(remote = false) {
     const self = this
-        , PATH = remote || Utils.isBrowser ? DEFAULT_REMOTE_PATH :
+        , PATH = (remote || Utils.isBrowser) ? DEFAULT_REMOTE_PATH :
                  DEFAULT_LOCAL_PATH
 
     return new Promise((resolve, reject) => {
-      const promises = []
-      promises.push(this._loadRegistry(PATH))
-      promises.push(this._loadBasePath(PATH))
-
-      Promise.all(promises).then(values => {
-        self._registry = values[0]
-        self._base_path = values[1]
+      this._loadRegistry(PATH).then(registry => {
+        self._registry = registry
+        self._basePath = this._getDirname(PATH)
         this._getProfiles().then(profiles => {
           self._allProfiles = profiles
           resolve(self)
@@ -42,7 +43,7 @@ class Profiles {
    * Retrieve a profile by id.
    *
    * @param {String} [profile='base']
-   * @return {Promise}
+   * @return {Object}
    */
   retrieve(profile = 'base') {
     return this._allProfiles[profile]
@@ -88,16 +89,6 @@ class Profiles {
   // ------ Private methods  -------
 
   /**
-   * Returns the base path.
-   *
-   * @return {String}
-   * @private
-   */
-  get _basePath() {
-    return this._base_path
-  }
-
-  /**
    * Returns all _profiles grouped by id.
    *
    * @param pathOrURL
@@ -117,7 +108,7 @@ class Profiles {
    * @return {String|null}
    * @private
    */
-  _loadBasePath(pathOrURL) {
+  _getDirname(pathOrURL) {
     if (!Utils.isBrowser && !Utils.isRemoteURL(pathOrURL)) {
       return path.dirname(path.resolve(pathOrURL))
     }
