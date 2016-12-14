@@ -61,7 +61,6 @@
     "review": "eslint src/**",
     "fix": "eslint --fix src/**",
     "test": "mocha",
-    "test:travis": "mocha $(find test -name '*.js' ! -name 'test*')",
     "coverage": "node_modules/.bin/babel-node node_modules/.bin/babel-istanbul cover node_modules/.bin/_mocha -- test/*.js",
     "check-schemas": "node_modules/.bin/babel-node src/cli.js check-schemas",
     "update-schemas": "node_modules/.bin/babel-node src/cli.js update-schemas"
