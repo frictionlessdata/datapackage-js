@@ -8,5 +8,5 @@ describe('Schemas', () => {
 
     assert(status === 0,
            'New registry available. Run "npm run update-schemas" to update.')
-  })
+  }).timeout(5000)
 })
