@@ -3,7 +3,7 @@ import { assert } from 'chai'
 import fs from 'fs'
 
 import Util from '../src/utils'
-import { Profiles, validate } from '../src/profiles'
+import Profiles from '../src/profiles'
 
 describe('Profiles', () => {
   describe('#retrieve', () => {
@@ -22,7 +22,7 @@ describe('Profiles', () => {
       assert.deepEqual(retrieved, JSON.parse(baseProfile))
     })
 
-    it('returns local schema by its ID', async () => {
+    it('returns local profile by its ID', async () => {
       const profiles = await new Profiles(false)
         , schema = fs.readFileSync('schemas/tabular-data-package.json',
                                    'utf8')
@@ -53,7 +53,7 @@ describe('Profiles', () => {
       assert(profiles.validate(descriptor) instanceof Array)
     })
 
-    it('returns array of schema errors for invalid string descriptor',
+    it('returns array of Errors for invalid string descriptor',
        async () => {
          const profiles = await new Profiles(false)
            , descriptor = '{"test": "shouldbename","resources":[]}'
@@ -63,11 +63,14 @@ describe('Profiles', () => {
 
     it('returns true for valid data and schema passed as argument',
        async () => {
-         const schema = fs.readFileSync('schemas/data-package.json')
+         const schema = fs.readFileSync('schemas/tabular-data-package.json')
+            , descriptor = fs.readFileSync('data/dp2-tabular/datapackage.json',
+                                           'utf8')
+            , schemaObject = JSON.parse(schema)
+            , descriptorObject = JSON.parse(descriptor)
             , profiles = await new Profiles(false)
-            , descriptor = '{"name":"test","resources":[]}'
 
-         assert(profiles.validate(descriptor, schema) === true)
+         assert(profiles.validate(descriptorObject, schemaObject) === true)
        })
   })
 
@@ -85,20 +88,5 @@ describe('Profiles', () => {
 
       assert(path === null)
     })
-  })
-})
-
-describe('#Validate', () => {
-  it('returns true for valid descriptor', async () => {
-    const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
-      , validation = await validate(JSON.parse(dp1))
-
-    assert(validation === true)
-  })
-
-  it('returns array of errors for invalid descriptor', async () => {
-    const validation = await validate({})
-
-    assert(validation instanceof Array)
   })
 })
