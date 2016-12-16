@@ -14,6 +14,7 @@ if (!Utils.isBrowser) {
  * Base class for retrieving profile schemas and validating datapackage
  * descriptors against profiles.
  *
+ * @param {Boolean} [remote=false]
  * @returns {Promise}
  */
 class Profiles {
@@ -53,7 +54,8 @@ class Profiles {
    * or specify the profile id.
    *
    * @param {Object} descriptor The descriptor that needs to be validated
-   * @param {Object} profile Schema to validate against
+   * @param {Object|String} profile Schema to validate against, could be ID of a
+   * profile or profile Object
    * @return {Promise} Resolves `true` or array of strings which explain the
    *   errors.
    */
@@ -141,7 +143,7 @@ class Profiles {
   }
 
   /**
-   * Groups the passed _profiles by id and returns the object.
+   * Groups the passed profiles (registry) by id and returns the object.
    *
    * @param registry
    * @return {Object}
