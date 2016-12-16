@@ -14,7 +14,7 @@ const PROFILES_CACHED = {}
  * @return {Promise} Resolves `true` or Array of errors.
  */
 export default function validate(descriptor, profile = 'base',
-  remoteProfiles = 'false') {
+  remoteProfiles = false) {
   const remoteString = remoteProfiles.toString()
 
   if (PROFILES_CACHED[remoteString]) {
