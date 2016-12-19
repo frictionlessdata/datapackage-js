@@ -1,5 +1,4 @@
 import Profiles from './profiles'
-import Utils from './utils'
 
 const PROFILES_CACHED = {}
 
@@ -13,19 +12,15 @@ const PROFILES_CACHED = {}
  * @param remoteProfiles
  * @return {Promise} Resolves `true` or Array of errors.
  */
-export default function validate(descriptor, profile = 'base',
-  remoteProfiles = false) {
+export default function validate(descriptor
+                               , profile = 'base'
+                               , remoteProfiles = false) {
   const remoteString = remoteProfiles.toString()
 
   if (PROFILES_CACHED[remoteString]) {
     return new Promise(resolve => {
       PROFILES_CACHED[remoteString].then(profiles => {
-        try {
-          const validatePromise = profiles.validate(descriptor, profile)
-          resolve(validatePromise)
-        } catch (err) {
-          resolve(Utils.errorsToStringArray(err))
-        }
+        resolve(profiles.validate(descriptor, profile))
       })
     })
   }
