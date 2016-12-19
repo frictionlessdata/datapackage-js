@@ -30,7 +30,7 @@ export default class Resource {
    * @returns {String}
    */
   get name() {
-    return this.descriptor['name']
+    return this.descriptor.name
   }
 
   /**
@@ -41,18 +41,17 @@ export default class Resource {
    */
   get type() {
     const resourceField = this._sourceKey
+        , protocol = url.parse(this.descriptor[resourceField]).protocol
 
     if (resourceField === 'data') {
       return 'inline'
     }
 
-    const protocol = url.parse(this.descriptor[resourceField])['protocol']
     if (_.includes(this.REMOTE_PROTOCOLS, protocol)) {
       return 'remote'
-    } else {
-      return 'local'
     }
 
+    return 'local'
   }
 
   /**
@@ -76,8 +75,8 @@ export default class Resource {
    */
   get table() {
     if (!this._table) {
-      this._table = new Promise((resolve) => {
-        new jts.Table(this.descriptor['schema'], this.source).then((res) => {
+      this._table = new Promise(resolve => {
+        new jts.Table(this.descriptor.schema, this.source).then(res => {
           resolve(res)
         }).catch(() => {
           resolve(null)
@@ -95,13 +94,12 @@ export default class Resource {
    * @private
    */
   get _sourceKey() {
-    const inlineData = this.descriptor['data']
-    const path = this.descriptor['path']
+    const inlineData = this.descriptor.data
 
     if (inlineData) {
       return 'data'
-    } else {
-      return 'path'
     }
+
+    return 'path'
   }
 }

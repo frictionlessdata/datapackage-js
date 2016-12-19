@@ -1,0 +1,26 @@
+{
+  "name": "Tabular datapackage",
+  "resources": [
+    {
+      "name": "books",
+      "format": "csv",
+      "path": "data.csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "author",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "type": "integer"
+          }
+        ]
+      }
+    }
+  ]
+}
