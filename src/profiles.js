@@ -61,6 +61,10 @@ class Profiles {
    */
   validate(descriptor, profile = 'base') {
     function _tv4validation(data, schema) {
+      if (schema === null) {
+        return ['Error loading requested profile.']
+      }
+
       const validation = tv4.validateMultiple(data, schema)
       if (validation.valid) {
         return true

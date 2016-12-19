@@ -80,10 +80,6 @@ class Utils {
    * @return {Array}
    */
   static errorsToStringArray(values) {
-    if (values.message === "Cannot read property '$ref' of null") {
-      return ['Error loading requested profile.']
-    }
-
     const result = []
     _.forEach(values, error => {
       let errorMessage = error.message
