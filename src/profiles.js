@@ -56,7 +56,7 @@ class Profiles {
    * @param {Object} descriptor The descriptor that needs to be validated
    * @param {Object|String} profile Schema to validate against, could be ID of a
    * profile or profile Object
-   * @return {Promise} Resolves `true` or array of strings which explain the
+   * @return {true|Array} Resolves `true` or array of strings which explain the
    *   errors.
    */
   validate(descriptor, profile = 'base') {
