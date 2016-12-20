@@ -50,7 +50,7 @@ describe('Datapackage', () => {
     it('updates the descriptor', async () => {
       const datapackage = await new Datapackage('data/dp1/datapackage.json')
 
-      await datapackage.update({ name: 'New Name' })
+      datapackage.update({ name: 'New Name' })
 
       assert(datapackage.descriptor.name === 'New Name', 'Datapackage not updated')
     })
@@ -59,7 +59,7 @@ describe('Datapackage', () => {
       const datapackage = await new Datapackage('data/dp1/datapackage.json')
 
       try {
-        await datapackage.update({ resources: 'not array' })
+        datapackage.update({ resources: 'not array' })
         assert(false, 'Datapackage was not properly validated')
       } catch (err) {
         assert(err instanceof Array, 'Invalid rejection')
@@ -70,7 +70,7 @@ describe('Datapackage', () => {
       const datapackage = await new Datapackage('data/dp1/datapackage.json')
 
       try {
-        await datapackage.update({ resources: 'not array' })
+        datapackage.update({ resources: 'not array' })
         assert(false, 'invalid descriptor updated')
       } catch (err) {
         assert(datapackage.descriptor.resources instanceof Array)
@@ -81,9 +81,10 @@ describe('Datapackage', () => {
       const datapackage = await new Datapackage('data/dp2-tabular/datapackage.json')
 
       try {
-        await datapackage.update({ resources: [{ name: 'new resource' }] })
+        datapackage.update({ resources: [{ name: 'new resource' }] })
         assert(false, 'Updating the resources should reject')
       } catch (err) {
+        console.log(err)
         assert(err instanceof Array, 'Promise not rejected with Array')
       }
     })
@@ -92,7 +93,7 @@ describe('Datapackage', () => {
       const datapackage = await new Datapackage('data/dp2-tabular/datapackage.json', 'base', false)
 
       try {
-        await datapackage.update({ resources: 'not array' })
+        datapackage.update({ resources: 'not array' })
         assert(datapackage.errors.length > 0)
         assert(!datapackage.valid, 'Datapackage should not be valid')
       } catch (err) {
@@ -106,11 +107,11 @@ describe('Datapackage', () => {
       const datapackage = await new Datapackage('data/dp1/datapackage.json')
 
       try {
-        await datapackage.addResource({ data: 'test' })
+        datapackage.addResource({ data: 'test' })
         assert(datapackage.resources.length === 2, 'Resource missing from resources getter')
         assert(datapackage.descriptor.resources[1].data === 'test', 'Test resource property not found')
       } catch (err) {
-        assert(false, err)
+        assert(false, err.join())
       }
     })
 
@@ -119,10 +120,10 @@ describe('Datapackage', () => {
           , dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
 
       try {
-        await datapackage.addResource(JSON.parse(dp1).resources[0])
+        datapackage.addResource(JSON.parse(dp1).resources[0])
         assert(datapackage.resources.length === 1, 'Added duplicate resource')
       } catch (err) {
-        assert(false, err)
+        assert(false, err.join())
       }
     })
 
@@ -130,7 +131,7 @@ describe('Datapackage', () => {
       const datapackage = await new Datapackage('data/dp1/datapackage.json')
 
       try {
-        await datapackage.addResource({})
+        datapackage.addResource({})
       } catch (err) {
         assert(err instanceof Array, 'Rejected with non Array value')
         assert(err.length === 1, 'Array contains more errors')

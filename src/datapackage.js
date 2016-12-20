@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-import validate from './validate'
 import Resource from './resource'
+import Profiles from './profiles'
 import Utils from './utils'
 
 /* Base class for working with datapackages */
@@ -9,11 +9,11 @@ class DataPackage {
   /**
    * Create a Promise that will resolve with DataPackage instance.
    *
-   * @param {Object} descriptor - a datapackage descriptor
-   * @param {String} [profile='base']
-   * @param {Boolean} [raiseInvalid=true]
-   * @param {Boolean} [remoteProfiles=false]
-   * @return {Promise} - Resolves in class instance
+   * @param {Object|String} descriptor - A datapackage descriptor Object or an URI string
+   * @param {String} [profile='base'] - Profile to validate against
+   * @param {Boolean} [raiseInvalid=true] - Throw errors if validation fails
+   * @param {Boolean} [remoteProfiles=false] - Use the remote profiles
+   * @return {Promise} - Resolves in class instance or rejects with errors
    */
   constructor(descriptor, profile = 'base', raiseInvalid = true
             , remoteProfiles = false) {
@@ -24,14 +24,15 @@ class DataPackage {
       self._raiseInvalid = raiseInvalid
       self._remoteProfiles = remoteProfiles
 
-      this._loadDescriptor(descriptor).then(theDescriptor => {
+      new Profiles(self._remoteProfiles).then(profilesInstance => {
+        self._Profiles = profilesInstance
+        return self._loadDescriptor(descriptor)
+      }).then(theDescriptor => {
         self._descriptor = theDescriptor
-        return self._validateDescriptor(self._descriptor
-                                      , profile
-                                      , raiseInvalid
-                                      , remoteProfiles)
-      }).then(validation => {
-        self._validationErrors(validation)
+        const valid = this._validateDescriptor(self.descriptor, self._profile)
+        if (!valid && self._raiseInvalid) {
+          reject(this._errors)
+        }
         self._resources = self._loadResources(self.descriptor)
 
         resolve(self)
@@ -81,93 +82,78 @@ class DataPackage {
    * Updates the current descriptor with the properties of the provided Object.
    * New properties are added and existing properties are replaced.
    *
-   * @param newDescriptor {Object}
-   * @return {Promise} Resolves in true or rejects with Array of errors
+   * @param {Object} newDescriptor
+   * @return {true} - Resolves true if the validation passes or raiseInvalid is `true`
+   * @throws {Array} - Will throw Array of Errors if validation fails when
+   * raiseInvalid is `false`, or when trying to alter the `resources` property
    */
   update(newDescriptor) {
-    // Check if altering resources but ignore if raiseInvalid is false
     if (this._resourcesAreSame(newDescriptor) || !this._raiseInvalid) {
-      let mergedDescriptors
+      const mergedDescriptors = _.assignIn({}, this.descriptor, newDescriptor)
+          , valid = this._validateDescriptor(mergedDescriptors, this._profile, this._raiseInvalid)
 
-      return new Promise((resolve, reject) => {
-        this._loadDescriptor(newDescriptor).then(theDescriptor => {
-          mergedDescriptors = _.extend({}, this.descriptor, theDescriptor)
-          return this._validateDescriptor(mergedDescriptors,
-                                          this._profile,
-                                          this._raiseInvalid,
-                                          this._remoteProfiles)
-        }).then(validation => {
-          this._descriptor = mergedDescriptors
-          this._validationErrors(validation)
+      if (!valid && this._raiseInvalid) {
+        throw new Array(this._errors)
+      }
+      this._descriptor = mergedDescriptors
 
-          resolve(true)
-        }).catch(err => {
-          reject(err)
-        })
-      })
+      return true
     }
 
-    return Promise.reject(
-      ['You have tried to alter the `resources` property. Please use the `addResource` method.'])
+    throw new Array(
+      ['Please use the "addResource" method for altering the resources'])
   }
 
   /**
    * Adds new resource to the datapackage and triggers validation of the datapackage.
    * When adding a resource that is already present in the datapackage, the
-   * provided resource will be omitted and the Promise will resolve with `true`.
+   * provided resource will be omitted and the return value will be `true`
    *
    * @param descriptor {Object}
-   * @return {Promise} Resolves in `true` or rejects with Array of errors
+   * @returns {true}
+   * @throws {Array} - Will throw Array of errors if validations fails and
+   * raiseInvalid is `true` or descriptor argument is not an Object
    */
   addResource(descriptor) {
     if (_.isObject(descriptor) && !_.isFunction(descriptor)) {
       const newResource = new Resource(descriptor)
-        , found = _.find(this.resources, resource => _.isEqual(resource, newResource))
+          , resourceFound = _.find(this.resources
+                                 , resource => _.isEqual(resource, newResource))
 
-      if (!found) {
+      if (!resourceFound) {
         const newDescriptor = this.descriptor
+            , valid = this._Profiles.validate(newDescriptor, this._profile)
         newDescriptor.resources.push(descriptor)
-
-        return new Promise((resolve, reject) => {
-          validate(newDescriptor, this._profile, this._remoteProfiles).then(res => {
-            if (res === true) {
-              this._descriptor = newDescriptor
-              this._resources.push(new Resource(descriptor))
-              resolve(true)
-            }
-
-            reject(res)
-          })
-        })
+        if (!valid && this._raiseInvalid) {
+          throw new Array(this._errors)
+        }
+        this._descriptor = newDescriptor
+        this._resources.push(new Resource(descriptor))
+        return true
       }
 
-      return Promise.resolve(true)
+      return true
     }
 
-    return Promise.reject(['Resource provided is not an Object'])
+    throw new Array(['Resource provided is not an Object'])
   }
 
   /**
    * Validate the datapackage descriptor
    *
-   * @param descriptor
-   * @param profile
-   * @param raiseInvalid
-   * @param remoteProfiles
-   * @return {Promise}
+   * @param {Object} descriptor
+   * @param {Object|String} profile
+   * @returns {Boolean}
    * @private
    */
-  _validateDescriptor(descriptor, profile, raiseInvalid, remoteProfiles) {
-    return new Promise((resolve, reject) => {
-      validate(descriptor, profile, remoteProfiles).then(validation => {
-        if (validation instanceof Array) {
-          if (raiseInvalid) {
-            reject(validation)
-          }
-        }
-        resolve(validation)
-      })
-    })
+  _validateDescriptor(descriptor, profile) {
+    const validation = this._Profiles.validate(descriptor, profile)
+        , validationError = validation instanceof Array
+
+    this._errors = validationError ? validation : []
+    this._valid = !validationError
+
+    return this._valid
   }
 
   /**
@@ -193,23 +179,11 @@ class DataPackage {
   }
 
   /**
-   * Parse the validation output and populate _errors and _valid
-   *
-   * @param validation
-   * @private
-   */
-  _validationErrors(validation) {
-    const validationError = validation instanceof Array
-    this._errors = validationError ? validation : []
-    this._valid = !(validationError)
-  }
-
-  /**
    * Check if the provided descriptor has da same resources property as the
    * current descriptor
    *
    * @param newDescriptor
-   * @return {boolean}
+   * @return {Boolean}
    * @private
    */
   _resourcesAreSame(newDescriptor) {
