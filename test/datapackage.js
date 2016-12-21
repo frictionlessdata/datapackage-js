@@ -27,7 +27,7 @@ describe('Datapackage', () => {
       let error = null
 
       try {
-        const datapackage = await new Datapackage({}, 'base', true, false)
+        await new Datapackage({}, 'base', true, false)
       } catch (err) {
         error = err
       }
@@ -55,7 +55,7 @@ describe('Datapackage', () => {
       assert(datapackage.descriptor.name === 'New Name', 'Datapackage not updated')
     })
 
-    it('rejects with array of errors if updating does not validate', async () => {
+    it('throws array of errors if updating does not validate', async () => {
       const datapackage = await new Datapackage('data/dp1/datapackage.json')
 
       try {
@@ -77,14 +77,13 @@ describe('Datapackage', () => {
       }
     })
 
-    it('rejects with array of errors if the user is altering the resources', async () => {
+    it('throws array of errors if the user is altering the resources', async () => {
       const datapackage = await new Datapackage('data/dp2-tabular/datapackage.json')
 
       try {
         datapackage.update({ resources: [{ name: 'new resource' }] })
         assert(false, 'Updating the resources should reject')
       } catch (err) {
-        console.log(err)
         assert(err instanceof Array, 'Promise not rejected with Array')
       }
     })
@@ -93,9 +92,10 @@ describe('Datapackage', () => {
       const datapackage = await new Datapackage('data/dp2-tabular/datapackage.json', 'base', false)
 
       try {
-        datapackage.update({ resources: 'not array' })
+        const validation = datapackage.update({ resources: 'not array' })
+        assert(validation === false, 'Did not returned false on invalid update')
         assert(datapackage.errors.length > 0)
-        assert(!datapackage.valid, 'Datapackage should not be valid')
+        assert(datapackage.valid === false, 'Datapackage should not be valid')
       } catch (err) {
         assert(false, 'Update rejected when `raiseInvalid` is set to false')
       }
@@ -106,13 +106,10 @@ describe('Datapackage', () => {
     it('adds resource', async () => {
       const datapackage = await new Datapackage('data/dp1/datapackage.json')
 
-      try {
-        datapackage.addResource({ data: 'test' })
-        assert(datapackage.resources.length === 2, 'Resource missing from resources getter')
-        assert(datapackage.descriptor.resources[1].data === 'test', 'Test resource property not found')
-      } catch (err) {
-        assert(false, err.join())
-      }
+      const validation = datapackage.addResource({ data: 'test' })
+      assert(validation, `addResource returned ${typeof validation}`)
+      assert(datapackage.resources.length === 2, 'Resource missing from resources getter')
+      assert(datapackage.descriptor.resources[1].data === 'test', 'Test resource property not found')
     })
 
     it('doesn\'t add the same resource twice', async () => {
@@ -136,6 +133,14 @@ describe('Datapackage', () => {
         assert(err instanceof Array, 'Rejected with non Array value')
         assert(err.length === 1, 'Array contains more errors')
       }
+    })
+
+    it('silently adds the errors and marks package as invalid when raiseInvalid is `false`', async () => {
+      const datapackage = await new Datapackage('data/dp1/datapackage.json', 'base', false)
+
+      const validation = datapackage.addResource({})
+      assert(validation === false, 'Package not marked as invalid')
+      assert(datapackage.errors.length > 0, 'Validation errors not added')
     })
   })
 })
