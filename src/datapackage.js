@@ -7,12 +7,12 @@ import Utils from './utils'
 /* Base class for working with datapackages */
 class DataPackage {
   /**
-   * Create a Promise that will resolve with DataPackage instance.
+   * Returns a Promise that will resolve in Datapackage instance.
    *
    * @param {Object|String} descriptor - A datapackage descriptor Object or an URI string
    * @param {String} [profile='base'] - Profile to validate against
    * @param {Boolean} [raiseInvalid=true] - Throw errors if validation fails
-   * @param {Boolean} [remoteProfiles=false] - Use the remote profiles
+   * @param {Boolean} [remoteProfiles=false] - Use remote profiles
    * @return {Promise} - Resolves in class instance or rejects with errors
    */
   constructor(descriptor, profile = 'base', raiseInvalid = true
@@ -29,10 +29,8 @@ class DataPackage {
         return self._loadDescriptor(descriptor)
       }).then(theDescriptor => {
         self._descriptor = theDescriptor
-        const valid = this._validateDescriptor(self.descriptor, self._profile)
-        if (!valid && self._raiseInvalid) {
-          reject(this._errors)
-        }
+        const valid = self._validateDescriptor(self.descriptor, self._profile)
+        if (self._shouldRaise(valid)) reject(this._errors)
         self._resources = self._loadResources(self.descriptor)
 
         resolve(self)
@@ -81,23 +79,22 @@ class DataPackage {
   /**
    * Updates the current descriptor with the properties of the provided Object.
    * New properties are added and existing properties are replaced.
+   * Note: it doesn't do deep merging, it just adds/replaces top level properties
    *
    * @param {Object} newDescriptor
-   * @return {true} - Resolves true if the validation passes or raiseInvalid is `true`
+   * @return {Boolean} - Returns validation status of the package
    * @throws {Array} - Will throw Array of Errors if validation fails when
    * raiseInvalid is `false`, or when trying to alter the `resources` property
    */
   update(newDescriptor) {
     if (this._resourcesAreSame(newDescriptor) || !this._raiseInvalid) {
       const mergedDescriptors = _.assignIn({}, this.descriptor, newDescriptor)
-          , valid = this._validateDescriptor(mergedDescriptors, this._profile, this._raiseInvalid)
+          , valid = this._validateDescriptor(mergedDescriptors, this._profile)
 
-      if (!valid && this._raiseInvalid) {
-        throw new Array(this._errors)
-      }
+      if (this._shouldRaise(valid)) throw new Array(this._errors)
       this._descriptor = mergedDescriptors
 
-      return true
+      return this._valid
     }
 
     throw new Array(
@@ -107,10 +104,10 @@ class DataPackage {
   /**
    * Adds new resource to the datapackage and triggers validation of the datapackage.
    * When adding a resource that is already present in the datapackage, the
-   * provided resource will be omitted and the return value will be `true`
+   * provided resource will be omitted and the return value will be `true`.
    *
    * @param descriptor {Object}
-   * @returns {true}
+   * @returns {Boolean} - Returns validation status of the package
    * @throws {Array} - Will throw Array of errors if validations fails and
    * raiseInvalid is `true` or descriptor argument is not an Object
    */
@@ -122,14 +119,13 @@ class DataPackage {
 
       if (!resourceFound) {
         const newDescriptor = this.descriptor
-            , valid = this._Profiles.validate(newDescriptor, this._profile)
         newDescriptor.resources.push(descriptor)
-        if (!valid && this._raiseInvalid) {
-          throw new Array(this._errors)
-        }
+        const valid = this._validateDescriptor(newDescriptor, this._profile)
+        if (this._shouldRaise(valid)) throw new Array(this._errors)
         this._descriptor = newDescriptor
         this._resources.push(new Resource(descriptor))
-        return true
+
+        return this.valid
       }
 
       return true
@@ -188,7 +184,7 @@ class DataPackage {
    */
   _resourcesAreSame(newDescriptor) {
     if (newDescriptor.resources) {
-      if (newDescriptor.resources !== this.descriptor.resources) {
+      if (_.isEqual(newDescriptor.resources, this.descriptor.resources)) {
         return false
       }
     }
@@ -212,6 +208,20 @@ class DataPackage {
 
     return resources
   }
+
+  /**
+   * Returns true if errors should be raised depending on the validation result
+   * and the state of this._raiseInvalid
+   *
+   * @param valid
+   * @return {Boolean}
+   * @private
+   */
+  _shouldRaise(valid) {
+    return !valid && this._raiseInvalid
+  }
 }
 
 export default DataPackage
+
+/* eslint one-var: "off" */
