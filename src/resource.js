@@ -1,17 +1,19 @@
-
 import url from 'url'
 import jts from 'jsontableschema'
 import _ from 'lodash'
+import path from 'path'
 
-/**
- * Base class for all Data Package's resource types.
- *
- * @returns {Resource}
- */
+/* Base class for all Data Package's resource types. */
 export default class Resource {
-
-  constructor(descriptor) {
+  /**
+   * Create a Resource instance.
+   *
+   * @param {Object} descriptor
+   * @param {String} [basePath=null]
+   */
+  constructor(descriptor, basePath = null) {
     this._descriptor = descriptor
+    this._basePath = basePath
     this.REMOTE_PROTOCOLS = ['http:', 'https:', 'ftp:', 'ftps:']
   }
 
@@ -56,11 +58,18 @@ export default class Resource {
 
   /**
    * Returns the path where data is located or
-   * if the data is inline it returns the actual data
+   * if the data is inline it returns the actual data.
+   * If the source is a path, the basepath is prepended
+   * if provided on Resource initialization.
    *
    * @returns {String|Array|Object}
    */
   get source() {
+    if (this._sourceKey === 'path' && this._basePath) {
+      const resourcePath = this.descriptor[this._sourceKey]
+      return path.normalize(`${this._basePath}/${resourcePath}`)
+    }
+
     return this.descriptor[this._sourceKey]
   }
 
