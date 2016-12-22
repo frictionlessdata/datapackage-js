@@ -1,0 +1,30 @@
+{
+  "name": "Example datapackage",
+  "resources": [
+    {
+      "name": "random",
+      "data": [
+        [180, 18, "Tony"],
+        [192, 15, "Pavle"],
+        [160, 32, "Pero"],
+        [202, 23, "David"]
+      ],
+      "schema": {
+        "fields": [
+          {
+            "name": "height",
+            "type": "integer"
+          },
+          {
+            "name": "age",
+            "type": "integer"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}
