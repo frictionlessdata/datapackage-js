@@ -3,7 +3,7 @@ import { assert } from 'chai'
 import fs from 'fs'
 
 import Util from '../src/utils'
-import Profiles from '../src/profiles'
+import { Profiles } from '../src/index'
 
 describe('Profiles', () => {
   describe('#retrieve', () => {
@@ -87,6 +87,17 @@ describe('Profiles', () => {
           , path = profiles._basePath
 
       assert(path === null)
+    })
+  })
+
+  describe('README', () => {
+    it('#Example 1', done => {
+      new Profiles(true).then(profiles => {
+        assert(typeof profiles.retrieve('fiscal') === 'object')
+        done()
+      }).catch(err => {
+        done(err)
+      })
     })
   })
 })

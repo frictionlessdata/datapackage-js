@@ -42,4 +42,15 @@ describe('#Validate', () => {
       assert(validation[0] === 'Error loading requested profile.')
     })
   })
+
+  describe('README', () => {
+    it('#Example 1', done => {
+      validate({ name: "Invalid Datapackage" }).then(validation => {
+        if (validation instanceof Array) {
+          assert(validation.length > 0, 'No errors present')
+          done()
+        }
+      })
+    })
+  })
 })

@@ -4,7 +4,7 @@ import { assert } from 'chai'
 import _ from 'lodash'
 import parse from 'csv-parse/lib/sync'
 
-import Datapackage from '../src/datapackage'
+import { Datapackage } from '../src/index'
 
 describe('Datapackage', () => {
   describe('#new Datapackage', () => {
@@ -178,6 +178,38 @@ describe('Datapackage', () => {
       assert(validation === true, 'Added resource failed to validate')
       assert(datapackage.resources.length === 2, 'New resource not added to datapackge')
       assert(_.isEqual(data, expectedData), 'Wrong data loaded')
+    })
+  })
+
+  describe('README', () => {
+    const testDatapackage = 'http://bit.do/datapackage-json'
+
+    it('#Example', done => {
+      new Datapackage(testDatapackage).then(datapackage => {
+        datapackage.resources[0].table.then(table => {
+          table.read().then(data => {
+            assert(data, 'No data found')
+            assert(datapackage.descriptor, 'Descriptor no found')
+            assert(datapackage.resources.length > 0, 'Datapackage contains no resources')
+            datapackage.update({ name: 'Renamed datapackage' })
+            assert(datapackage.descriptor.name === 'Renamed datapackage', 'Datapackage not renamed')
+            done()
+          }).catch(err => {
+            done(err)
+          })
+        })
+      })
+    })
+
+    it('#Datapackage example', async (done) => {
+      new Datapackage(testDatapackage, 'base', false).then(datapackage => {
+        assert(datapackage.valid === true, 'Datapackage not valid')
+        assert(!datapackage.addResource({ name: "New Resource" }), 'Successfully added bogus resource')
+        assert(datapackage.errors.length > 0, 'Errors not found')
+        done()
+      }).catch(err => {
+        done(err)
+      })
     })
   })
 })

@@ -1,7 +1,7 @@
 import 'babel-polyfill'
 import { assert } from 'chai'
 import jts from 'jsontableschema'
-import Resource from '../src/resource'
+import { Resource } from '../src/index'
 import _ from 'lodash'
 import path from 'path'
 
@@ -174,6 +174,32 @@ describe('Resource', () => {
     it('returns \'local\' type', () => {
       let resource = new Resource(dp1.resources[0])
       assert(resource.type === 'local', 'Incorrect type for datapackage')
+    })
+  })
+
+  describe('README', () => {
+    it('#Example 1', () => {
+      const resourceData = [[180, 18, 'Tony'], [192, 15, 'Pavle'], [160, 32, 'Pero'], [202, 23, 'David']]
+          , resourceSchema = {
+                              "fields": [
+                                {
+                                  "name": "height",
+                                  "type": "integer"
+                                },
+                                {
+                                  "name": "age",
+                                  "type": "integer"
+                                },
+                                {
+                                  "name": "name",
+                                  "type": "string"
+                                }
+                              ]
+                            }
+          , resource = new Resource({ data: resourceData, schema: resourceSchema })
+
+      assert(resource.type === 'inline', 'Data type not inline')
+      assert(resource.source === resourceData)
     })
   })
 })
