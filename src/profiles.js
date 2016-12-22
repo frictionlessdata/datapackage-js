@@ -10,14 +10,14 @@ if (!Utils.isBrowser) {
   DEFAULT_LOCAL_PATH = path.join(__dirname, '..', 'schemas', 'registry.csv')
 }
 
-/**
- * Base class for retrieving profile schemas and validating datapackage
- * descriptors against profiles.
- *
- * @param {Boolean} [remote=false]
- * @returns {Promise}
- */
+/* Base class for retrieving profile schemas and validating datapackage */
 class Profiles {
+  /**
+   * Create a Profiles instance for working with datapackage profiles.
+   *
+   * @param {Boolean} [remote=false]
+   * @returns {Promise}
+   */
   constructor(remote = false) {
     const self = this
         , PATH = (remote || Utils.isBrowser) ? DEFAULT_REMOTE_PATH :
