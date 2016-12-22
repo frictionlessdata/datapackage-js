@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import path from 'path'
 
 import Resource from './resource'
 import Profiles from './profiles'
@@ -13,16 +14,19 @@ class DataPackage {
    * @param {String} [profile='base'] - Profile to validate against
    * @param {Boolean} [raiseInvalid=true] - Throw errors if validation fails
    * @param {Boolean} [remoteProfiles=false] - Use remote profiles
+   * @param {String|path} [basePath=null] - Base path for the resources. If the provided
+   * descriptor is a local path to a file, the default value is the dirname of the path.
    * @return {Promise} - Resolves in class instance or rejects with errors
    */
   constructor(descriptor, profile = 'base', raiseInvalid = true
-            , remoteProfiles = false) {
+            , remoteProfiles = false, basePath) {
     const self = this
 
     return new Promise((resolve, reject) => {
       self._profile = profile
       self._raiseInvalid = raiseInvalid
       self._remoteProfiles = remoteProfiles
+      self._basePath = basePath || self._getBasePath(descriptor)
 
       new Profiles(self._remoteProfiles).then(profilesInstance => {
         self._Profiles = profilesInstance
@@ -113,7 +117,7 @@ class DataPackage {
    */
   addResource(descriptor) {
     if (_.isObject(descriptor) && !_.isFunction(descriptor)) {
-      const newResource = new Resource(descriptor)
+      const newResource = new Resource(descriptor, this._basePath)
           , resourceFound = _.find(this.resources
                                  , resource => _.isEqual(resource, newResource))
 
@@ -123,7 +127,7 @@ class DataPackage {
         const valid = this._validateDescriptor(newDescriptor, this._profile)
         if (this._shouldRaise(valid)) throw new Array(this._errors)
         this._descriptor = newDescriptor
-        this._resources.push(new Resource(descriptor))
+        this._resources.push(new Resource(descriptor, this._basePath))
 
         return this.valid
       }
@@ -203,7 +207,7 @@ class DataPackage {
     const resources = []
 
     _.forEach(descriptor.resources, resource => {
-      resources.push(new Resource(resource))
+      resources.push(new Resource(resource, this._basePath))
     })
 
     return resources
@@ -219,6 +223,24 @@ class DataPackage {
    */
   _shouldRaise(valid) {
     return !valid && this._raiseInvalid
+  }
+
+  /**
+   * Returns the basepath from the path of the current descriptor if it is a
+   * local path.
+   *
+   * @param {String} descriptor
+   * @return {String|null}
+   * @private
+   */
+  _getBasePath(descriptor) {
+    if (typeof descriptor === 'string') {
+      if (!Utils.isRemoteURL(descriptor)) {
+        return path.dirname(descriptor)
+      }
+    }
+
+    return null
   }
 }
 

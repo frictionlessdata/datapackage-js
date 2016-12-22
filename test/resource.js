@@ -3,6 +3,7 @@ import { assert } from 'chai'
 import jts from 'jsontableschema'
 import Resource from '../src/resource'
 import _ from 'lodash'
+import path from 'path'
 
 import dp1 from '../data/dp1/datapackage.json'
 
@@ -90,6 +91,23 @@ describe('Resource', () => {
        let table = await resource.table
        assert(table === null, 'Returned value not null')
      })
+
+  describe('_basePath', () => {
+    it('accepts a basePath', () => {
+      const basePath = 'data/dp1'
+        , resource = new Resource(dp1.resources[0], basePath)
+        , resourceBasePath = resource.source
+
+      assert(path.dirname(resourceBasePath) === path.normalize(basePath), 'Incorrect base path')
+    })
+
+    it('_basePath is `null` if basePath argument is not provided', () => {
+      const resource = new Resource({})
+        , source = resource._basePath
+
+      assert(source === null, 'basePath not `null`')
+    })
+  })
 
   describe('Tests with dp1 from data', () => {
     let dpResources = []

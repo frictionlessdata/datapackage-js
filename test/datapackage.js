@@ -2,6 +2,7 @@ import 'babel-polyfill'
 import fs from 'fs'
 import { assert } from 'chai'
 import _ from 'lodash'
+import parse from 'csv-parse/lib/sync'
 
 import Datapackage from '../src/datapackage'
 
@@ -141,6 +142,42 @@ describe('Datapackage', () => {
       const validation = datapackage.addResource({})
       assert(validation === false, 'Package not marked as invalid')
       assert(datapackage.errors.length > 0, 'Validation errors not added')
+    })
+
+    it('provides the dirname of the descriptor as basePath to the Resource instances', async () => {
+      const datapackage = await new Datapackage('data/dp2-tabular/datapackage.json', 'tabular')
+          , newResource = {
+                            "name": "books",
+                            "format": "csv",
+                            "path": "data2.csv",
+                            "schema": {
+                              "fields": [
+                                {
+                                  "name": "year",
+                                  "type": "integer"
+                                },
+                                {
+                                  "name": "title",
+                                  "type": "string"
+                                },
+                                {
+                                  "name": "director",
+                                  "type": "string"
+                                }
+                              ]
+                            }
+                          }
+          , expectedText = fs.readFileSync('data/dp2-tabular/data2.csv', 'utf8')
+          , expectedData = parse(expectedText, { auto_parse: true })
+
+      expectedData.shift()
+      const validation = datapackage.addResource(newResource)
+          , table = await datapackage.resources[1].table
+          , data = await table.read()
+
+      assert(validation === true, 'Added resource failed to validate')
+      assert(datapackage.resources.length === 2, 'New resource not added to datapackge')
+      assert(_.isEqual(data, expectedData), 'Wrong data loaded')
     })
   })
 })
