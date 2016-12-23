@@ -10,31 +10,12 @@ Recommended way to get started is to create and activate a project environment. 
 $ npm install
 ```
 
-## Linting
-
-In project [Eslint](http://eslint.org) is using. Configuration is in `eslintrc`.
-
-For example to check only:
-```
-$ npm run review
-```
-
-To fix all errors automatically:
-
-```
-$ npm run fix
-```
-
 ## Testing
 
-To run tests:
+To run tests with converage and linting:
 
 ```
 $ npm test
 ```
 
-To run tests with coverage:
-
-```
-$ npm run coverage
 ```

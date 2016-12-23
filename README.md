@@ -1,6 +1,8 @@
-# DataPackage-js
+# datapackage-js
 
-[![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/frictionlessdata/chat) [![Travis Build Status](https://travis-ci.org/frictionlessdata/datapackage-js.svg?branch=master)](https://travis-ci.org/frictionlessdata/datapackage-js) [![Coverage Status](https://coveralls.io/repos/github/frictionlessdata/datapackage-js/badge.svg?branch=master)](https://coveralls.io/github/frictionlessdata/datapackage-js?branch=master)
+[![Travis Build Status](https://travis-ci.org/frictionlessdata/datapackage-js.svg?branch=master)](https://travis-ci.org/frictionlessdata/datapackage-js)
+[![Coverage Status](https://coveralls.io/repos/github/frictionlessdata/datapackage-js/badge.svg?branch=master)](https://coveralls.io/github/frictionlessdata/datapackage-js?branch=master)
+[![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/frictionlessdata/chat)
 
 A model for working with [Data Packages].
 
@@ -19,16 +21,13 @@ A model for working with [Data Packages].
 
 ##Installation
 
-```
-git clone  https://github.com/frictionlessdata/datapackage-js.git
-cd datapackage-js
-npm install
-npm test
+```bash
+$ npm install datapackage-js
 ```
 
 ##Example
 
-```
+```javascript
 import Datapackage from 'datapackage'
 
 new Datapackage('http://bit.do/datapackage-json').then(datapackage => {
@@ -51,12 +50,11 @@ new Datapackage('http://bit.do/datapackage-json').then(datapackage => {
 })
 ```
 
-
 ##Datapackage
 
 A base class for working with datapackages. It provides means for modifying the datapackage descriptor and adding resources, handling validation on along the process.
 
-```
+```javascript
 import Datapackage from 'datapackage'
 
 new Datapackage('http://bit.do/datapackage-json', 'base', false).then(datapackage => {
@@ -118,7 +116,8 @@ Method for adding a resource to the datapackage.
 ##Resource
 
 A class for working with resources. You can read or iterate resources with the `table` method.
-```
+
+```javascript
 import { Resources } from 'datapackage'
 
 const resourceData = [[180, 18, 'Tony'], [192, 32, 'Jacob']]
@@ -175,7 +174,7 @@ JSON Table Schema ([specs](http://specs.frictionlessdata.io/json-table-schema)) 
 
 ##Profiles
 
-```
+```javascript
 import { Profiles } from 'datapackage'
 
 # use remote profiles
@@ -209,7 +208,7 @@ A class for working with validation profiles.
 
 ##validate
 
-```
+```javascript
 import { validate } from 'datapackage'
 
 validate({ name: "Invalid Datapackage" }).then(validation => {
@@ -233,13 +232,15 @@ A wrapper function around `Profiles.validate` for validating datapackages.
 ###Updating the local profiles
 
 You can check whether there are newer profiles available by running:
-```
-npm run check-schemas
+
+```bash
+$ npm run check-schemas
 ```
 
 If newer profiles are available you can update the local copies by running:
-```
-npm run update-schemas
+
+```bash
+$ npm run update-schemas
 ```
 
 

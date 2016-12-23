@@ -10,7 +10,19 @@ node_js:
 
 script:
   - npm run test
-  - npm run review
 
 after_script:
   - "node_modules/.bin/babel-node node_modules/.bin/babel-istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+
+before_deploy:
+  - npm run build
+
+deploy:
+  provider: npm
+  email: "eskarev@gmail.com"
+  skip_cleanup: true
+  on:
+    tags: true
+    branch: master
+  api_key:
+    secure: Te6s0RvDTz4mwU7yHRt4gcha8PFNIqYdkOQ6Tp20uxJmPoqJgEgKAli2Sq/0r8SAvdxH6GMvOmzdnrIQ6h5T8vGOWlp4qEO8Opvk4Gg7yEW1qcYNF+Butka+CaDlBaSEEE/sra37xVEJQUOoYQjSxsz9wAQhBygz8i2RufNQUsMbUO2eeLB5BALKlvMwhwtaL/oRA/82AlURp5tjNDF91PIdPG4uuY4fAplTa9Chlnq1tDDmlNMxg378RU9AnjBMpQ91hQaYbrx98OLNG2ULBD8jRT4FDnVhibHRZG9Nwbjv63uaw4gxWa8IIUj1qsMYM6QPEIx2GM+YskmhFUBUjkUOt8a/2Sf2kZB6bXTDNBh8bU9e2gKCPciCGQGDC0yomAzmC+I3uruC7yJEXpXOx2pvzS59PNU6lEdOM7ahvnj1cZN9XBw2j2D6cST344e42I/wEtnSx/aInVDonKKljSjIEyXq9Qfm7/wUQzNpcFRF3MgEBtbNmVFhehqDN+WIBv4LYztI5nV1ns+UotpZahgxDXGGB8B4ub5CTGcdpYUyCbHuTwT5vtarme+qOOmbYIVj3QSYjLE9rpLOGxKflJ5nwSEE5QAk02dhRWnYlzvQNh7Qrt2/qBjQBCfw7AdXqRtttaRKlmuhvJC7+qVopgqfGkfQIhHHIKjJ0qkyH5E=
