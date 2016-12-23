@@ -59,10 +59,10 @@
     "build:dist:min": "NODE_ENV=production webpack --config webpack.js",
     "build": "npm run build:lib && npm run build:dist && npm run build:dist:min",
     "pretest": "npm run lint",
-    "lint": "eslint src test utils",
+    "lint": "eslint scripts src test",
     "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc",
-    "check-schemas": "babel-node utils/schemas.js check",
-    "update-schemas": "babel-node utils/schemas.js update"
+    "schemas:check": "babel-node scripts/schemas.js check",
+    "schemas:update": "babel-node scripts/schemas.js update"
   },
   "author": {
     "name": "Open Knowledge",

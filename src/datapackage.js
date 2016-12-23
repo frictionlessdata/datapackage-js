@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import path from 'path'
+import Utils from './utils'
 import Resource from './resource'
 import Profiles from './profiles'
-import Utils from './utils'
 
 
 // Module API

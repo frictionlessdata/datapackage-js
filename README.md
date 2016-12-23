@@ -198,13 +198,13 @@ A wrapper function around `Profiles.validate` for validating datapackages.
 You can check whether there are newer profiles available by running:
 
 ```bash
-$ npm run check-schemas
+$ npm run schemas:check
 ```
 
 If newer profiles are available you can update the local copies by running:
 
 ```bash
-$ npm run update-schemas
+$ npm run schemas:update
 ```
 
 [Data Packages]: http://dataprotocols.org/data-packages/
