@@ -3,13 +3,13 @@ import 'isomorphic-fetch'
 import path from 'path'
 import _ from 'lodash'
 
-import utils from './utils'
+import utils from '../src/utils'
 
 const registryURL = 'http://schemas.datapackages.org/registry.csv'
   , schemasDir = path.join(__dirname, '..', 'schemas')
   , firstArg = process.argv[2]
 
-if (firstArg === 'check-schemas') {
+if (firstArg === 'check') {
   console.log('checking')
   fetch(registryURL).then(res => res.text())
     .then(text => {
@@ -23,7 +23,7 @@ if (firstArg === 'check-schemas') {
       console.log('New schemas available. Run "npm run update-schemas" to update.')
       process.exit(-1)
     })
-} else if (firstArg === 'update-schemas') {
+} else if (firstArg === 'update') {
   fetch(registryURL).then(res => res.text())
     .then(text => {
       fs.writeFileSync(path.join(schemasDir, 'registry.csv'), text)

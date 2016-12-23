@@ -61,9 +61,9 @@
     "review": "eslint src/**",
     "fix": "eslint --fix src/**",
     "test": "mocha",
-    "coverage": "node_modules/.bin/babel-node node_modules/.bin/babel-istanbul cover node_modules/.bin/_mocha -- test/*.js",
-    "check-schemas": "node_modules/.bin/babel-node src/cli.js check-schemas",
-    "update-schemas": "node_modules/.bin/babel-node src/cli.js update-schemas"
+    "coverage": "babel-node node_modules/.bin/babel-istanbul cover _mocha -- test/*.js",
+    "check-schemas": "babel-node utils/schemas.js check",
+    "update-schemas": "babel-node utils/schemas.js update"
   },
   "author": {
     "name": "Open Knowledge",
