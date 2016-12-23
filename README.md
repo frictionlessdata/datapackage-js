@@ -112,7 +112,6 @@ Method for adding a resource to the datapackage.
 ####.**resources**
 #####**Returns**: array of `Resource` class objects
 
-
 ##Resource
 
 A class for working with resources. You can read or iterate resources with the `table` method.
@@ -171,41 +170,6 @@ JSON Table Schema ([specs](http://specs.frictionlessdata.io/json-table-schema)) 
 ####.**source**
 #####**Returns**: the resource data if the resource is `inline`, the path if the resource is remote or the path prepended with the `basePath` if the resource is `local`
 
-
-##Profiles
-
-```javascript
-import { Profiles } from 'datapackage'
-
-# use remote profiles
-new Profiles(true).then(profiles => {
-	# output the fiscal profile
-	const fiscalProfile = profiles.retrieve('fiscal')
-	console.log(fiscalProfile)
-})
-```
-
-A class for working with validation profiles.
-
-###Constructor
-####**new Profiles**({Boolean} **remote**)
-#####**Returns**: a Promise that resolves in a class instance or rejects with Array of errors
-
- - **remote** is a option argument to to specify if you want to use the remote profiles or use the local copies
-
-###Class methods
-####**.retrieve**({String} **profile**)
-#####**Returns**: the profile Object specified
-
- - **profile** (defaults to `base`) is an optional argument to specify the id of the profile to retrive
-
-####**.validate**({Object} **descriptor**, {Object|String} **profile**)
-#####**Returns**: `true` for valid descriptor or Array of string errors if the validation failed
-
- - **descriptor** the datapackage descriptor to validate
- - **profile** (defaults to `base`) is an id of the profile for the descriptor to be validated against or a Object profile
-
-
 ##validate
 
 ```javascript
@@ -242,7 +206,6 @@ If newer profiles are available you can update the local copies by running:
 ```bash
 $ npm run update-schemas
 ```
-
 
 [Data Packages]: http://dataprotocols.org/data-packages/
 [assignIn]: https://lodash.com/docs/4.17.2#assignIn

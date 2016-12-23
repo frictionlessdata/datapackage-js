@@ -1,9 +1,11 @@
 import 'babel-polyfill'
 import { assert } from 'chai'
 import fs from 'fs'
-
 import Util from '../src/utils'
-import { Profiles } from '../src/index'
+import Profiles from '../src/profiles'
+
+
+// Tests
 
 describe('Profiles', () => {
   describe('#retrieve', () => {

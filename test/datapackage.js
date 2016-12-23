@@ -3,8 +3,10 @@ import fs from 'fs'
 import { assert } from 'chai'
 import _ from 'lodash'
 import parse from 'csv-parse/lib/sync'
-
 import { Datapackage } from '../src/index'
+
+
+// Tests
 
 describe('Datapackage', () => {
   describe('#new Datapackage', () => {

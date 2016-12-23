@@ -1,10 +1,15 @@
 import url from 'url'
-import jts from 'jsontableschema'
 import _ from 'lodash'
 import path from 'path'
+import jts from 'jsontableschema'
 
-/* Base class for all Data Package's resource types. */
+
+// Module API
+
 export default class Resource {
+
+  // Public
+
   /**
    * Create a Resource instance.
    *
@@ -95,6 +100,8 @@ export default class Resource {
     }
     return this._table
   }
+
+  // Private
 
   /**
    * Private function used to identify if the descriptor contains inline data

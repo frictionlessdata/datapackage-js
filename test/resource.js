@@ -4,8 +4,10 @@ import jts from 'jsontableschema'
 import { Resource } from '../src/index'
 import _ from 'lodash'
 import path from 'path'
-
 import dp1 from '../data/dp1/datapackage.json'
+
+
+// Tests
 
 describe('Resource', () => {
 

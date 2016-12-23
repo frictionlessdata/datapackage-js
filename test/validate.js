@@ -1,7 +1,9 @@
 import fs from 'fs'
 import { assert } from 'chai'
-
 import { validate } from '../src/index'
+
+
+// Tests
 
 describe('#Validate', () => {
   describe('Using local profiles', () => {

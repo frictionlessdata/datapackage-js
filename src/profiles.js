@@ -165,5 +165,3 @@ class Profiles {
 }
 
 export default Profiles
-
-/* eslint arrow-body-style: "off" */
