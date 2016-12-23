@@ -17,9 +17,6 @@ rules:
   semi:
     - error
     - never
-  comma-style:
-    - error
-    - first
   comma-dangle:
     - error
     - never

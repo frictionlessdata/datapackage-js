@@ -1,13 +1,16 @@
+/* eslint no-console: "off" */
 import fs from 'fs'
 import 'isomorphic-fetch'
 import path from 'path'
 import _ from 'lodash'
-
 import utils from '../src/utils'
 
+
+// Main
+
 const registryURL = 'http://schemas.datapackages.org/registry.csv'
-  , schemasDir = path.join(__dirname, '..', 'schemas')
-  , firstArg = process.argv[2]
+const schemasDir = path.join(__dirname, '..', 'schemas')
+const firstArg = process.argv[2]
 
 if (firstArg === 'check') {
   console.log('checking')
@@ -37,5 +40,3 @@ if (firstArg === 'check') {
       })
     })
 }
-
-/* eslint no-console: "off" */
