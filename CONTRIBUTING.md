@@ -17,5 +17,3 @@ To run tests with converage and linting:
 ```
 $ npm test
 ```
-
-```
