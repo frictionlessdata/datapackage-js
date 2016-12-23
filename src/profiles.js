@@ -1,8 +1,10 @@
 import tv4 from 'tv4'
 import _ from 'lodash'
 import path from 'path'
-
 import Utils from './utils'
+
+
+// Internal
 
 const DEFAULT_REMOTE_PATH = 'http://schemas.datapackages.org/registry.csv'
 let DEFAULT_LOCAL_PATH
@@ -10,8 +12,13 @@ if (!Utils.isBrowser) {
   DEFAULT_LOCAL_PATH = path.join(__dirname, '..', 'schemas', 'registry.csv')
 }
 
-/* Base class for retrieving profile schemas and validating datapackage */
-class Profiles {
+
+// Module API
+
+export default class Profiles {
+
+  // Public
+
   /**
    * Create a Profiles instance for working with datapackage profiles.
    *
@@ -20,8 +27,7 @@ class Profiles {
    */
   constructor(remote = false) {
     const self = this
-        , PATH = (remote || Utils.isBrowser) ? DEFAULT_REMOTE_PATH :
-                 DEFAULT_LOCAL_PATH
+    const PATH = (remote || Utils.isBrowser) ? DEFAULT_REMOTE_PATH : DEFAULT_LOCAL_PATH
 
     return new Promise((resolve, reject) => {
       this._loadRegistry(PATH).then(registry => {
@@ -80,7 +86,7 @@ class Profiles {
     return _tv4validation(descriptor, this.retrieve(profile))
   }
 
-  // ------ Private methods  -------
+  // Private
 
   /**
    * Returns all _profiles grouped by id.
@@ -163,5 +169,3 @@ class Profiles {
     return groupedRegistry
   }
 }
-
-export default Profiles

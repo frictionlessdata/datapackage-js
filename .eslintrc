@@ -30,10 +30,7 @@ rules:
     - error
     - nofunc
   one-var:
-    - warn
-    - var: always
-      let: always
-      const: always
+    - off
   eqeqeq:
     - warn
     - smart
@@ -52,4 +49,8 @@ rules:
   class-methods-use-this:
     - off
   arrow-body-style:
+    - off
+  padded-blocks:
+    - off
+  global-require:
     - off

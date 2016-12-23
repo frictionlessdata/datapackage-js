@@ -3,14 +3,22 @@ import 'isomorphic-fetch'
 import _ from 'lodash'
 import path from 'path'
 
-const isBrowser = typeof window !== 'undefined'
+
+// Internal
 
 let fs
+const isBrowser = typeof window !== 'undefined'
 if (!isBrowser) {
   fs = require('fs')
 }
 
-class Utils {
+
+// Module API
+
+export default class Utils {
+
+  // Public
+
   /**
    * Checks if the provided path is a remote URL
    *
@@ -95,6 +103,21 @@ class Utils {
   }
 
   /**
+   * Loads the base path (dirname) of the path.
+   *
+   * @param pathOrURL
+   * @return {String|null}
+   */
+  static getDirname(pathOrURL) {
+    if (!Utils.isBrowser && !Utils.isRemoteURL(pathOrURL)) {
+      return path.dirname(path.resolve(pathOrURL))
+    }
+    return null
+  }
+
+  // Private
+
+  /**
    * Simple Promise wrapper around csv-parse.parse
    *
    * @param text
@@ -112,21 +135,4 @@ class Utils {
       })
     })
   }
-
-  /**
-   * Loads the base path (dirname) of the path.
-   *
-   * @param pathOrURL
-   * @return {String|null}
-   */
-  static getDirname(pathOrURL) {
-    if (!Utils.isBrowser && !Utils.isRemoteURL(pathOrURL)) {
-      return path.dirname(path.resolve(pathOrURL))
-    }
-    return null
-  }
 }
-
-export default Utils
-
-/* eslint global-require: "off" */

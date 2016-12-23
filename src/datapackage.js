@@ -1,12 +1,16 @@
 import _ from 'lodash'
 import path from 'path'
-
 import Resource from './resource'
 import Profiles from './profiles'
 import Utils from './utils'
 
-/* Base class for working with datapackages */
-class DataPackage {
+
+// Module API
+
+export default class DataPackage {
+
+  // Public
+
   /**
    * Returns a Promise that will resolve in Datapackage instance.
    *
@@ -18,8 +22,9 @@ class DataPackage {
    * descriptor is a local path to a file, the default value is the dirname of the path.
    * @return {Promise} - Resolves in class instance or rejects with errors
    */
-  constructor(descriptor, profile = 'base', raiseInvalid = true
-            , remoteProfiles = false, basePath) {
+  constructor(descriptor, profile = 'base', raiseInvalid = true,
+    remoteProfiles = false, basePath) {
+
     const self = this
 
     return new Promise((resolve, reject) => {
@@ -93,7 +98,7 @@ class DataPackage {
   update(newDescriptor) {
     if (this._resourcesAreSame(newDescriptor) || !this._raiseInvalid) {
       const mergedDescriptors = _.assignIn({}, this.descriptor, newDescriptor)
-          , valid = this._validateDescriptor(mergedDescriptors, this._profile)
+      const valid = this._validateDescriptor(mergedDescriptors, this._profile)
 
       if (this._shouldRaise(valid)) throw new Array(this._errors)
       this._descriptor = mergedDescriptors
@@ -118,8 +123,8 @@ class DataPackage {
   addResource(descriptor) {
     if (_.isObject(descriptor) && !_.isFunction(descriptor)) {
       const newResource = new Resource(descriptor, this._basePath)
-          , resourceFound = _.find(this.resources
-                                 , resource => _.isEqual(resource, newResource))
+      const resourceFound = _.find(
+        this.resources, resource => _.isEqual(resource, newResource))
 
       if (!resourceFound) {
         const newDescriptor = this.descriptor
@@ -138,6 +143,8 @@ class DataPackage {
     throw new Array(['Resource provided is not an Object'])
   }
 
+  // Private
+
   /**
    * Validate the datapackage descriptor
    *
@@ -148,7 +155,7 @@ class DataPackage {
    */
   _validateDescriptor(descriptor, profile) {
     const validation = this._Profiles.validate(descriptor, profile)
-        , validationError = validation instanceof Array
+    const validationError = validation instanceof Array
 
     this._errors = validationError ? validation : []
     this._valid = !validationError
@@ -243,7 +250,3 @@ class DataPackage {
     return null
   }
 }
-
-export default DataPackage
-
-/* eslint one-var: "off" */
