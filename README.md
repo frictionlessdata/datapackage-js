@@ -32,21 +32,21 @@ import Datapackage from 'datapackage'
 
 new Datapackage('http://bit.do/datapackage-json').then(datapackage => {
 
-	# Print datapackage descriptor
-	console.log(datapackage.descriptor)
+  // Print datapackage descriptor
+  console.log(datapackage.descriptor)
 
-	# Print datapackage resources
-	console.log(datapackage.resources)
+  // Print datapackage resources
+  console.log(datapackage.resources)
 
-	# Print resource data
-	datapackage.resources[0].table(table => {
-		table.read().then(data => {
-			console.log(data)
-		})
-	})
+  // Print resource data
+  datapackage.resources[0].table(table => {
+      table.read().then(data => {
+          console.log(data)
+      })
+  })
 
-	# Change datapackage name
-	datapackage.update({name: 'Renamed datapackage'})
+  // Change datapackage name
+  datapackage.update({name: 'Renamed datapackage'})
 })
 ```
 
@@ -58,19 +58,19 @@ A base class for working with datapackages. It provides means for modifying the 
 import Datapackage from 'datapackage'
 
 new Datapackage('http://bit.do/datapackage-json', 'base', false).then(datapackage => {
-	# see if datapackage is valid
-	datapackage.valid
+  // see if datapackage is valid
+  datapackage.valid
 
-    # add new Resource
-    const valid = datapackage.addResource({ name: "New resource" })
+  // add new Resource
+  const valid = datapackage.addResource({ name: "New resource" })
 
-	# `addResource` returns the validation result of the changes
-	if (!valid) {
-		# see the errors why the package is invalid
-		console.log(datapackage.errors)
+  // `addResource` returns the validation result of the changes
+  if (!valid) {
+    // see the errors why the package is invalid
+    console.log(datapackage.errors)
 
-		# output: [ 'Data does not match any schemas from "anyOf" in "/resources/1" schema path: "/properties/resources/items/anyOf"' ]
-	}
+    // output: [ 'Data does not match any schemas from "anyOf" in "/resources/1" schema path: "/properties/resources/items/anyOf"' ]
+  }
 })
 ```
 
@@ -120,28 +120,28 @@ A class for working with resources. You can read or iterate resources with the `
 import { Resources } from 'datapackage'
 
 const resourceData = [[180, 18, 'Tony'], [192, 32, 'Jacob']]
-	, resourceSchema = {
-                        "fields": [
-                            {
-                              "name": "height",
-                              "type": "integer"
-                            },
-                            {
-                              "name": "age",
-                              "type": "integer"
-                            },
-                            {
-                              "name": "name",
-                              "type": "string"
-                            }
-                          ]
-                        }
-    , resource = new Resource({ data: resourceData, schema: resourceSchema })
+const resourceSchema = {
+  fields: [
+    {
+      name: 'height',
+      type: 'integer',
+    },
+    {
+      name: 'age',
+      type: 'integer',
+    },
+    {
+      name: 'name',
+      type: 'string',
+    },
+  ],
+}
+const resource = new Resource({ data: resourceData, schema: resourceSchema })
 
-# output the resource type
+// output the resource type
 console.log(resource.type)
 
-# if data is inline as in this example, you can get it with the `source` getter
+// if data is inline as in this example, you can get it with the `source` getter
 console.log(resource.source)
 ```
 
@@ -176,10 +176,10 @@ JSON Table Schema ([specs](http://specs.frictionlessdata.io/json-table-schema)) 
 import { validate } from 'datapackage'
 
 validate({ name: "Invalid Datapackage" }).then(validation => {
-	if (validation instanceof Array) {
-		# output the validation errors
-		console.log(validation)
-	}
+  if (validation instanceof Array) {
+    // output the validation errors
+    console.log(validation)
+  }
 }
 ```
 
