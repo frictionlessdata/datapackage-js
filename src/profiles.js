@@ -9,7 +9,7 @@ import Utils from './utils'
 const DEFAULT_REMOTE_PATH = 'http://schemas.datapackages.org/registry.csv'
 let DEFAULT_LOCAL_PATH
 if (!Utils.isBrowser) {
-  DEFAULT_LOCAL_PATH = path.join(__dirname, '..', 'schemas', 'registry.csv')
+  DEFAULT_LOCAL_PATH = path.join(__dirname, 'schemas', 'registry.csv')
 }
 
 
