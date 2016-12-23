@@ -1,4 +1,3 @@
----
 extend: '../eslintrc'
 rules:
   no-use-before-define:

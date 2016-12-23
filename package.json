@@ -59,7 +59,7 @@
     "build": "npm run build:lib && npm run build:dist && npm run build:dist:min",
     "pretest": "npm run lint",
     "lint": "eslint src/**",
-    "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- test/*.js",
+    "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc",
     "check-schemas": "babel-node utils/schemas.js check",
     "update-schemas": "babel-node utils/schemas.js update"
   },
