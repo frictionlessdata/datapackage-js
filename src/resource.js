@@ -36,21 +36,22 @@ export default class Resource {
   }
 
   /**
-   * Returns the location of the data. Possible values are 'inline', 'remote'
+   * Returns the location type of the data. Possible values are 'inline', 'remote'
    * and 'local'.
    *
    * @returns {String}
    */
   get type() {
-    const resourceField = this._sourceKey
-        , protocol = url.parse(this.descriptor[resourceField]).protocol
-
-    if (resourceField === 'data') {
+    if (this._sourceKey === 'data') {
       return 'inline'
     }
 
-    if (_.includes(this.REMOTE_PROTOCOLS, protocol)) {
-      return 'remote'
+    const source = this.descriptor[this._sourceKey]
+    if (typeof source === 'string') {
+      const protocol = url.parse(source).protocol
+      if (_.includes(this.REMOTE_PROTOCOLS, protocol)) {
+        return 'remote'
+      }
     }
 
     return 'local'

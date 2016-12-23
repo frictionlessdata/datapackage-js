@@ -11,7 +11,7 @@ class DataPackage {
    * Returns a Promise that will resolve in Datapackage instance.
    *
    * @param {Object|String} descriptor - A datapackage descriptor Object or an URI string
-   * @param {String} [profile='base'] - Profile to validate against
+   * @param {Object|String} [profile='base'] - Profile to validate against
    * @param {Boolean} [raiseInvalid=true] - Throw errors if validation fails
    * @param {Boolean} [remoteProfiles=false] - Use remote profiles
    * @param {String|path} [basePath=null] - Base path for the resources. If the provided
