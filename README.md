@@ -13,7 +13,6 @@ A model for working with [Data Packages].
 
  - `Datapackage` class for working with datapackages.
  - `Resource` class for working with resources.
- - `Profiles` class for working with profiles.
  - `validate` function for validating datapackage descriptors.
  - Use remote or local datapackages
  - Use remote or local profiles
@@ -21,8 +20,11 @@ A model for working with [Data Packages].
 
 ##Installation
 
+> For now it's published in test mode. Please wait for publishing as `datapackage` before any usage except test usage.
+
+
 ```bash
-$ npm install datapackage-js
+$ npm install datapackage-test
 ```
 
 ##Example

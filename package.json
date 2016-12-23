@@ -1,5 +1,5 @@
 {
-  "name": "datapackage-js",
+  "name": "datapackage-test",
   "version": "0.2.0",
   "description": "Utilities to work with Data Packages as defined on dataprotocols.org",
   "keywords": [
