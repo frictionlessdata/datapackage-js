@@ -1,323 +1,219 @@
-var assert = require('assert')
-  , spec = require('../index.js')
-  , stream = require('stream')
-  , fs = require('fs')
-  ;
+import 'babel-polyfill'
+import fs from 'fs'
+import { assert } from 'chai'
+import _ from 'lodash'
+import parse from 'csv-parse/lib/sync'
+import { Datapackage } from '../src/index'
 
-var dp1 = {
-  "name": "abc",
-  "resources": [
-    {
-      "name": "random",
-      "format": "csv",
-      "path": "test/fixtures/dp1/data.csv",
-      "schema": {
-        "fields": [
-          {
-            "name": "name",
-            "type": "string"
+
+// Tests
+
+describe('Datapackage', () => {
+  describe('#new Datapackage', () => {
+    it('initializes with Object descriptor', async () => {
+      const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
+      const datapackage = await new Datapackage(JSON.parse(dp1))
+
+      assert(_.isEqual(datapackage.descriptor, JSON.parse(dp1)),
+          'Datapackage descriptor not equal the provided descriptor')
+    })
+
+    it('initializes with URL descriptor', async () => {
+      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+      const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
+
+      assert(_.isEqual(datapackage.descriptor, JSON.parse(dp1)),
+          'Datapackage descriptor not equal the provided descriptor')
+    })
+
+    it('throws errors if raiseInvalid is true for invalid datapackage', async () => {
+      let error = null
+
+      try {
+        await new Datapackage({}, 'base', true, false)
+      } catch (err) {
+        error = err
+      }
+
+      assert(error instanceof Array)
+    })
+
+    it('stores the errors if raiseInvalid is false for invalid datapackage',
+      async () => {
+        const datapackage = await new Datapackage({}, 'base', false, false)
+        const errors = datapackage.errors
+        const valid = datapackage.valid
+
+        assert(valid === false, 'valid getter should report false')
+        assert(errors instanceof Array && errors.length > 0)
+      })
+  })
+
+  describe('#update', () => {
+    it('updates the descriptor', async () => {
+      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+
+      datapackage.update({ name: 'New Name' })
+
+      assert(datapackage.descriptor.name === 'New Name', 'Datapackage not updated')
+    })
+
+    it('throws array of errors if updating does not validate', async () => {
+      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+
+      try {
+        datapackage.update({ resources: 'not array' })
+        assert(false, 'Datapackage was not properly validated')
+      } catch (err) {
+        assert(err instanceof Array, 'Invalid rejection')
+      }
+    })
+
+    it('keeps the valid descriptor if update is not successful', async () => {
+      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+
+      try {
+        datapackage.update({ resources: 'not array' })
+        assert(false, 'invalid descriptor updated')
+      } catch (err) {
+        assert(datapackage.descriptor.resources instanceof Array)
+      }
+    })
+
+    it('throws array of errors if the user is altering the resources', async () => {
+      const datapackage = await new Datapackage('data/dp2-tabular/datapackage.json')
+
+      try {
+        datapackage.update({ resources: [{ name: 'new resource' }] })
+        assert(false, 'Updating the resources should reject')
+      } catch (err) {
+        assert(err instanceof Array, 'Promise not rejected with Array')
+      }
+    })
+
+    it('silently adds the errors if the descriptor is invalid and if raiseInvalid is false', async () => {
+      const datapackage = await new Datapackage(
+          'data/dp2-tabular/datapackage.json', 'base', false)
+
+      try {
+        const validation = datapackage.update({ resources: 'not array' })
+        assert(validation === false, 'Did not returned false on invalid update')
+        assert(datapackage.errors.length > 0)
+        assert(datapackage.valid === false, 'Datapackage should not be valid')
+      } catch (err) {
+        assert(false, 'Update rejected when `raiseInvalid` is set to false')
+      }
+    })
+  })
+
+  describe('#addResource', () => {
+    it('adds resource', async () => {
+      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+      const validation = datapackage.addResource({ data: 'test' })
+
+      assert(validation, `addResource returned ${typeof validation}`)
+      assert(datapackage.resources.length === 2, 'Resource missing from resources getter')
+      assert(datapackage.descriptor.resources[1].data === 'test', 'Test resource property not found')
+    })
+
+    it('doesn\'t add the same resource twice', async () => {
+      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+      const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
+
+      try {
+        datapackage.addResource(JSON.parse(dp1).resources[0])
+        assert(datapackage.resources.length === 1, 'Added duplicate resource')
+      } catch (err) {
+        assert(false, err.join())
+      }
+    })
+
+    it('rejects with Array of errors if resource is invalid', async () => {
+      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+
+      try {
+        datapackage.addResource({})
+      } catch (err) {
+        assert(err instanceof Array, 'Rejected with non Array value')
+        assert(err.length === 1, 'Array contains more errors')
+      }
+    })
+
+    it('silently adds the errors and marks package as invalid when raiseInvalid is `false`', async () => {
+      const datapackage = await new Datapackage('data/dp1/datapackage.json', 'base', false)
+      const validation = datapackage.addResource({})
+
+      assert(validation === false, 'Package not marked as invalid')
+      assert(datapackage.errors.length > 0, 'Validation errors not added')
+    })
+
+    it('provides the dirname of the descriptor as basePath to the Resource instances', async () => {
+      const datapackage = await new Datapackage(
+          'data/dp2-tabular/datapackage.json', 'tabular')
+      const newResource = {
+          name: 'books',
+          format: 'csv',
+          path: 'data2.csv',
+          schema: {
+            fields: [
+              {
+                name: 'year',
+                type: 'integer',
+              },
+              {
+                name: 'title',
+                type: 'string',
+              },
+              {
+                name: 'director',
+                type: 'string',
+              },
+            ],
           },
-          {
-            "name": "size",
-            "type": "integer"
-          }
-        ]
-      }
-    }
-  ],
-  "views": [
-    {
-      "type": "vegalite",
-      "spec": {
-        "data": {
-          "resource": "random"
         },
-        "mark": "bar",
-        "encoding": {
-          "x": {"field": "name", "type": "ordinal"},
-          "y": {"field": "size", "type": "quantitative"}
-        }
-      }
-    }
-  ]
-};
+        expectedText = fs.readFileSync('data/dp2-tabular/data2.csv', 'utf8'),
+        expectedData = parse(expectedText, { auto_parse: true })
 
-describe('DataPackage', function() {
-  it('instantiates', function() {
-    var dp = new spec.DataPackage();
-  });
+      expectedData.shift()
+      const validation = datapackage.addResource(newResource)
+      const table = await datapackage.resources[1].table
+      const data = await table.read()
 
-  it('instantiates with string', function() {
-    var dp = new spec.DataPackage('abc');
-    assert.equal(dp.path, 'abc');
-  });
-  
-  it('instantiates with object', function() {
-    var dp = new spec.DataPackage(dp1);
-    assert.deepEqual(dp.metadata, dp1);
-  });
+      assert(validation === true, 'Added resource failed to validate')
+      assert(datapackage.resources.length === 2, 'New resource not added to datapackge')
+      assert(_.isEqual(data, expectedData), 'Wrong data loaded')
+    })
+  })
 
-  it('loads', function(done) {
-    var dp = new spec.DataPackage('test/fixtures/dp1');
-    dp.load()
-      .then(function() {
-        assert.equal(dp.metadata.name, 'abc');
-        assert.equal(dp.resources.length, 1);
-        assert.equal(dp.resources[0].fullPath(), 'test/fixtures/dp1/data.csv');
-        done();
-      });
-  });
+  describe('README', () => {
+    const testDatapackage = 'http://bit.do/datapackage-json'
 
-});
+    it('#Example', done => {
+      new Datapackage(testDatapackage).then(datapackage => {
+        datapackage.resources[0].table.then(table => {
+          table.read().then(data => {
+            assert(data, 'No data found')
+            assert(datapackage.descriptor, 'Descriptor no found')
+            assert(datapackage.resources.length > 0, 'Datapackage contains no resources')
+            datapackage.update({ name: 'Renamed datapackage' })
+            assert(datapackage.descriptor.name === 'Renamed datapackage', 'Datapackage not renamed')
+            done()
+          }).catch(err => {
+            done(err)
+          })
+        })
+      })
+    })
 
-describe('Resource', function() {
-  var resource = {
-    "path": "test/fixtures/dp1/data.csv"
-  }
-  it('instantiates', function() {
-    var res = new spec.Resource(resource);
-    assert.equal(res.metadata, resource);
-    assert.equal(res.base, '');
-  });
-  it('fullPath works', function() {
-    var res = new spec.Resource(resource, 'abc');
-    assert.equal(res.base, 'abc');
-    assert.equal(res.fullPath(), 'abc/test/fixtures/dp1/data.csv');
-  });
-  it('objects works', function(done) {
-    var res = new spec.Resource(resource);
-    res.objects()
-      .then(function(output) {
-        assert.equal(output.length, 3);
-        assert.equal(output[0].size, "100");
-        done();
-      });
-  });
-  it('stream works', function(done) {
-    var res = new spec.Resource(resource);
-    spec.objectStreamToArray(res.stream()).
-      then(function(output) { 
-        assert.equal(output.length, 3);
-        assert.strictEqual(output[0].size, "100");
-        done();
-      });
-  });
-  it('stream works with jts', function(done) {
-    var res = new spec.Resource(dp1.resources[0]);
-    spec.objectStreamToArray(res.stream()).
-      then(function(output) { 
-        assert.equal(output.length, 3);
-        assert.strictEqual(output[0].size, 100);
-        done();
-      });
-  });
-});
-
-function makeStream(text) {
-  var s = new stream.Readable();
-  s.push(text);
-  s.push(null);
-  return s;
-}
-
-describe('csvToStream', function() {
-  it('casting works', function(done) {
-    var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
-    spec.objectStreamToArray(stream).
-      then(function(output) { 
-        assert.equal(output.length, 3);
-        assert.strictEqual(output[0].size, 100);
-        done();
-      });
-  });
-
-  var schema = fs.readFileSync("test/fixtures/types-test/schema.json", "utf8")
-  var jsonContent = JSON.parse(schema)
-  var dp = new spec.DataPackage(jsonContent);
-
-  it('parse works for strings', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.strictEqual(typeof output[0].string, 'string');
-        assert.strictEqual(output[0].string, 'Word');
-        assert.strictEqual(output[1].string, 'Two words');
-        assert.strictEqual(output[2].string, 'test@mail.com');
-        assert.strictEqual(output[3].string, 'http://www.testwebsite.com');
-        assert.strictEqual(output[4].string, 'CAPITALIZED');
-        assert.strictEqual(output[5].string, 'list,of,words');
-        assert.strictEqual(output[6].string, 'text\\nwith\\nnew\\nlines');
-        assert.strictEqual(output[7].string, ' ');
-        assert.strictEqual(output[8].string, '');
-        assert.strictEqual(output[9].string, '0123456789');
-        assert.strictEqual(output[10].string, '!@#$%^&*()_+{}[]:;"\\|<.>');
-        done();
-      });
-  });
-  it('parse works for numbers', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.strictEqual(typeof output[0].number, 'number');
-        assert.strictEqual(output[0].number, 0);
-        assert.strictEqual(output[1].number, -100.58);
-        assert.strictEqual(output[2].number, -1);
-        assert.strictEqual(output[3].number, 3.14);
-        assert.strictEqual(output[4].number, 0.00001);
-        assert.strictEqual(output[5].number, 1);
-        assert.strictEqual(output[6].number, 1.0001);
-        assert.strictEqual(output[7].number, -0.4);
-        assert.strictEqual(output[8].number, -0);
-        assert.strictEqual(output[9].number, 123456789);
-        assert.strictEqual(output[10].number, 17);
-        done();
-      });
-  });
-  it('parse works for integers', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.strictEqual(typeof output[0].integer, 'number');
-        assert.strictEqual(output[0].integer, 0);
-        assert.strictEqual(output[1].integer, 5);
-        assert.strictEqual(output[2].integer, 1000000);
-        assert.strictEqual(output[3].integer, -1000);
-        assert.strictEqual(output[4].integer, 15);
-        assert.strictEqual(output[5].integer, 12);
-        assert.strictEqual(output[6].integer, 2);
-        assert.strictEqual(output[7].integer, 123456);
-        assert.strictEqual(output[8].integer, 3);
-        assert.strictEqual(output[9].integer, 1);
-        assert.strictEqual(output[10].integer, 4);
-        done();
-      });
-  });
-  it('parse works for booleans', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.strictEqual(typeof output[0].boolean, 'boolean');
-        assert.strictEqual(output[0].boolean, true);
-        assert.strictEqual(output[1].boolean, false);
-        assert.strictEqual(output[2].boolean, true);
-        assert.strictEqual(output[3].boolean, false);
-        assert.strictEqual(output[4].boolean, false);
-        assert.strictEqual(output[5].boolean, true);
-        assert.strictEqual(output[6].boolean, true);
-        assert.strictEqual(output[7].boolean, false);
-        assert.strictEqual(output[8].boolean, false);
-        assert.strictEqual(output[9].boolean, true);
-        assert.strictEqual(output[9].boolean, true);
-        done();
-      });
-  });
-  it('parse works for dates', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.strictEqual(typeof output[0].date, 'number');
-        assert.strictEqual(output[0].date, 1463788800000);
-        assert.strictEqual(output[1].date, 1462060800000);
-        // TODO: these fail - i think maybe because of time of day issues (??)
-        // assert.strictEqual(output[2].date, 1463827423000);
-        // assert.strictEqual(output[3].date, 1463947200000);
-        // assert.strictEqual(output[4].date, 1461355200000);
-        // assert.strictEqual(output[5].date, 1472673600000);
-        // assert.strictEqual(output[6].date, 1451592000000);
-        // assert.strictEqual(output[7].date, 1462219200000);
-        // assert.strictEqual(output[8].date, 1454616000000);
-        // assert.strictEqual(output[9].date, 1451764800000);
-        // assert.strictEqual(output[10].date, 997902000000);
-        done();
-      });
-  });
-  it('parse works for objects', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.strictEqual(typeof output[0].object, 'object');
-        assert.strictEqual(output[0].object.key, 'value');
-        assert.deepEqual(output[0].object, {key: 'value'});
-        assert.deepEqual(output[1].object.key, {inner_key: 'value'});
-        assert.deepEqual(output[2].object, {});
-        assert.strictEqual(output[3].object.key, 1);
-        assert.strictEqual(output[4].object.key, '');
-        assert.deepEqual(output[5].object, {key: true});
-        assert.deepEqual(output[6].object, {'': ''});
-        assert.deepEqual(output[7].object, {true: 1});
-        assert.deepEqual(output[8].object, {1: 1});       //         ~~~~~
-        assert.deepEqual(output[8].object, {'1': 1});     // should both pass test?
-        assert.deepEqual(output[9].object, {key0: {key1: {key2: {}}}});
-      });
-      done();
-  });
-  it('parse works for arrays', function(done) {
-    var stream = spec.csvToStream(dp.resources[0].rawStream(), dp.resources[0].metadata.schema);
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.strictEqual(typeof output[0].object, 'object');
-        assert.strictEqual(output[0].array[0], 1);
-        assert.deepEqual(output[0].array, [1,2,3,4,5]);
-        assert.deepEqual(output[1].array, [0, [1,2,3,4,5]]);
-        assert.deepEqual(output[2].array, []);
-        assert.strictEqual(output[3].array[0], '1');
-        assert.notStrictEqual(output[3].array[0], 1);
-        assert.strictEqual(typeof output[4].array[1], 'boolean');
-        assert.strictEqual(output[5].array[0], '');
-        assert.deepEqual(output[6].array, [[[[0]]]]);
-      });
-      done();
-  });
-});
-
-
-describe('csv dialect support', function() {
-  it('works with delimiter', function(done) {
-    var content = fs.createReadStream('test/fixtures/csv-dialects/data-del.csv')
-    var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(content, dp.resources[0].metadata.schema, {delimiter: '\t'});
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.equal(output.length, 3);
-        assert.strictEqual(output[2].info, "test,for,delimiter");
-        done();
-      });
-  });
-  it('works with quoteChar', function(done) {
-    var content = fs.createReadStream('test/fixtures/csv-dialects/data-qc.csv')
-    var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(content, dp.resources[0].metadata.schema, {quoteChar: "'"});
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.equal(output.length, 3);
-        assert.strictEqual(output[1].info,'U,S,A');
-        done();
-      });
-  });
-  it('works with doubleQuote', function(done) {
-    var content = fs.createReadStream('test/fixtures/csv-dialects/data-dq.csv')
-    var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(content, dp.resources[0].metadata.schema, {doubleQuote: '"'});
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.equal(output.length, 3);
-        assert.strictEqual(output[2].info, 'no "info for this"');
-        done();
-      });
-  });
-  it('works with all csv dialects', function(done) {
-    var content = fs.createReadStream('test/fixtures/csv-dialects/data-all.csv')
-    var dp = new spec.DataPackage(dp1);
-    var stream = spec.csvToStream(content, dp.resources[0].metadata.schema, {delimiter: '\t', quoteChar: "'", doubleQuote: '"'});
-    spec.objectStreamToArray(stream).
-      then(function(output) {
-        assert.equal(output.length, 3);
-        assert.strictEqual(output[0].size, 100);
-        assert.strictEqual(output[1].info, 'U	S	A');
-        assert.strictEqual(output[2].info, '"no info"');
-        done();
-      });
-  });
-});
-
+    it('#Datapackage example', async done => {
+      new Datapackage(testDatapackage, 'base', false).then(datapackage => {
+        assert(datapackage.valid === true, 'Datapackage not valid')
+        assert(!datapackage.addResource({ name: 'New Resource' }), 'Successfully added bogus resource')
+        assert(datapackage.errors.length > 0, 'Errors not found')
+        done()
+      }).catch(err => {
+        done(err)
+      })
+    })
+  })
+})
