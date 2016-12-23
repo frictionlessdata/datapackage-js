@@ -58,7 +58,7 @@
     "build:dist:min": "webpack --config webpack.config.production.js",
     "build": "npm run build:lib && npm run build:dist && npm run build:dist:min",
     "pretest": "npm run lint",
-    "lint": "eslint src/**",
+    "lint": "eslint src test utils",
     "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc",
     "check-schemas": "babel-node utils/schemas.js check",
     "update-schemas": "babel-node utils/schemas.js update"
