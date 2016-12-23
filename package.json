@@ -11,6 +11,12 @@
   "engines": {
     "node": ">=4"
   },
+  "files": [
+    "lib",
+    "dist",
+    "src"
+  ],
+  "main": "lib/index.js",
   "dependencies": {
     "csv-parse": "^1.1.7",
     "isomorphic-fetch": "^2.2.1",
