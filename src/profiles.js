@@ -6,10 +6,10 @@ import Utils from './utils'
 
 // Internal
 
-const DEFAULT_REMOTE_PATH = 'http://schemas.datapackages.org/registry.csv'
+const DEFAULT_REMOTE_PATH = 'http://schemas.datapackages.org/registry.json'
 let DEFAULT_LOCAL_PATH
 if (!Utils.isBrowser) {
-  DEFAULT_LOCAL_PATH = path.join(__dirname, 'schemas', 'registry.csv')
+  DEFAULT_LOCAL_PATH = path.join(__dirname, 'schemas', 'registry.json')
 }
 
 
@@ -97,8 +97,19 @@ export default class Profiles {
    */
   _loadRegistry(pathOrURL) {
     return Utils.readFileOrURL(pathOrURL)
-      .then(text => Utils._csvParse(text))
-      .then(registry => Profiles._groupProfilesById(registry))
+      .then(text => JSON.parse(text))
+      .then(registry => {
+        const profiles = {}
+        for (const key of Object.keys(registry)) {
+          let name = null
+          if (key === 'datapackage') name = 'base'
+          if (key.endsWith('-datapackage')) name = key.replace('-datapackage', '')
+          if (name) {
+            profiles[name] = registry[key]
+          }
+        }
+        return profiles
+      })
   }
 
   /**
@@ -150,22 +161,5 @@ export default class Profiles {
     }).catch(err => {
       throw new Error(err)
     })
-  }
-
-  /**
-   * Groups the passed profiles (registry) by id and returns the object.
-   *
-   * @param registry
-   * @return {Object}
-   * @private
-   */
-  static _groupProfilesById(registry) {
-    const groupedRegistry = {}
-
-    _.forEach(registry, profile => {
-      groupedRegistry[profile.id] = profile
-    })
-
-    return groupedRegistry
   }
 }

@@ -1,0 +1,20 @@
+{
+    "datapackage": {
+        "title": "Data Package",
+        "schema": "http://schemas.datapackages.org/data-package.json",
+        "schema_path": "data-package.json",
+        "specification": "http://dataprotocols.org/data-packages"
+    },
+    "tabular-datapackage": {
+        "title": "Tabular Data Package",
+        "schema": "http://schemas.datapackages.org/tabular-data-package.json",
+        "schema_path": "tabular-data-package.json",
+        "specification": "http://dataprotocols.org/tabular-data-package/"
+    },
+    "fiscal-datapackage": {
+        "title": "Fiscal Data Package",
+        "schema": "http://schemas.datapackages.org/fiscal-data-package.json",
+        "schema_path": "fiscal-data-package.json",
+        "specification": "http://fiscal.dataprotocols.org/spec/"
+    }
+}
