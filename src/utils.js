@@ -1,4 +1,3 @@
-import parse from 'csv-parse'
 import 'isomorphic-fetch'
 import _ from 'lodash'
 import path from 'path'
@@ -113,26 +112,5 @@ export default class Utils {
       return path.dirname(path.resolve(pathOrURL))
     }
     return null
-  }
-
-  // Private
-
-  /**
-   * Simple Promise wrapper around csv-parse.parse
-   *
-   * @param text
-   * @return {Promise}
-   * @private
-   */
-  static _csvParse(text) {
-    return new Promise((resolve, reject) => {
-      parse(text, { columns: true }, (err, output) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(output)
-        }
-      })
-    })
   }
 }

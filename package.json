@@ -18,7 +18,6 @@
   ],
   "main": "lib/index.js",
   "dependencies": {
-    "csv-parse": "^1.1.7",
     "isomorphic-fetch": "^2.2.1",
     "json-lint": "^0.1.0",
     "jsontableschema": "^0.2.2",
@@ -44,6 +43,7 @@
     "chai-as-promised": "^6.0.0",
     "chai-spies": "^0.6.0",
     "coveralls": "^2.11.14",
+    "csv-parse": "^1.1.7",
     "eslint": "^3.11.1",
     "eslint-config-airbnb": "^13.0.0",
     "eslint-plugin-import": "^2.2.0",
@@ -60,7 +60,7 @@
     "webpack-merge": "^2.0.0"
   },
   "scripts": {
-    "build:lib": "babel src --out-dir lib",
+    "build:lib": "babel src --out-dir lib --copy-files",
     "build:dist": "webpack --config webpack.js",
     "build:dist:min": "NODE_ENV=production webpack --config webpack.js",
     "build": "npm run build:lib && npm run build:dist && npm run build:dist:min",

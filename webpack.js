@@ -15,7 +15,7 @@ let webpackConfig = {
       { test: /\.js$/, loaders: ['babel-loader'], exclude: /node_modules/ }
     ]
   },
-  output: { library: 'JSONTableSchema', libraryTarget: 'umd' },
+  output: { library: 'Datapackage', libraryTarget: 'umd' },
   node: {
     fs: 'empty'
   }
@@ -27,7 +27,7 @@ let webpackConfig = {
 if (ENV === 'development') {
   webpackConfig = merge(webpackConfig, {
     output: {
-      filename: 'jsontableschema.js',
+      filename: 'datapackage.js',
       path: './dist'
     },
     plugins: [
@@ -45,7 +45,7 @@ if (ENV === 'development') {
 if (ENV === 'production') {
   webpackConfig = merge(webpackConfig, {
     output: {
-      filename: 'jsontableschema.min.js',
+      filename: 'datapackage.min.js',
       path: './dist'
     },
     plugins: [
