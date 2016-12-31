@@ -1,6 +1,6 @@
 {
   "name": "datapackage-test",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Utilities to work with Data Packages as defined on dataprotocols.org",
   "keywords": [
     "data package",
