@@ -49,3 +49,6 @@ rules:
     - off
   global-require:
     - off
+  no-restricted-syntax:
+    - error
+    - WithStatement
