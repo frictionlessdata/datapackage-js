@@ -234,7 +234,7 @@ export default class DataPackage {
 
   /**
    * Returns the basepath from the path of the current descriptor if it is a
-   * local path.
+   * local path, or the URL if the datapackage was loaded via URL.
    *
    * @param {String} descriptor
    * @return {String|null}

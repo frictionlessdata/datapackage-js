@@ -72,16 +72,19 @@ export default class Resource {
    * @returns {String|Array|Object}
    */
   get source() {
-    if (this._sourceKey === 'path' && this._basePath) {
-      const resourcePath = this.descriptor[this._sourceKey]
+    const source = this.descriptor[this._sourceKey]
+
+    if (this._sourceKey === 'path' && this._basePath
+        && !Utils.isRemoteURL(source)) {
+
       if (Utils.isRemoteURL(this._basePath)) {
-        return url.resolve(this._basePath, resourcePath)
+        return url.resolve(this._basePath, source)
       }
 
-      return path.normalize(`${this._basePath}/${resourcePath}`)
+      return path.normalize(`${this._basePath}/${source}`)
     }
 
-    return this.descriptor[this._sourceKey]
+    return source
   }
 
   /**
