@@ -3,6 +3,7 @@ import _ from 'lodash'
 import path from 'path'
 import jts from 'jsontableschema'
 
+import Utils from './utils'
 
 // Module API
 
@@ -73,6 +74,10 @@ export default class Resource {
   get source() {
     if (this._sourceKey === 'path' && this._basePath) {
       const resourcePath = this.descriptor[this._sourceKey]
+      if (Utils.isRemoteURL(this._basePath)) {
+        return url.resolve(this._basePath, resourcePath)
+      }
+
       return path.normalize(`${this._basePath}/${resourcePath}`)
     }
 

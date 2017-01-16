@@ -245,6 +245,8 @@ export default class DataPackage {
       if (!Utils.isRemoteURL(descriptor)) {
         return path.dirname(descriptor)
       }
+
+      return descriptor
     }
 
     return null
