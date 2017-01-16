@@ -185,6 +185,18 @@ describe('Datapackage', () => {
     })
   })
 
+  describe('remote datapackage', () => {
+    it('reads the resource', async () => {
+      const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
+
+      const datapackage = await new Datapackage(descriptor)
+      const table2 = await datapackage.resources[0].table
+      const data = await table2.read()
+
+      assert(_.isEqual(data, [['gb', 100], ['us', 200], ['cn', 300]]), 'Invalid data.')
+    })
+  })
+
   describe('README', () => {
     const testDatapackage = 'http://bit.do/datapackage-json'
 
