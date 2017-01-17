@@ -31,7 +31,7 @@ export default class DataPackage {
       self._profile = profile
       self._raiseInvalid = raiseInvalid
       self._remoteProfiles = remoteProfiles
-      self._basePath = basePath || self._getBasePath(descriptor)
+      self._basePath = basePath || DataPackage._getBasePath(descriptor)
 
       new Profiles(self._remoteProfiles).then(profilesInstance => {
         self._Profiles = profilesInstance
@@ -240,7 +240,7 @@ export default class DataPackage {
    * @return {String|null}
    * @private
    */
-  _getBasePath(descriptor) {
+  static _getBasePath(descriptor) {
     if (typeof descriptor === 'string') {
       if (!Utils.isRemoteURL(descriptor)) {
         return path.dirname(descriptor)
