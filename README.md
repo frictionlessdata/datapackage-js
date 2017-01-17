@@ -30,7 +30,7 @@ $ npm install datapackage-test
 ##Example
 
 ```javascript
-import Datapackage from 'datapackage'
+import { Datapackage } from 'datapackage'
 
 new Datapackage('http://bit.do/datapackage-json').then(datapackage => {
 
@@ -57,7 +57,7 @@ new Datapackage('http://bit.do/datapackage-json').then(datapackage => {
 A base class for working with datapackages. It provides means for modifying the datapackage descriptor and adding resources, handling validation on along the process.
 
 ```javascript
-import Datapackage from 'datapackage'
+import { Datapackage } from 'datapackage'
 
 new Datapackage('http://bit.do/datapackage-json', 'base', false).then(datapackage => {
   // see if datapackage is valid
