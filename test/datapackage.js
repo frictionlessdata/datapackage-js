@@ -1,5 +1,6 @@
 import 'babel-polyfill'
 import fs from 'fs'
+import path from 'path'
 import { assert } from 'chai'
 import _ from 'lodash'
 import parse from 'csv-parse/lib/sync'
@@ -185,6 +186,18 @@ describe('Datapackage', () => {
     })
   })
 
+  describe('#_getBasePath', () => {
+    it('returns the URL if the datapackage descriptor is URL', async () => {
+      const remoteURL = 'http://bit.do/datapackage-json'
+      assert(Datapackage._getBasePath(remoteURL) === remoteURL)
+    })
+
+    it('returns the dirname if the datapackage descriptor is local path', async () => {
+      const localPath = 'path/to/datapackage.json'
+      assert(Datapackage._getBasePath(localPath) === path.dirname(localPath))
+    })
+  })
+
   describe('remote datapackage resources', () => {
     it('relative resource', async () => {
       const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
@@ -196,7 +209,7 @@ describe('Datapackage', () => {
       assert(_.isEqual(data, [['gb', 100], ['us', 200], ['cn', 300]]), 'Invalid data.')
     })
 
-    it.only('URL resource', async () => {
+    it('URL resource', async () => {
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
 
       const datapackage = await new Datapackage(descriptor)
