@@ -1,6 +1,7 @@
 import 'babel-polyfill'
 import _ from 'lodash'
 import path from 'path'
+import url from 'url'
 import { assert } from 'chai'
 import jts from 'jsontableschema'
 import { Resource } from '../src/index'
@@ -108,6 +109,41 @@ describe('Resource', () => {
       const source = resource._basePath
 
       assert(source === null, 'basePath not `null`')
+    })
+  })
+
+  describe('#source', () => {
+    it('returns correct relative path for local resource', async () => {
+      const resourcePath = 'dataFolder/data.csv'
+      const basePath = 'path/to/datapackage/'
+
+      const resource = new Resource({
+        path: resourcePath,
+      }, basePath)
+
+      assert(resource.source === path.normalize(`${basePath}/${resourcePath}`))
+    })
+
+    it('returns correct relative path for remote resource', async () => {
+      const resourcePath = 'dataFolder/data.csv'
+      const baseURL = 'http://remote.path.to/datapackage.json'
+
+      const resource = new Resource({
+        path: resourcePath,
+      }, baseURL)
+
+      assert(resource.source === url.resolve(baseURL, resourcePath))
+    })
+
+    it('returns just the resource path if there is not basePath specified', async () => {
+      const resourcePath = 'dataFolder/data.csv'
+      const basePath = null
+
+      const resource = new Resource({
+        path: resourcePath,
+      }, basePath)
+
+      assert(resource.source === resourcePath)
     })
   })
 
