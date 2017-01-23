@@ -7,33 +7,33 @@ import { validate } from '../src/index'
 
 describe('#Validate', () => {
   describe('Using local profiles', () => {
-    it('returns true for valid descriptor', async () => {
+    it('returns empty Array for valid descriptor', async () => {
       const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
       const validation = await validate(JSON.parse(dp1))
 
-      assert(validation === true)
+      assert(validation.length === 0)
     })
 
     it('returns array of errors for invalid descriptor', async () => {
       const validation = await validate({})
 
-      assert(validation instanceof Array)
+      assert(validation.length > 0)
     })
   })
 
   describe('Using remote profiles', () => {
-    it('returns true for valid datapackage with tabular resources', async () => {
+    it('returns empty Array for valid datapackage with tabular resources', async () => {
       const dp2 = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
       const validation = await validate(JSON.parse(dp2), 'tabular', true)
 
-      assert(validation === true)
+      assert(validation.length === 0)
     })
 
-    it('returns Array of Errors when using wrong profile', async () => {
+    it('returns Array with Errors when using wrong profile', async () => {
       const dp2 = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
       const validation = await validate(JSON.parse(dp2), 'fiscal', true)
 
-      assert(validation instanceof Array)
+      assert(validation.length > 0)
     })
 
     it('returns Array of Errors when using not existing profile', async () => {
