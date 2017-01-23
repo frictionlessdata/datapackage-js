@@ -25,7 +25,11 @@ export default class Utils {
    * @return {Array|null}
    */
   static isRemoteURL(pathOrURL) {
-    return pathOrURL.match(/\w+:\/\/.+/)
+    if (pathOrURL.constructor === String) {
+      return pathOrURL.match(/\w+:\/\/.+/)
+    }
+
+    return false
   }
 
   /**
@@ -112,5 +116,64 @@ export default class Utils {
       return path.dirname(path.resolve(pathOrURL))
     }
     return null
+  }
+
+  /**
+   * Checks if the path is valid (or starts with '.' or '/' or contains '..')
+   *
+   * @param {String} pathOrURL
+   * @return {boolean} true for valid path and false for invalid path
+   */
+  static checkPath(pathOrURL) {
+    /**
+     * Helper function to search for '..' occurrences.
+     *
+     * @param sourcePath
+     * @returns {Array} Empty array if path is legal or array of validating errors
+     */
+    function checkForDotDot(sourcePath) {
+      if (Utils.isRemoteURL(sourcePath)) {
+        // URLs can contain dot dot
+        return []
+      }
+
+      const dotdotFound = _.find(sourcePath.replace('\\', '').split('/'), dir => {
+        return dir === '..'
+      })
+
+      if (dotdotFound) {
+        return [`Found illegal '..' in '${sourcePath}'`]
+      }
+
+      return []
+    }
+
+    /**
+     * Helper function to check if string starts with '.' or '/'
+     *
+     * @param sourcePath
+     */
+    function checkBeginning(sourcePath) {
+      const startsWithSlash = sourcePath.charAt(0) === '/'
+      const startsWithDot = sourcePath.charAt(0) === '.'
+
+      if (startsWithSlash) {
+        return [`Found illegal beginning character '/' in '${sourcePath}'`]
+      } else if (startsWithDot) {
+        return [`Found illegal beginning character '.' in '${sourcePath}'`]
+      }
+
+      return []
+    }
+
+    if (typeof pathOrURL === 'string') {
+      const pathsErrors = []
+      const dotdotErrors = checkForDotDot(pathOrURL)
+      const beginningErrors = checkBeginning(pathOrURL)
+
+      return pathsErrors.concat(dotdotErrors).concat(beginningErrors)
+    }
+
+    return [`Resource path ${pathOrURL} is not a string.`]
   }
 }
