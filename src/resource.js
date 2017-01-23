@@ -1,5 +1,4 @@
 import url from 'url'
-import _ from 'lodash'
 import path from 'path'
 import jts from 'jsontableschema'
 
@@ -15,12 +14,11 @@ export default class Resource {
    * Create a Resource instance.
    *
    * @param {Object} descriptor
-   * @param {String} [basePath=null]
+   * @param {String} [basePath='']
    */
-  constructor(descriptor, basePath = null) {
+  constructor(descriptor, basePath = '') {
     this._descriptor = descriptor
     this._basePath = basePath
-    this.REMOTE_PROTOCOLS = ['http:', 'https:', 'ftp:', 'ftps:']
   }
 
   /**
@@ -47,15 +45,14 @@ export default class Resource {
    *
    * @returns {String}
    */
-  get type() {
+  get typeOfResourcePath() {
     if (this._sourceKey === 'data') {
       return 'inline'
     }
 
     const source = this.descriptor[this._sourceKey]
     if (typeof source === 'string') {
-      const protocol = url.parse(source).protocol
-      if (_.includes(this.REMOTE_PROTOCOLS, protocol)) {
+      if (Utils.isRemoteURL(source)) {
         return 'remote'
       }
     }
@@ -74,17 +71,34 @@ export default class Resource {
   get source() {
     const source = this.descriptor[this._sourceKey]
 
-    if (this._sourceKey === 'path' && this._basePath
-        && !Utils.isRemoteURL(source)) {
+    if (!source) {
+      // Neither inline data nor path available
+      return null
 
-      if (Utils.isRemoteURL(this._basePath)) {
-        return url.resolve(this._basePath, source)
+    } else if (this.typeOfResourcePath === 'inline') {
+      // Data is inline
+      return source
+
+    } else if (this._sourceKey === 'path' && this._basePath === '') {
+      // Local path, no basePath provided
+      if (this._validPaths) {
+        return source
       }
+    } else if (this._sourceKey === 'path' && this._basePath !== '') {
+      // basePath needs to be prepended
 
-      return path.normalize(`${this._basePath}/${source}`)
+      // we need to check the validity of the paths here because one can use
+      // only the Resource class to read file contents with `table`
+      if (this._validPaths) {
+        if (Utils.isRemoteURL(this._basePath)) {
+          // basePath is remote URL
+          return url.resolve(this._basePath, source)
+
+        }
+        // basePath is local
+        return path.join(this._basePath, source)
+      }
     }
-
-    return source
   }
 
   /**
@@ -95,18 +109,25 @@ export default class Resource {
    * See https://github.com/frictionlessdata/jsontableschema-js#table
    *
    * @returns {Promise}
+   * @throws Array if resource path or basePath are not valid
    */
   get table() {
-    if (!this._table) {
-      this._table = new Promise(resolve => {
-        new jts.Table(this.descriptor.schema, this.source).then(res => {
-          resolve(res)
-        }).catch(() => {
-          resolve(null)
+    if (this._validPaths) {
+      if (!this._table) {
+        this._table = new Promise(resolve => {
+          new jts.Table(this.descriptor.schema, this.source).then(res => {
+            resolve(res)
+          }).catch(() => {
+            resolve(null)
+          })
         })
-      })
+      }
+      return this._table
     }
-    return this._table
+
+    throw new Array(['Can\'t initialize table because resource path or ' +
+                     'basePath contain invalid characters. Please see ' +
+                     'https://specs.frictionlessdata.io/data-packages/#data-location'])
   }
 
   // Private
@@ -127,4 +148,52 @@ export default class Resource {
 
     return 'path'
   }
+
+  /**
+   * Check if resource path and basePath are valid
+   *
+   * @return {true}
+   * @throws Array of errors if the resource path or basePath is not valid
+   * @private
+   */
+  get _validPaths() {
+    if (typeof this._valid !== 'undefined') {
+      return this._valid
+    }
+
+    if (this._sourceKey === 'path') {
+      Resource._validatePath(this._basePath)
+      Resource._validatePath(this.descriptor[this._sourceKey])
+      // If nothing is thrown by _.validatePath resource is marked as valid if
+      // late reference is needed
+      this._valid = true
+
+      return this._valid
+    }
+
+    // Data is inline
+    this._valid = true
+
+    return this._valid
+  }
+
+  /**
+   * Throws an Error if path is invalid or returns true
+   *
+   * @param {String} resourcePath
+   * @return {true}
+   * @throws Array of errors if the resource path or basePath is not valid
+   * @private
+   */
+  static _validatePath(resourcePath) {
+    const pathErrors = Utils.checkPath(resourcePath)
+    const pathValid = pathErrors.length === 0
+    if (!pathValid) {
+      throw pathErrors
+    }
+
+    return true
+  }
 }
+
+/* eslint consistent-return: off */
