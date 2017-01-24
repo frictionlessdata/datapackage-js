@@ -39,9 +39,7 @@ export default class DataPackage {
       // Check if basePath is valid and throw error if needed
       const basePathErrors = Utils.checkPath(basePath)
       const basePathValid = basePathErrors.length === 0
-      if (self._shouldRaise(basePathValid)) throw basePathErrors
-      self._valid = basePathValid
-      self._errors = this.errors.concat(basePathErrors)
+      if (!basePathValid) throw basePathErrors
       self._basePath = DataPackage._getBasePath(descriptor, basePath)
 
       new Profiles(self._remoteProfiles).then(profilesInstance => {
