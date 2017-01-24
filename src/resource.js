@@ -80,7 +80,7 @@ export default class Resource {
       return source
 
     } else if (this._sourceKey === 'path' && this._basePath === '') {
-      // Local path, no basePath provided
+      // Local or remote path, no basePath provided
       if (this._validPaths) {
         return source
       }
@@ -92,6 +92,8 @@ export default class Resource {
       if (this._validPaths) {
         if (Utils.isRemoteURL(this._basePath)) {
           // basePath is remote URL
+          // in case when `source` is an absolute url, url.resolve returns only `source`
+
           return url.resolve(this._basePath, source)
 
         }
