@@ -73,7 +73,7 @@ export default class Profiles {
 
       const validation = tv4.validateMultiple(data, schema)
       if (validation.valid) {
-        return []
+        return true
       }
 
       return Utils.errorsToStringArray(validation.errors)

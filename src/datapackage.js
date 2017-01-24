@@ -166,10 +166,12 @@ export default class DataPackage {
    */
   _validateDescriptor(descriptor, profile) {
     const descriptorErrors = this._Profiles.validate(descriptor, profile)
-    const descriptorValid = descriptorErrors.length === 0
-
-    this._errors = descriptorErrors
-    this._valid = descriptorValid
+    if (descriptorErrors instanceof Array) {
+      this._errors = descriptorErrors
+      this._valid = false
+    } else {
+      this._valid = true
+    }
 
     _.forEach(descriptor.resources, resource => {
       this._valid = this.valid && this._validateResource(resource)
@@ -199,7 +201,7 @@ export default class DataPackage {
     }
 
     const pathValid = pathErrors.length === 0
-    this._errors = this._errors.concat(pathErrors)
+    this._errors = this.errors.concat(pathErrors)
 
     return pathValid
   }
