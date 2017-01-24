@@ -84,7 +84,19 @@ new Datapackage('http://bit.do/datapackage-json', 'base', false).then(datapackag
  - **profile** (defaults to `base`) is the validation profile to validate the descriptor against. Available profiles are `base`, `tabular` and `fiscal`, but you can also provide your own profile Object for validation.
  - **raiseInvalid** (defaults to `true`) can be used to specify if you want a Array of descriptive errors to be throws if the datapacakge is invalid (or becomes invalid after modifying it), or to be able to work with datapackage which is in invalid state.
  - **remoteProfiles** (defaults to `false`) can be used to specify if you want to work with the local copies of the profiles or fetch the latest profiles from Internet.
- - **basePath** (defaults to `null`if the descriptor is an Object or a remote path, or it's the `dirname` of the local path) can be used to specify the base path for the resources defined in the descriptor. For example if the resource path is `data/resource.cvs` and the `basePath` is set to `datapackages/dp1` the resources are expected to be in `datapackages/dp1/data/resource.cvs` relative of the directory where the library is executed.
+ - **basePath** (defaults to empty string if the descriptor is an Object, the URL if it's a remote path or it's the `dirname` of the local path) can be used to specify the base path for the resources defined in the descriptor. Resources path is always appended to the `basePath`. The default behaviour of `basePath` is:
+   - If initialized with path to a local file
+     - default `basePath` is `dirname` of the path
+     - any explicitly provided `basePath` to the constructor is appended to the default `basepath`
+   - If initialized with a remote path
+     - default `basePath` is the remote path
+     - any explicitly provided `basePath` to the constructor is appended to the default `basePath`
+   - If initialized with `Object`
+     - default `basePath` is empty String (`''`)
+     - any explicit `basePath` will be used as `basePath`
+   - In case when the resource path is an absolute URL, `basePath` is disregarded and only the URL is used to fetch the resource.
+   - Examples 
+     - `datapackage` is initialized with the `my-datapackages/datapackage.json` descriptor, the `basePath` is set to `data/` and the resource path is `november/resource.csv` the resource is expected to be in `my-datapackages/data/november/resource.cvs` relative of the directory where the library is executed.
 
 ###Class methods
 

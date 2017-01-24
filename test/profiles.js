@@ -44,7 +44,7 @@ describe('Profiles', () => {
       const profiles = await new Profiles(false)
       const datapackage = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
 
-      assert(profiles.validate(datapackage))
+      assert(profiles.validate(JSON.parse(datapackage)) === true)
     })
 
     it('returns array of lint errors for invalid json string', async () => {

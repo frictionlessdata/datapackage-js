@@ -1,6 +1,7 @@
 import 'babel-polyfill'
 import _ from 'lodash'
 import path from 'path'
+import url from 'url'
 import { assert } from 'chai'
 import jts from 'jsontableschema'
 import { Resource } from '../src/index'
@@ -25,7 +26,7 @@ describe('Resource', () => {
   it('contains no source by default', () => {
     const resourceDesc = {}
     const resource = new Resource(resourceDesc)
-    assert(resource.source === undefined, 'Invalid source')
+    assert(resource.source === null, 'Invalid source')
   })
 
   it('returns the expected test data', () => {
@@ -103,11 +104,68 @@ describe('Resource', () => {
       assert(path.dirname(resourceBasePath) === path.normalize(basePath), 'Incorrect base path')
     })
 
-    it('_basePath is `null` if basePath argument is not provided', () => {
+    it('_basePath is empty string if basePath argument is not provided', () => {
       const resource = new Resource({})
       const source = resource._basePath
 
-      assert(source === null, 'basePath not `null`')
+      assert(source === '', 'basePath not empty string')
+    })
+  })
+
+  describe('#source', () => {
+    it('returns correct relative path for local resource', async () => {
+      const resourcePath = 'dataFolder/data.csv'
+      const basePath = 'path/to/datapackage/'
+      const expectedPath = 'path/to/datapackage/dataFolder/data.csv'
+
+      const resource = new Resource({
+        path: resourcePath,
+      }, basePath)
+
+      assert(resource.source === expectedPath)
+    })
+
+    it('returns correct relative path for remote resource', async () => {
+      const resourcePath = 'dataFolder/data.csv'
+      const baseURL = 'http://remote.path.to/datapackage.json'
+      const expectedURL = 'http://remote.path.to/dataFolder/data.csv'
+
+      const resource = new Resource({
+        path: resourcePath,
+      }, baseURL)
+
+      assert(resource.source === expectedURL)
+    })
+
+    it('returns just the resource path if there is not basePath specified', async () => {
+      const resourcePath = 'dataFolder/data.csv'
+
+      const resource = new Resource({
+        path: resourcePath,
+      })
+
+      assert(resource.source === resourcePath)
+    })
+
+    it('doesn\'t allow reading file which has illegal path', async () => {
+      const illegalPaths = ['../data.csv', '/data.csv', 'data/.\\./data.csv', 'data/../../data.csv']
+      _.forEach(illegalPaths, resourcePath => {
+        try {
+          const resource = new Resource({
+            path: resourcePath,
+          })
+
+          const source = resource.source
+          assert(false, `Error for ${resourcePath} not thrown`)
+        } catch (err) {
+          assert(err instanceof Array, 'Error thrown is not an Array')
+          assert(err.length > 0, 'Length of thrown array whould be greater then 0')
+        }
+      })
+    })
+
+    it('doesn\'t allo wreading file which has illegal basePath', async () => {
+
     })
   })
 

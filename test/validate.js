@@ -17,7 +17,7 @@ describe('#Validate', () => {
     it('returns array of errors for invalid descriptor', async () => {
       const validation = await validate({})
 
-      assert(validation instanceof Array)
+      assert(validation.length > 0)
     })
   })
 
@@ -29,11 +29,11 @@ describe('#Validate', () => {
       assert(validation === true)
     })
 
-    it('returns Array of Errors when using wrong profile', async () => {
+    it('returns Array with Errors when using wrong profile', async () => {
       const dp2 = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
       const validation = await validate(JSON.parse(dp2), 'fiscal', true)
 
-      assert(validation instanceof Array)
+      assert(validation.length > 0)
     })
 
     it('returns Array of Errors when using not existing profile', async () => {

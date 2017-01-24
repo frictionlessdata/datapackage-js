@@ -62,8 +62,8 @@ export default class Profiles {
    * @param {Object} descriptor The descriptor that needs to be validated
    * @param {Object|String} profile Schema to validate against, could be ID of a
    * profile or profile Object
-   * @return {true|Array} Resolves `true` or array of strings which explain the
-   *   errors.
+   * @return {Array} Empty array or array of errors found
+   *
    */
   validate(descriptor, profile = 'base') {
     function _tv4validation(data, schema) {

@@ -1,5 +1,6 @@
 import 'babel-polyfill'
 import fs from 'fs'
+import path from 'path'
 import { assert } from 'chai'
 import _ from 'lodash'
 import parse from 'csv-parse/lib/sync'
@@ -13,7 +14,6 @@ describe('Datapackage', () => {
     it('initializes with Object descriptor', async () => {
       const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
       const datapackage = await new Datapackage(JSON.parse(dp1))
-
       assert(_.isEqual(datapackage.descriptor, JSON.parse(dp1)),
           'Datapackage descriptor not equal the provided descriptor')
     })
@@ -182,6 +182,122 @@ describe('Datapackage', () => {
       assert(validation === true, 'Added resource failed to validate')
       assert(datapackage.resources.length === 2, 'New resource not added to datapackge')
       assert(_.isEqual(data, expectedData), 'Wrong data loaded')
+    })
+
+    it('resource.table throws an Array of errors if resource path is illegal and raiseInvalid is true', async () => {
+      const datapackage = await new Datapackage(
+        'data/dp2-tabular/datapackage.json', 'tabular', false, false)
+      const newResource = datapackage.resources[0]
+      newResource.path = 'illegal/../../../path'
+      datapackage.addResource(newResource)
+
+      assert.throws(() => datapackage.resources[1].table, Array, /illegal/)
+    })
+  })
+
+  describe('#_getBasePath', () => {
+    it('returns the URL if the datapackage descriptor is URL', async () => {
+      const remoteURL = 'http://bit.do/datapackage.json'
+      assert(Datapackage._getBasePath(remoteURL) === remoteURL)
+    })
+
+    it('returns appended URL with explicitly provided basePath', async () => {
+      const remoteURL = 'http://example.datapackage.url/datapackage.json'
+      const basePath = 'datapackage/url'
+      const expectedURL = 'http://example.datapackage.url/datapackage/url'
+      assert(Datapackage._getBasePath(remoteURL, basePath) === expectedURL)
+    })
+
+    it('returns the dirname if the datapackage descriptor is local path', async () => {
+      const localPath = 'path/to/datapackage.json'
+      const expectedPath = 'path/to'
+      assert(Datapackage._getBasePath(localPath) === expectedPath)
+    })
+
+    it('returns appended local path with the explicitly provided basePath', () => {
+      const localPath = 'path/to/datapackage.json'
+      const basePath = 'collected/data/'
+      const expectedPath = 'path/to/collected/data/'
+      assert(Datapackage._getBasePath(localPath, basePath) === expectedPath)
+    })
+
+    it('returns zero length string if provided argument is not string', () => {
+      const emptyObject = {}
+      assert(Datapackage._getBasePath(emptyObject) === '')
+    })
+
+    it('returns the basePath if the datapackage descriptor is Object', () => {
+      const basePath = 'collected/data/'
+      const expectedPath = 'collected/data/'
+      assert(Datapackage._getBasePath({}, basePath) === expectedPath)
+    })
+  })
+
+  describe('datapackages with remote resources', () => {
+    it('loads relative resource', async () => {
+      const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
+
+      const datapackage = await new Datapackage(descriptor)
+      const table = await datapackage.resources[0].table
+      const data = await table.read()
+      assert(_.isEqual(data, [['gb', 100], ['us', 200], ['cn', 300]]), 'Invalid data.')
+    })
+
+    it('loads resource from absolute URL', async () => {
+      const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
+
+      const datapackage = await new Datapackage(descriptor)
+      const table = await datapackage.resources[0].table
+      const data = await table.read()
+
+      assert(_.isEqual(data, [['gb', 100], ['us', 200], ['cn', 300]]), 'Invalid data.')
+    })
+
+    it('loads resource from absolute URL disregarding basePath', async () => {
+      const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
+
+      const datapackage = await new Datapackage(descriptor, 'base', true, false, 'local/basePath')
+      const table = await datapackage.resources[0].table
+      const data = await table.read()
+
+      assert(_.isEqual(data, [['gb', 100], ['us', 200], ['cn', 300]]), 'Invalid data.')
+    })
+
+    it('loads remote resource with basePath', async () => {
+      const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
+
+      const datapackage = await new Datapackage(descriptor, 'base', true, false, 'data/')
+      const table = await datapackage.resources[1].table
+      const data = await table.read()
+
+      assert(_.isEqual(data, [['gb', 105], ['us', 205], ['cn', 305]]), 'Invalid data.')
+    })
+  })
+
+  describe('basePath', () => {
+    const descriptor = 'data/dp1/datapackage.json'
+
+    it('appends explicitly provided basePath to the datapackage.json path', async () => {
+      const datapackage = await new Datapackage(descriptor, 'base', false, false, 'data/')
+      assert(datapackage._basePath === 'data/dp1/data/', 'basePath not appended')
+    })
+
+    it('doesn\'t allow using relative parent path in basePath if explicitly provided', () => {
+      new Datapackage(descriptor, 'base', true, false, 'data/../').then(() => {
+        assert(false, 'Error not thrown')
+      }, err => {
+        assert(err instanceof Array)
+        assert(err[0] = 'Found illegal \'..\' in data/../')
+      })
+    })
+
+    it('doesn\'t allow using relative parent path in resource path', async () => {
+      const datapackage = await new Datapackage(descriptor)
+      const dp2descriptor = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
+      const newResource = JSON.parse(dp2descriptor).resources[0]
+      newResource.path = '../dp2-tabular/data.csv'
+
+      assert.throws(() => datapackage.addResource(newResource), Array)
     })
   })
 
