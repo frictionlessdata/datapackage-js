@@ -44,7 +44,7 @@ describe('Profiles', () => {
       const profiles = await new Profiles(false)
       const datapackage = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
 
-      assert(profiles.validate(datapackage))
+      assert(profiles.validate(JSON.parse(datapackage)) === true)
     })
 
     it('returns array of lint errors for invalid json string', async () => {
@@ -62,7 +62,7 @@ describe('Profiles', () => {
          assert(profiles.validate(descriptor) instanceof Array)
        })
 
-    it('returns empty Array for valid data and schema passed as argument',
+    it('returns true for valid data and schema passed as argument',
        async () => {
          const schema = fs.readFileSync('src/schemas/tabular-data-package.json')
          const descriptor = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
@@ -70,7 +70,7 @@ describe('Profiles', () => {
          const descriptorObject = JSON.parse(descriptor)
          const profiles = await new Profiles(false)
 
-         assert(profiles.validate(descriptorObject, schemaObject).length === 0)
+         assert(profiles.validate(descriptorObject, schemaObject) === true)
        })
   })
 

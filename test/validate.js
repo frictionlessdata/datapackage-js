@@ -7,11 +7,11 @@ import { validate } from '../src/index'
 
 describe('#Validate', () => {
   describe('Using local profiles', () => {
-    it('returns empty Array for valid descriptor', async () => {
+    it('returns true for valid descriptor', async () => {
       const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
       const validation = await validate(JSON.parse(dp1))
 
-      assert(validation.length === 0)
+      assert(validation === true)
     })
 
     it('returns array of errors for invalid descriptor', async () => {
@@ -22,11 +22,11 @@ describe('#Validate', () => {
   })
 
   describe('Using remote profiles', () => {
-    it('returns empty Array for valid datapackage with tabular resources', async () => {
+    it('returns true for valid datapackage with tabular resources', async () => {
       const dp2 = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
       const validation = await validate(JSON.parse(dp2), 'tabular', true)
 
-      assert(validation.length === 0)
+      assert(validation === true)
     })
 
     it('returns Array with Errors when using wrong profile', async () => {
