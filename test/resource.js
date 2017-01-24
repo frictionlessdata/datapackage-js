@@ -45,20 +45,20 @@ describe('Resource', () => {
     assert(resource.name === resourceDesc.name, 'Invalid name')
   })
 
-  it('recognizes that data typeOfResourcePath is local', () => {
+  it('recognizes that data type is local', () => {
     const resouceDesc = {
       path: 'foo/bar.txt',
     }
     const resource = new Resource(resouceDesc)
-    assert(resource.typeOfResourcePath === 'local', 'Invalid data typeOfResourcePath')
+    assert(resource.type === 'local', 'Invalid data type')
   })
 
-  it('recognizes that data typeOfResourcePath is remote', () => {
+  it('recognizes that data type is remote', () => {
     const resouceDesc = {
       path: 'http://www.foo.org/bar.txt',
     }
     const resource = new Resource(resouceDesc)
-    assert(resource.typeOfResourcePath === 'remote', 'Invalid data typeOfResourcePath')
+    assert(resource.type === 'remote', 'Invalid data type')
   })
 
   it('recognizes that data is inline', () => {
@@ -66,7 +66,7 @@ describe('Resource', () => {
       data: 'foo, bar',
     }
     const resource = new Resource(resouceDesc)
-    assert(resource.typeOfResourcePath === 'inline', 'Inline data not found')
+    assert(resource.type === 'inline', 'Inline data not found')
   })
 
   it('table getter returns jts.Table', async () => {
@@ -231,9 +231,9 @@ describe('Resource', () => {
          }
        })
 
-    it('returns \'local\' typeOfResourcePath', () => {
+    it('returns \'local\' type', () => {
       const resource = new Resource(dp1.resources[0])
-      assert(resource.typeOfResourcePath === 'local', 'Incorrect typeOfResourcePath for datapackage')
+      assert(resource.type === 'local', 'Incorrect type for datapackage')
     })
   })
 
@@ -263,7 +263,7 @@ describe('Resource', () => {
       }
       const resource = new Resource({ data: resourceData, schema: resourceSchema })
 
-      assert(resource.typeOfResourcePath === 'inline', 'Data typeOfResourcePath not inline')
+      assert(resource.type === 'inline', 'Data type not inline')
       assert(resource.source === resourceData)
     })
   })

@@ -190,7 +190,7 @@ export default class DataPackage {
     const resourceObject = new Resource(resource, this._basePath)
 
     let pathErrors = []
-    if (resourceObject.typeOfResourcePath !== 'inline') {
+    if (resourceObject.type !== 'inline') {
       try {
         const valid = resourceObject._validPaths
       } catch (err) {

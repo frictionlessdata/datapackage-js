@@ -45,7 +45,7 @@ export default class Resource {
    *
    * @returns {String}
    */
-  get typeOfResourcePath() {
+  get type() {
     if (this._sourceKey === 'data') {
       return 'inline'
     }
@@ -75,7 +75,7 @@ export default class Resource {
       // Neither inline data nor path available
       return null
 
-    } else if (this.typeOfResourcePath === 'inline') {
+    } else if (this.type === 'inline') {
       // Data is inline
       return source
 
