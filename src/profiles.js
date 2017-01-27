@@ -181,6 +181,8 @@ export default class Profiles {
     if (Utils.isBrowser) {
       return new Promise((resolve, reject) => {
         try {
+          // Dynamic require for webpack to bundle all json files from ./schemas
+          // so they can be required in the browser
           resolve(JSON.stringify(require('./schemas/' + filePath + '.json')))
         } catch (err) {
           reject(err)
