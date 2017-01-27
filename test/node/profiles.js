@@ -1,8 +1,8 @@
 import 'babel-polyfill'
 import fs from 'fs'
 import { assert } from 'chai'
-import Util from '../src/utils'
-import Profiles from '../src/profiles'
+import Util from '../../src/utils'
+import Profiles from '../../src/profiles'
 
 
 // Tests

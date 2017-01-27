@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { assert } from 'chai'
-import { validate } from '../src/index'
+import { validate } from '../../src/index'
 
 
 // Tests

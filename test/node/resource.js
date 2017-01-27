@@ -4,8 +4,8 @@ import path from 'path'
 import url from 'url'
 import { assert } from 'chai'
 import jts from 'jsontableschema'
-import { Resource } from '../src/index'
-import dp1 from '../data/dp1/datapackage.json'
+import { Resource } from '../../src/index'
+import dp1 from '../../data/dp1/datapackage.json'
 
 
 // Tests
