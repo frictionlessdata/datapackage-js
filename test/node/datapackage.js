@@ -1,6 +1,5 @@
 import 'babel-polyfill'
 import fs from 'fs'
-import path from 'path'
 import { assert } from 'chai'
 import _ from 'lodash'
 import parse from 'csv-parse/lib/sync'
