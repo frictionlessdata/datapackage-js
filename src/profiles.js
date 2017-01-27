@@ -3,11 +3,10 @@ import _ from 'lodash'
 import path from 'path'
 import Utils from './utils'
 
-
 // Internal
 
 const DEFAULT_REMOTE_PATH = 'http://schemas.datapackages.org/registry.json'
-let DEFAULT_LOCAL_PATH
+let DEFAULT_LOCAL_PATH = 'registry'
 if (!Utils.isBrowser) {
   DEFAULT_LOCAL_PATH = path.join(__dirname, 'schemas', 'registry.json')
 }
@@ -27,7 +26,8 @@ export default class Profiles {
    */
   constructor(remote = false) {
     const self = this
-    const PATH = (remote || Utils.isBrowser) ? DEFAULT_REMOTE_PATH : DEFAULT_LOCAL_PATH
+    self._remote = remote
+    const PATH = remote ? DEFAULT_REMOTE_PATH : DEFAULT_LOCAL_PATH
 
     return new Promise((resolve, reject) => {
       this._loadRegistry(PATH).then(registry => {
@@ -96,7 +96,7 @@ export default class Profiles {
    * @private
    */
   _loadRegistry(pathOrURL) {
-    return Utils.readFileOrURL(pathOrURL)
+    return this._loadFile(pathOrURL)
       .then(text => JSON.parse(text))
       .then(registry => {
         const profiles = {}
@@ -126,13 +126,15 @@ export default class Profiles {
 
     let profilePath
 
-    if (!Utils.isBrowser && this._basePath && profile.schema_path) {
+    if (Utils.isBrowser) {
+      profilePath = profile.schema_path.split('.')[0]
+    } else if (this._basePath && profile.schema_path) {
       profilePath = path.join(this._basePath, profile.schema_path)
     } else {
       profilePath = profile.schema
     }
 
-    return Utils.readFileOrURL(profilePath)
+    return this._loadFile(profilePath)
       .then(text => JSON.parse(text))
   }
 
@@ -162,4 +164,32 @@ export default class Profiles {
       throw new Error(err)
     })
   }
+
+  /**
+   * Wrapper function around Utils.readFileOrURL for handling bundled profiles if
+   * remote is set to `false` and running in the browser.
+   *
+   * @param filePath
+   * @return {Promise}
+   * @private
+   */
+  _loadFile(filePath) {
+    if (Utils.isRemoteURL(filePath)) {
+      return Utils.readFileOrURL(filePath)
+    }
+
+    if (Utils.isBrowser) {
+      return new Promise((resolve, reject) => {
+        try {
+          resolve(JSON.stringify(require('./schemas/' + filePath + '.json')))
+        } catch (err) {
+          reject(err)
+        }
+      })
+    }
+
+    return Utils.readFileOrURL(filePath)
+  }
 }
+
+/* eslint import/no-dynamic-require: off, prefer-template: off */
