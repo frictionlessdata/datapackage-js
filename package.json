@@ -57,16 +57,17 @@
     "superagent-mock": "^1.1.0",
     "webpack": "^1.12.11",
     "webpack-dev-server": "^1.14.1",
-    "webpack-merge": "^2.0.0"
+    "webpack-merge": "^2.4.0"
   },
   "scripts": {
     "build:lib": "babel src --out-dir lib --copy-files",
     "build:dist": "webpack --config webpack.js",
     "build:dist:min": "NODE_ENV=production webpack --config webpack.js",
     "build": "npm run build:lib && npm run build:dist && npm run build:dist:min",
+    "dev:watch": "NODE_ENV=test webpack --config webpack.js --watch",
     "pretest": "npm run lint",
     "lint": "eslint scripts src test",
-    "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc",
+    "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc test/node/",
     "schemas:check": "babel-node scripts/schemas.js check",
     "schemas:update": "babel-node scripts/schemas.js update"
   },
