@@ -5,7 +5,7 @@ import Utils from './utils'
 
 // Internal
 
-const DEFAULT_REMOTE_PATH = 'http://schemas.datapackages.org/registry.json'
+const DEFAULT_REMOTE_PATH = 'https://schemas.frictionlessdata.io/registry.json'
 let DEFAULT_LOCAL_PATH = 'registry'
 if (!Utils.isBrowser) {
   DEFAULT_LOCAL_PATH = path.join(__dirname, 'schemas', 'registry.json')
