@@ -50,6 +50,7 @@
     "eslint-plugin-jsx-a11y": "2.2.3",
     "eslint-plugin-react": "^6.8.0",
     "fetch-mock": "^4.5.0",
+    "jsdom": "^9.9.1",
     "json-loader": "^0.5.4",
     "mocha": "^2.4.5",
     "mocha-lcov-reporter": "^1.2.0",
@@ -67,7 +68,9 @@
     "dev:watch": "NODE_ENV=test webpack --config webpack.js --watch",
     "pretest": "npm run lint",
     "lint": "eslint scripts src test",
-    "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc test/node/",
+    "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc test/",
+    "test:node": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc test/node/",
+    "test:browser": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc test/browser",
     "schemas:check": "babel-node scripts/schemas.js check",
     "schemas:update": "babel-node scripts/schemas.js update"
   },
