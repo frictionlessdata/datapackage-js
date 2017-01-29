@@ -72,24 +72,6 @@ describe('Resource', () => {
     assert(resource.type === 'inline', 'Inline data not found')
   })
 
-  it('table getter returns jts.Table', async () => {
-    const resourceDesc = {
-      data: 'http://foofoo.org/data.csv',
-      schema: {
-        fields: [
-          { name: 'barfoo' },
-        ],
-      },
-    }
-
-    const resource = new Resource(resourceDesc)
-    const table = await resource.table
-    console.log(Object.prototype.toString.call(jts.Table))
-    console.log(Object.prototype.toString.call(table))
-    assert(table instanceof jts.Table,
-           'Returned object is not instance of Table')
-  })
-
   it('table getter returns null if jsontableschama.Table throws an error',
      async () => {
        const resourceDesc = {
@@ -209,7 +191,7 @@ describe('Resource', () => {
          const resource = new Resource({
            name: 'dp1',
            format: 'csv',
-           path: 'data/dp1/data.csv',
+           path: 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/data.csv',
            schema: {
              fields: [
                {
