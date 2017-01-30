@@ -248,6 +248,17 @@ describe('browser: Datapackage', function () {
       })
   })
 
+  it('throws an Error when descriptor is a local path', async() => {
+    const descriptor = 'dpkjs/datapackage.json'
+
+    try {
+      const datapackage = await new Datapackage(descriptor)
+      assert(false, 'Error not thrown or message changed.')
+    } catch (err) {
+      assert(err.message === 'Reading local files is possible only when running in node.')
+    }
+  })
+
   describe('README', () => {
     const testDatapackage = 'https://raw.githubusercontent.com/keitaroinc/datapackage-js/117584a45e6840148b8e626797e2078b51fe0d44/data/dp3-inline-data/datapackage.json'
 
