@@ -7,7 +7,7 @@ import Profiles from '../../src/profiles'
 
 // Tests
 
-describe('Profiles', () => {
+describe('node: Profiles', () => {
   describe('#retrieve', () => {
     it('returns `null` if profile ID doesn\'t exist', async () => {
       const profiles = await new Profiles(true)

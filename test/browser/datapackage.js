@@ -9,7 +9,7 @@ const assert = chai.assert
 
 let Datapackage,
   dp1
-describe('Datapackage', function () {
+describe('browser: Datapackage', function () {
 
   beforeEach(() => {
     Datapackage = jsdomSetup('Datapackage')

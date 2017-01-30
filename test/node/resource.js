@@ -10,7 +10,7 @@ import dp1 from '../../data/dp1/datapackage.json'
 
 // Tests
 
-describe('Resource', () => {
+describe('node: Resource', () => {
 
   it('returns expected descriptor', () => {
     const resourceDesc = {

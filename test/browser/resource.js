@@ -3,12 +3,12 @@ import _ from 'lodash'
 import path from 'path'
 import fs from 'fs'
 import { assert } from 'chai'
-import jts from 'jsontableschema'
 import jsdomSetup from './jsdomSetup'
 
 let Resource,
   dp1
-describe('Resource', () => {
+
+describe('browser: Resource', () => {
 
   beforeEach(() => {
     Resource = jsdomSetup('Resource')

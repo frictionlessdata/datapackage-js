@@ -5,7 +5,7 @@ import { validate } from '../../src/index'
 
 // Tests
 
-describe('#Validate', () => {
+describe('node: #Validate', () => {
   describe('Using local profiles', () => {
     it('returns true for valid descriptor', async () => {
       const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')

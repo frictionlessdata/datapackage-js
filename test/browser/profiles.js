@@ -7,7 +7,7 @@ import jsdomSetup from './jsdomSetup'
 const assert = chai.assert
 
 let Profiles
-describe('Profiles', () => {
+describe('browser: Profiles', () => {
 
   beforeEach(() => {
     Profiles = jsdomSetup('Profiles')

@@ -5,7 +5,7 @@ import jsdomSetup from './jsdomSetup'
 
 // Tests
 
-describe('#Validate', () => {
+describe('browser: #Validate', () => {
 
   let validate,
     dp1,

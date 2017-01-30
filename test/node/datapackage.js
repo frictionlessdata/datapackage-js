@@ -8,7 +8,7 @@ import { Datapackage } from '../../src/index'
 
 // Tests
 
-describe('Datapackage', () => {
+describe('node: Datapackage', () => {
   describe('#new Datapackage', () => {
     it('initializes with Object descriptor', async () => {
       const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
