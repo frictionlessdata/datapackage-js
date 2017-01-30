@@ -1,13 +1,13 @@
 import 'babel-polyfill'
 import fs from 'fs'
 import { assert } from 'chai'
-import Util from '../src/utils'
-import Profiles from '../src/profiles'
+import Util from '../../src/utils'
+import Profiles from '../../src/profiles'
 
 
 // Tests
 
-describe('Profiles', () => {
+describe('node: Profiles', () => {
   describe('#retrieve', () => {
     it('returns `null` if profile ID doesn\'t exist', async () => {
       const profiles = await new Profiles(true)

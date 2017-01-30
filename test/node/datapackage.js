@@ -1,15 +1,14 @@
 import 'babel-polyfill'
 import fs from 'fs'
-import path from 'path'
 import { assert } from 'chai'
 import _ from 'lodash'
 import parse from 'csv-parse/lib/sync'
-import { Datapackage } from '../src/index'
+import { Datapackage } from '../../src/index'
 
 
 // Tests
 
-describe('Datapackage', () => {
+describe('node: Datapackage', () => {
   describe('#new Datapackage', () => {
     it('initializes with Object descriptor', async () => {
       const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')

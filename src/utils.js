@@ -74,9 +74,12 @@ export default class Utils {
 
     let result
 
-    if (isBrowser || Utils.isRemoteURL(pathOrURL)) {
+    if (Utils.isRemoteURL(pathOrURL)) {
       result = _readURL(pathOrURL)
     } else {
+      if (isBrowser) {
+        throw new Error('Reading local files is possible only when running in node.')
+      }
       result = _readFile(pathOrURL)
     }
 

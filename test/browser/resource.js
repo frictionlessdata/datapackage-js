@@ -1,16 +1,19 @@
 import 'babel-polyfill'
 import _ from 'lodash'
 import path from 'path'
-import url from 'url'
+import fs from 'fs'
 import { assert } from 'chai'
-import jts from 'jsontableschema'
-import { Resource } from '../src/index'
-import dp1 from '../data/dp1/datapackage.json'
+import jsdomSetup from './jsdomSetup'
 
+let Resource,
+  dp1
 
-// Tests
+describe('browser: Resource', () => {
 
-describe('Resource', () => {
+  beforeEach(() => {
+    Resource = jsdomSetup('Resource')
+    dp1 = JSON.parse(fs.readFileSync('./data/dp1/datapackage.json', 'utf8'))
+  })
 
   it('returns expected descriptor', () => {
     const resourceDesc = {
@@ -67,22 +70,6 @@ describe('Resource', () => {
     }
     const resource = new Resource(resouceDesc)
     assert(resource.type === 'inline', 'Inline data not found')
-  })
-
-  it('table getter returns jts.Table', async () => {
-    const resourceDesc = {
-      data: 'http://foofoo.org/data.csv',
-      schema: {
-        fields: [
-          { name: 'barfoo' },
-        ],
-      },
-    }
-
-    const resource = new Resource(resourceDesc)
-    const table = await resource.table
-    assert(table instanceof jts.Table,
-           'Returned object is not instance of Table')
   })
 
   it('table getter returns null if jsontableschama.Table throws an error',
@@ -158,7 +145,7 @@ describe('Resource', () => {
           const source = resource.source
           assert(false, `Error for ${resourcePath} not thrown`)
         } catch (err) {
-          assert(err instanceof Array, 'Error thrown is not an Array')
+          assert(_.isArray(err), 'Error thrown is not an Array')
           assert(err.length > 0, 'Length of thrown array whould be greater then 0')
         }
       })
@@ -204,7 +191,7 @@ describe('Resource', () => {
          const resource = new Resource({
            name: 'dp1',
            format: 'csv',
-           path: 'data/dp1/data.csv',
+           path: 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/data.csv',
            schema: {
              fields: [
                {
