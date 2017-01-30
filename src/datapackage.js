@@ -238,9 +238,7 @@ export default class DataPackage {
    */
   _resourcesAreSame(newDescriptor) {
     if (newDescriptor.resources) {
-      if (_.isEqual(newDescriptor.resources, this.descriptor.resources)) {
-        return false
-      }
+      return _.isEqual(newDescriptor.resources, this.descriptor.resources)
     }
 
     return true

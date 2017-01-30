@@ -90,6 +90,16 @@ describe('node: Datapackage', () => {
       }
     })
 
+    it('changes the datapackage attribute when resources are the same', async () => {
+      const datapackage = await new Datapackage('data/dp2-tabular/datapackage.json')
+      let descriptor = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
+      descriptor = JSON.parse(descriptor)
+      datapackage.update({ resources: descriptor.resources,
+        name: 'New descriptor name' })
+
+      assert(datapackage.descriptor.name === 'New descriptor name')
+    })
+
     it('silently adds the errors if the descriptor is invalid and if raiseInvalid is false', async () => {
       const datapackage = await new Datapackage(
           'data/dp2-tabular/datapackage.json', 'base', false)
@@ -196,7 +206,7 @@ describe('node: Datapackage', () => {
 
   describe('#_getBasePath', () => {
     it('returns the URL if the datapackage descriptor is URL', async () => {
-      const remoteURL = 'http://bit.do/datapackage.json'
+      const remoteURL = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
       assert(Datapackage._getBasePath(remoteURL) === remoteURL)
     })
 
@@ -301,7 +311,7 @@ describe('node: Datapackage', () => {
   })
 
   describe('README', () => {
-    const testDatapackage = 'http://bit.do/datapackage-json'
+    const testDatapackage = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp3-inline-data/datapackage.json'
 
     it('#Example', done => {
       new Datapackage(testDatapackage).then(datapackage => {

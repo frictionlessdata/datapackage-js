@@ -4,7 +4,7 @@
     {
       "name": "random",
       "format": "csv",
-      "path": "https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json",
+      "path": "https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/data.csv",
       "schema": {
         "fields": [
           {

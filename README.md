@@ -221,6 +221,21 @@ If newer profiles are available you can update the local copies by running:
 $ npm run schemas:update
 ```
 
+###Running the usage examples
+
+There are documented usage examples in the `examples` directory. In order to run the examples you must first build the
+library. To build the library run:
+
+```
+npm run build:lib
+```
+
+After that, you can run the examples with `node`, for example:
+
+```
+node examples/datapackage.js
+```
+
 [Data Packages]: http://dataprotocols.org/data-packages/
 [assignIn]: https://lodash.com/docs/4.17.2#assignIn
 [jsontableschema-js]: https://github.com/frictionlessdata/jsontableschema-js
