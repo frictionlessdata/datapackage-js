@@ -1,7 +1,7 @@
 import jsdom from 'jsdom'
 import fs from 'fs'
 
-const testBundle = fs.readFileSync('./dist/datapackage-test.js', 'utf8')
+const testBundle = fs.readFileSync('./dist/datapackage.js', 'utf8')
 
 export default testingClass => {
   const document = jsdom.jsdom()
@@ -11,5 +11,5 @@ export default testingClass => {
   scriptEl.textContent = testBundle
   document.body.appendChild(scriptEl)
 
-  return window.Datapackage[testingClass]
+  return window.datapackage[testingClass]
 }

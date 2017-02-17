@@ -24,7 +24,7 @@ A model for working with [Data Packages].
 
 
 ```bash
-$ npm install datapackage-test
+$ npm install datapackage
 ```
 
 ##Example
@@ -95,7 +95,7 @@ new Datapackage('http://bit.do/datapackage-json', 'base', false).then(datapackag
      - default `basePath` is empty String (`''`)
      - any explicit `basePath` will be used as `basePath`
    - In case when the resource path is an absolute URL, `basePath` is disregarded and only the URL is used to fetch the resource.
-   - Examples 
+   - Examples
      - `datapackage` is initialized with the `my-datapackages/datapackage.json` descriptor, the `basePath` is set to `data/` and the resource path is `november/resource.csv` the resource is expected to be in `my-datapackages/data/november/resource.cvs` relative of the directory where the library is executed.
 
 ###Class methods

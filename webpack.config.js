@@ -16,7 +16,7 @@ let webpackConfig = {
       { test: /\.js$/, loaders: ['babel-loader'], exclude: /node_modules/ }
     ]
   },
-  output: { library: 'Datapackage', libraryTarget: 'umd' },
+  output: { library: 'datapackage', libraryTarget: 'umd' },
   node: {
     fs: 'empty'
   }
@@ -68,7 +68,7 @@ if (ENV === 'test') {
   webpackConfig = merge(webpackConfig, {
     entry: './test/browser/buildIndex.js',
     output: {
-      filename: 'datapackage-test.js',
+      filename: 'datapackage.js',
       path: './dist'
     },
     plugins: [
