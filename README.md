@@ -6,9 +6,8 @@
 
 A model for working with [Data Packages].
 
-> Starting from version v0.8.0 `datapackage` on NPM contains this library. Data Package Manager could be found [here](https://github.com/frictionlessdata/dpm-js).
-
-> Version v0.2.0 has renewed API introduced in NOT backward-compatibility manner. Previous version could be found [here](https://github.com/frictionlessdata/datapackage-js/tree/2bcf8e516fb1d871bd6b155962871f5cfd563c52).
+> - Starting from version v0.8.0 `datapackage` on NPM contains this library. Data Package Manager could be found [here](https://github.com/frictionlessdata/dpm-js).
+ - Version v0.2.0 has renewed API introduced in NOT backward-compatibility manner. Previous version could be found [here](https://github.com/frictionlessdata/datapackage-js/tree/2bcf8e516fb1d871bd6b155962871f5cfd563c52).
 
 
 ##Features
