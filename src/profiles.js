@@ -126,7 +126,7 @@ export default class Profiles {
 
     let profilePath
 
-    if (Utils.isBrowser && !self._remote) {
+    if (Utils.isBrowser && !this._remote) {
       profilePath = profile.schema_path.split('.')[0]
     } else if (this._basePath && profile.schema_path) {
       profilePath = path.join(this._basePath, profile.schema_path)
