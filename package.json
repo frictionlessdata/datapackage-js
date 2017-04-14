@@ -25,6 +25,7 @@
     "tv4": "^1.2.7"
   },
   "devDependencies": {
+    "axios": "^0.16.1",
     "babel": "^6.5.2",
     "babel-cli": "^6.8.0",
     "babel-istanbul": "^0.8.0",
@@ -67,13 +68,16 @@
     "build:dist:test": "NODE_ENV=test webpack",
     "build:dist:test:watch": "NODE_ENV=test webpack --watch",
     "build": "npm run build:lib && npm run build:dist && npm run build:dist:min",
+    "profiles": "npm run profiles:registry && npm run profiles:data-package && npm run profiles:tabular-data-package && npm run profiles:fiscal-data-package",
+    "profiles:registry": "wget -O src/profiles/registry.json https://specs.frictionlessdata.io/schemas/registry.json",
+    "profiles:data-package": "wget -O src/profiles/data-package.json https://specs.frictionlessdata.io/schemas/data-package.json",
+    "profiles:tabular-data-package": "wget -O src/profiles/tabular-data-package.json https://specs.frictionlessdata.io/schemas/tabular-data-package.json",
+    "profiles:fiscal-data-package": "wget -O src/profiles/fiscal-data-package.json https://specs.frictionlessdata.io/schemas/fiscal-data-package.json",
     "pretest": "npm run lint",
     "lint": "eslint scripts src test",
     "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- test/",
     "test:node": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- test/node/",
-    "test:browser": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- test/browser",
-    "schemas:check": "babel-node scripts/schemas.js check",
-    "schemas:update": "babel-node scripts/schemas.js update"
+    "test:browser": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- test/browser"
   },
   "author": {
     "name": "Open Knowledge",
