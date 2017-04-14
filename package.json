@@ -1,7 +1,7 @@
 {
   "name": "datapackage",
-  "version": "0.8.3", 
-  "description": "Utilities to work with Data Packages as defined on dataprotocols.org",
+  "version": "0.8.3",
+  "description": "Utilities to work with Data Packages as defined on specs.frictionlessdata.io",
   "keywords": [
     "data package",
     "frictionless data",
@@ -69,9 +69,9 @@
     "build": "npm run build:lib && npm run build:dist && npm run build:dist:min",
     "pretest": "npm run lint",
     "lint": "eslint scripts src test",
-    "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc test/",
-    "test:node": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc test/node/",
-    "test:browser": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- --opts .mocharc test/browser",
+    "test": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- test/",
+    "test:node": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- test/node/",
+    "test:browser": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- test/browser",
     "schemas:check": "babel-node scripts/schemas.js check",
     "schemas:update": "babel-node scripts/schemas.js update"
   },

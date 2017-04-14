@@ -237,6 +237,6 @@ After that, you can run the examples with `node`, for example:
 node examples/datapackage.js
 ```
 
-[Data Packages]: http://dataprotocols.org/data-packages/
+[Data Packages]: http://specs.frictionlessdata.io/data-package/
 [assignIn]: https://lodash.com/docs/4.17.2#assignIn
 [jsontableschema-js]: https://github.com/frictionlessdata/jsontableschema-js
