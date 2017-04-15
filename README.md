@@ -4,13 +4,15 @@
 [![Coverage Status](https://coveralls.io/repos/github/frictionlessdata/datapackage-js/badge.svg?branch=master)](https://coveralls.io/github/frictionlessdata/datapackage-js?branch=master)
 [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/frictionlessdata/chat)
 
-A model for working with [Data Packages].
+A model for working with [Data Packages](http://specs.frictionlessdata.io/data-package/).
+
+> Version v1.0.0-alpha [WIP] has BREAKING CHANGES. A migration guide will be published.
 
 > - Starting from version v0.8.0 `datapackage` on NPM contains this library. Data Package Manager could be found [here](https://github.com/frictionlessdata/dpm-js).
 - Version v0.2.0 has renewed API introduced in NOT backward-compatibility manner. Previous version could be found [here](https://github.com/frictionlessdata/datapackage-js/tree/2bcf8e516fb1d871bd6b155962871f5cfd563c52).
 
 
-##Features
+## Features
 
  - `Datapackage` class for working with datapackages.
  - `Resource` class for working with resources.
@@ -19,7 +21,7 @@ A model for working with [Data Packages].
  - Use remote or local profiles
 
 
-##Installation
+## Installation
 
 > For now it's published in test mode. Please wait for publishing as `datapackage` before any usage except test usage.
 
@@ -28,7 +30,7 @@ A model for working with [Data Packages].
 $ npm install datapackage
 ```
 
-##Example
+## Example
 
 ```javascript
 import { Datapackage } from 'datapackage'
@@ -53,7 +55,9 @@ new Datapackage('http://bit.do/datapackage-json').then(datapackage => {
 })
 ```
 
-##Datapackage
+## Documentation
+
+## Datapackage
 
 A base class for working with datapackages. It provides means for modifying the datapackage descriptor and adding resources, handling validation on along the process.
 
@@ -77,9 +81,9 @@ new Datapackage('http://bit.do/datapackage-json', 'base', false).then(datapackag
 })
 ```
 
-###Constructor
-####**new Datapackage**([Object|String] **descriptor**, [Object|String] **profile**, [Boolean] **raiseInvalid**, [Boolean] **remoteProfiles**, [String] **basePath**)
-#####**Returns:** Promise that resolves in Datapackage class instance or rejects with Array of descriptive errors.
+### Constructor
+#### **new Datapackage**([Object|String] **descriptor**, [Object|String] **profile**, [Boolean] **raiseInvalid**, [Boolean] **remoteProfiles**, [String] **basePath**)
+##### **Returns:** Promise that resolves in Datapackage class instance or rejects with Array of descriptive errors.
 
  - **descriptor** is the only required argument and it represents the description of the Datapackage
  - **profile** (defaults to `base`) is the validation profile to validate the descriptor against. Available profiles are `base`, `tabular` and `fiscal`, but you can also provide your own profile Object for validation.
@@ -99,35 +103,35 @@ new Datapackage('http://bit.do/datapackage-json', 'base', false).then(datapackag
    - Examples
      - `datapackage` is initialized with the `my-datapackages/datapackage.json` descriptor, the `basePath` is set to `data/` and the resource path is `november/resource.csv` the resource is expected to be in `my-datapackages/data/november/resource.cvs` relative of the directory where the library is executed.
 
-###Class methods
+### Class methods
 
-####.**update**({Object} **descriptor**)
-#####**Returns:**  `true` or `false` for the validation status, or throws an Array of descriptive errors if `raiseInvalid` is set to `true`.
+#### .**update**({Object} **descriptor**)
+##### **Returns:**  `true` or `false` for the validation status, or throws an Array of descriptive errors if `raiseInvalid` is set to `true`.
 
 The `update` method provides a way for updating the Datapackage descriptor properties. The provided Object is merged with the current descriptor and this is validated against the specified `profile`.
 
-**Note:** the objects are not deeply merged. Internally we use the [assignIn] method from Lodash.
+**Note:** the objects are not deeply merged. Internally we use the `assignIn` method from Lodash.
 
 ####.**addResource**({Object} **resource**)
 #####**Returns:**  `true` or `false` for the validation status, or throws an Array of descriptive errors if `raiseInvalid` is set to `true`.
 
 Method for adding a resource to the datapackage.
 
-###Class getters
+### Class getters
 
-####.**valid**
-#####**Returns**: `true` or `false` for the validation status of the datapackage. Datapackages are always valid if `raiseInvalid` is set to `true`.
+#### .**valid**
+##### **Returns**: `true` or `false` for the validation status of the datapackage. Datapackages are always valid if `raiseInvalid` is set to `true`.
 
-####.**errors**
+#### .**errors**
 **Returns**: an empty array if there are no errors, or array with strings if there are errors found.
 
-####.**descriptor**
-#####**Returns**: the datapackage descriptor
+#### .**descriptor**
+##### **Returns**: the datapackage descriptor
 
-####.**resources**
-#####**Returns**: array of `Resource` class objects
+#### .**resources**
+##### **Returns**: array of `Resource` class objects
 
-##Resource
+## Resource
 
 A class for working with resources. You can read or iterate resources with the `table` method.
 
@@ -160,83 +164,103 @@ console.log(resource.type)
 console.log(resource.source)
 ```
 
-###Constructor
-####**new Resources**({Object} **descriptor**, {String} **basePath**)
-#####**Returns**: Promise that resolves in a class instance or rejects with Array of errors.
+### Constructor
+#### **new Resources**({Object} **descriptor**, {String} **basePath**)
+##### **Returns**: Promise that resolves in a class instance or rejects with Array of errors.
 
  - **descriptor** is a required argument representing the description of the Resource
  - **basePath** (defaults to `null`) is the path prepended to the path of the resource
 
-###Class getters
-####.**table**
-#####**Returns**: a [jsontableschema-js] Table instance of the resource.
+### Class getters
+#### .**table**
+##### **Returns**: a Table instance of the resource.
 
 JSON Table Schema ([specs](http://specs.frictionlessdata.io/json-table-schema)) is a json representation for tabular data. Using the [Table](https://github.com/frictionlessdata/jsontableschema-js#table) instance you can iterate and read over the data.
 
-####.**descriptor**
-#####**Returns**: the resource descriptor
+#### .**descriptor**
+##### **Returns**: the resource descriptor
 
-####.**name**
-#####**Returns**: the name of the resource
+#### .**name**
+##### **Returns**: the name of the resource
 
-####.**type**
-#####**Returns**: the type of the resource which can be `inline`, `remote` or `local`
+#### .**type**
+##### **Returns**: the type of the resource which can be `inline`, `remote` or `local`
 
-####.**source**
-#####**Returns**: the resource data if the resource is `inline`, the path if the resource is remote or the path prepended with the `basePath` if the resource is `local`
+#### .**source**
+##### **Returns**: the resource data if the resource is `inline`, the path if the resource is remote or the path prepended with the `basePath` if the resource is `local`
 
-##validate
+### Profile
 
-```javascript
-import { validate } from 'datapackage'
+A component to represent JSON Schema profile from [Schema Registry]( https://specs.frictionlessdata.io/schemas/registry.json).
 
-validate({ name: "Invalid Datapackage" }).then(validation => {
-  if (validation instanceof Array) {
-    // output the validation errors
-    console.log(validation)
+```js
+await profile = Profile.load('data-package')
+
+profile.name // data-package
+profile.jsonschema // JSON Schema contents
+
+try {
+  const valid = profile.validate(descriptor)
+} catch (errors) {
+  for (const error of errors) {
+    error // descriptor error
   }
 }
 ```
 
-A wrapper function around `Profiles.validate` for validating datapackages.
+#### async Profile.load(profile)
 
-####**validate**({Object} **descriptor**, {String} **profile**, {Boolean} **remoteProfiles**)
-**Returns**: a Promise that resolves in `true` or Array of string errors, or rejects with Error if something went wrong with fetching the profiles
+Factory method to instantiate `Profile` class. This method is async and it should be used with await keyword or as a `Promise`.
 
- - **descriptor** the datapackage descriptor to validate
- - **profile** (defaults to `base`) the id of the profile to validate against
- - **remoteProfiles** (defaults to `false`) whether to use the remote profiles or the locally cached ones
+- profile (String) - gets profile name in registry or URL to JSON Schema
+- (Error) - raises error if profile not found in registry
+- (Error) - raises error if JSON Schema can't be loaded
+- (Profile) - returns profile class instance
 
+#### profile.name
 
-###Updating the local profiles
+- (String/undefined) - returns profile name if available
 
-You can check whether there are newer profiles available by running:
+#### profile.jsonschema
 
-```bash
-$ npm run schemas:check
+- (Object): returns profile JSON Schema contents
+
+#### profile.validate(descriptor)
+
+Validate a data package `descriptor` against the profile.
+
+- descriptor (Object) - gets retrieved and dereferenced data package descriptor
+- (Error) - raises with list of errors for invalid
+- (Boolean) - returns true for valid
+
+### validate
+
+A standalone function to validate a data package descriptor.
+
+```js
+try {
+  const valid = await validate({name: 'Invalid Datapackage'})
+} catch (errors) {
+  for (const error of errors) {
+    error // descriptor error
+  }
+}
 ```
 
-If newer profiles are available you can update the local copies by running:
+#### async validate(descriptor)
 
-```bash
-$ npm run schemas:update
-```
+This funcion is async so it has to be used with `await` keyword or as a `Promise`.
 
-###Running the usage examples
+- descriptor (String/Object) - gets data package descriptor (local/remote path or object)
+- (Error) - raises list of validation errors for invalid
+- (Boolean) - returns true for valid
 
-There are documented usage examples in the `examples` directory. In order to run the examples you must first build the
-library. To build the library run:
+## Contributing
 
-```
-npm run build:lib
-```
-
-After that, you can run the examples with `node`, for example:
+The project follows the [Open Knowledge International coding standards](https://github.com/okfn/coding-standards). There are common commands to work with the project:
 
 ```
-node examples/datapackage.js
+$ npm install
+$ npm run test
+$ npm run build
 ```
-
-[Data Packages]: http://specs.frictionlessdata.io/data-package/
-[assignIn]: https://lodash.com/docs/4.17.2#assignIn
-[jsontableschema-js]: https://github.com/frictionlessdata/jsontableschema-js
