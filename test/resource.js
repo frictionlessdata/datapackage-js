@@ -1,19 +1,14 @@
-import 'babel-polyfill'
 import _ from 'lodash'
 import path from 'path'
-import fs from 'fs'
 import { assert } from 'chai'
-import jsdomSetup from './jsdomSetup'
+import jts from 'tableschema'
+import Resource from '../src/resource'
+import dp1 from '../data/dp1/datapackage.json'
 
-let Resource,
-  dp1
 
-describe('browser: Resource', () => {
+// Tests
 
-  beforeEach(() => {
-    Resource = jsdomSetup('Resource')
-    dp1 = JSON.parse(fs.readFileSync('./data/dp1/datapackage.json', 'utf8'))
-  })
+describe('Resource', () => {
 
   it('returns expected descriptor', () => {
     const resourceDesc = {
@@ -70,6 +65,22 @@ describe('browser: Resource', () => {
     }
     const resource = new Resource(resouceDesc)
     assert(resource.type === 'inline', 'Inline data not found')
+  })
+
+  it('table getter returns jts.Table', async () => {
+    const resourceDesc = {
+      data: 'http://foofoo.org/data.csv',
+      schema: {
+        fields: [
+          { name: 'barfoo' },
+        ],
+      },
+    }
+
+    const resource = new Resource(resourceDesc)
+    const table = await resource.table
+    assert(table instanceof jts.Table,
+           'Returned object is not instance of Table')
   })
 
   it('table getter returns null if jsontableschama.Table throws an error',
@@ -142,10 +153,10 @@ describe('browser: Resource', () => {
             path: resourcePath,
           })
 
-          const source = resource.source
+          resource.source
           assert(false, `Error for ${resourcePath} not thrown`)
         } catch (err) {
-          assert(_.isArray(err), 'Error thrown is not an Array')
+          assert(err instanceof Array, 'Error thrown is not an Array')
           assert(err.length > 0, 'Length of thrown array whould be greater then 0')
         }
       })
@@ -186,37 +197,34 @@ describe('browser: Resource', () => {
       })
     })
 
-    it('initialize jsontableschema.Table with csv file',
-       async done => {
-         const resource = new Resource({
-           name: 'dp1',
-           format: 'csv',
-           path: 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/data.csv',
-           schema: {
-             fields: [
-               {
-                 name: 'name',
-                 type: 'string',
-               },
-               {
-                 name: 'size',
-                 type: 'integer',
-               },
-             ],
-           },
-         })
-         try {
-           const table = await resource.table
-           const data = await table.read(false, false, 1)
-           if (data.toString() === 'gb,100') {
-             done()
-           } else {
-             done(Error('Invalid data'))
-           }
-         } catch (err) {
-           done(Error(`Table not initialized, resource.table returned: ${err}`))
-         }
-       })
+    it('initialize jsontableschema.Table with csv file', async function() {
+
+      // Skip this test for browser
+      if (process.env.USER_ENV === 'browser') {
+        this.skip()
+      }
+
+      const resource = new Resource({
+        name: 'dp1',
+        format: 'csv',
+        path: 'data/dp1/data.csv',
+        schema: {
+          fields: [
+            {
+              name: 'name',
+              type: 'string',
+            },
+            {
+              name: 'size',
+              type: 'integer',
+            },
+          ],
+        },
+      })
+      const table = await resource.table
+      const data = await table.read(false, false, 1)
+      assert.equal(data.toString(), 'gb,100')
+    })
 
     it('returns \'local\' type', () => {
       const resource = new Resource(dp1.resources[0])

@@ -30,15 +30,17 @@ rules:
     - warn
     - smart
   no-unused-vars:
-    - warn
+    - error
   no-param-reassign:
-    - warn
+    - off
   no-cond-assign:
     - error
     - except-parens
   arrow-parens:
     - error
     - as-needed
+  object-curly-spacing:
+    - off
   no-underscore-dangle:
     - off
   class-methods-use-this:
@@ -52,3 +54,13 @@ rules:
   no-restricted-syntax:
     - error
     - WithStatement
+  no-unused-expressions:
+    - off
+  func-names:
+    - off
+  space-before-function-paren:
+    - off
+  import/no-dynamic-require:
+    - off
+  import/newline-after-import:
+    - off

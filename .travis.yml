@@ -5,22 +5,17 @@ language:
   node_js
 
 node_js:
-  - 4
   - 6
 
 script:
-  - npm run build:dist:test
   - npm run test
 
 after_script:
-  - "node_modules/.bin/babel-node node_modules/.bin/babel-istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
-
-before_deploy:
-  - npm run build
+  - npm run coveralls
 
 deploy:
   provider: npm
-  email: "eskarev@gmail.com"
+  email: eskarev@gmail.com
   skip_cleanup: true
   on:
     tags: true

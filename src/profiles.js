@@ -183,7 +183,7 @@ export default class Profiles {
         try {
           // Dynamic require for webpack to bundle all json files from ./schemas
           // so they can be required in the browser
-          resolve(JSON.stringify(require('./schemas/' + filePath + '.json')))
+          resolve(JSON.stringify(require(`./schemas/${filePath}.json`)))
         } catch (err) {
           reject(err)
         }
@@ -193,5 +193,3 @@ export default class Profiles {
     return Utils.readFileOrURL(filePath)
   }
 }
-
-/* eslint import/no-dynamic-require: off, prefer-template: off */

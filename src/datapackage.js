@@ -194,7 +194,7 @@ export default class DataPackage {
     let pathErrors = []
     if (resourceObject.type !== 'inline') {
       try {
-        const valid = resourceObject._validPaths
+        resourceObject._validPaths
       } catch (err) {
         pathErrors = err
       }

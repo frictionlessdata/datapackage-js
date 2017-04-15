@@ -1,6 +1,6 @@
 import url from 'url'
 import path from 'path'
-import jts from 'jsontableschema'
+import jts from 'tableschema'
 
 import Utils from './utils'
 

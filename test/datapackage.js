@@ -1,27 +1,27 @@
-import 'babel-polyfill'
 import fs from 'fs'
 import { assert } from 'chai'
 import _ from 'lodash'
 import parse from 'csv-parse/lib/sync'
-import { Datapackage } from '../../src/index'
+import Datapackage from '../src/datapackage'
 
 
 // Tests
 
-describe('node: Datapackage', () => {
+describe('Datapackage', () => {
   describe('#new Datapackage', () => {
     it('initializes with Object descriptor', async () => {
-      const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
-      const datapackage = await new Datapackage(JSON.parse(dp1))
-      assert(_.isEqual(datapackage.descriptor, JSON.parse(dp1)),
+      const dp1 = require('../data/dp1/datapackage.json')
+      const datapackage = await new Datapackage(dp1)
+      assert(_.isEqual(datapackage.descriptor, dp1),
           'Datapackage descriptor not equal the provided descriptor')
     })
 
     it('initializes with URL descriptor', async () => {
-      const datapackage = await new Datapackage('data/dp1/datapackage.json')
-      const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
+      const datapackage = await new Datapackage(
+        'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json')
+      const dp1 = require('../data/dp1/datapackage.json')
 
-      assert(_.isEqual(datapackage.descriptor, JSON.parse(dp1)),
+      assert(_.isEqual(datapackage.descriptor, dp1),
           'Datapackage descriptor not equal the provided descriptor')
     })
 
@@ -49,8 +49,9 @@ describe('node: Datapackage', () => {
   })
 
   describe('#update', () => {
+
     it('updates the descriptor', async () => {
-      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+      const datapackage = await new Datapackage(require('../data/dp1/datapackage.json'))
 
       datapackage.update({ name: 'New Name' })
 
@@ -58,7 +59,7 @@ describe('node: Datapackage', () => {
     })
 
     it('throws array of errors if updating does not validate', async () => {
-      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+      const datapackage = await new Datapackage(require('../data/dp1/datapackage.json'))
 
       try {
         datapackage.update({ resources: 'not array' })
@@ -69,7 +70,7 @@ describe('node: Datapackage', () => {
     })
 
     it('keeps the valid descriptor if update is not successful', async () => {
-      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+      const datapackage = await new Datapackage(require('../data/dp1/datapackage.json'))
 
       try {
         datapackage.update({ resources: 'not array' })
@@ -80,7 +81,7 @@ describe('node: Datapackage', () => {
     })
 
     it('throws array of errors if the user is altering the resources', async () => {
-      const datapackage = await new Datapackage('data/dp2-tabular/datapackage.json')
+      const datapackage = await new Datapackage(require('../data/dp2-tabular/datapackage.json'))
 
       try {
         datapackage.update({ resources: [{ name: 'new resource' }] })
@@ -91,9 +92,9 @@ describe('node: Datapackage', () => {
     })
 
     it('changes the datapackage attribute when resources are the same', async () => {
-      const datapackage = await new Datapackage('data/dp2-tabular/datapackage.json')
-      let descriptor = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
-      descriptor = JSON.parse(descriptor)
+      const datapackage = await new Datapackage(require('../data/dp2-tabular/datapackage.json'))
+
+      const descriptor = require('../data/dp2-tabular/datapackage.json')
       datapackage.update({ resources: descriptor.resources,
         name: 'New descriptor name' })
 
@@ -102,7 +103,7 @@ describe('node: Datapackage', () => {
 
     it('silently adds the errors if the descriptor is invalid and if raiseInvalid is false', async () => {
       const datapackage = await new Datapackage(
-          'data/dp2-tabular/datapackage.json', 'base', false)
+          require('../data/dp2-tabular/datapackage.json'), 'base', false)
 
       try {
         const validation = datapackage.update({ resources: 'not array' })
@@ -115,9 +116,9 @@ describe('node: Datapackage', () => {
     })
   })
 
-  describe('#addResource', () => {
+  describe.skip('#addResource', () => {
     it('adds resource', async () => {
-      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+      const datapackage = await new Datapackage(require('../data/dp1/datapackage.json'))
       const validation = datapackage.addResource({ data: 'test' })
 
       assert(validation, `addResource returned ${typeof validation}`)
@@ -126,11 +127,12 @@ describe('node: Datapackage', () => {
     })
 
     it('doesn\'t add the same resource twice', async () => {
-      const datapackage = await new Datapackage('data/dp1/datapackage.json')
-      const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
+      const datapackage = await new Datapackage(require('../data/dp1/datapackage.json'))
+      // const validation = datapackage.addResource({ data: 'test' })
+      const dp1 = require('../data/dp1/datapackage.json')
 
       try {
-        datapackage.addResource(JSON.parse(dp1).resources[0])
+        datapackage.addResource(dp1.resources[0])
         assert(datapackage.resources.length === 1, 'Added duplicate resource')
       } catch (err) {
         assert(false, err.join())
@@ -138,7 +140,7 @@ describe('node: Datapackage', () => {
     })
 
     it('rejects with Array of errors if resource is invalid', async () => {
-      const datapackage = await new Datapackage('data/dp1/datapackage.json')
+      const datapackage = await new Datapackage(require('../data/dp1/datapackage.json'))
 
       try {
         datapackage.addResource({})
@@ -149,7 +151,7 @@ describe('node: Datapackage', () => {
     })
 
     it('silently adds the errors and marks package as invalid when raiseInvalid is `false`', async () => {
-      const datapackage = await new Datapackage('data/dp1/datapackage.json', 'base', false)
+      const datapackage = await new Datapackage(require('../data/dp1/datapackage.json'), 'base', false)
       const validation = datapackage.addResource({})
 
       assert(validation === false, 'Package not marked as invalid')
@@ -158,7 +160,7 @@ describe('node: Datapackage', () => {
 
     it('provides the dirname of the descriptor as basePath to the Resource instances', async () => {
       const datapackage = await new Datapackage(
-          'data/dp2-tabular/datapackage.json', 'tabular')
+          require('../data/dp2-tabular/datapackage.json'), 'tabular')
       const newResource = {
           name: 'books',
           format: 'csv',
@@ -195,7 +197,7 @@ describe('node: Datapackage', () => {
 
     it('resource.table throws an Array of errors if resource path is illegal and raiseInvalid is true', async () => {
       const datapackage = await new Datapackage(
-        'data/dp2-tabular/datapackage.json', 'tabular', false, false)
+        require('../data/dp2-tabular/datapackage.json'), 'tabular', false, false)
       const newResource = datapackage.resources[0]
       newResource.path = 'illegal/../../../path'
       datapackage.addResource(newResource)
@@ -243,6 +245,14 @@ describe('node: Datapackage', () => {
   })
 
   describe('datapackages with remote resources', () => {
+
+    before(function() {
+      // Skip infer tests for browser
+      if (process.env.USER_ENV === 'browser') {
+        this.skip()
+      }
+    })
+
     it('loads relative resource', async () => {
       const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
 
@@ -286,6 +296,13 @@ describe('node: Datapackage', () => {
   describe('basePath', () => {
     const descriptor = 'data/dp1/datapackage.json'
 
+    before(function() {
+      // Skip infer tests for browser
+      if (process.env.USER_ENV === 'browser') {
+        this.skip()
+      }
+    })
+
     it('appends explicitly provided basePath to the datapackage.json path', async () => {
       const datapackage = await new Datapackage(descriptor, 'base', false, false, 'data/')
       assert(datapackage._basePath === 'data/dp1/data/', 'basePath not appended')
@@ -302,8 +319,8 @@ describe('node: Datapackage', () => {
 
     it('doesn\'t allow using relative parent path in resource path', async () => {
       const datapackage = await new Datapackage(descriptor)
-      const dp2descriptor = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
-      const newResource = JSON.parse(dp2descriptor).resources[0]
+      const dp2descriptor = require('../data/dp2-tabular/datapackage.json')
+      const newResource = dp2descriptor.resources[0]
       newResource.path = '../dp2-tabular/data.csv'
 
       assert.throws(() => datapackage.addResource(newResource), Array)

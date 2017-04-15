@@ -1,13 +1,11 @@
-import 'babel-polyfill'
-import fs from 'fs'
 import { assert } from 'chai'
-import Util from '../../src/utils'
-import Profiles from '../../src/profiles'
+import Util from '../src/utils'
+import Profiles from '../src/profiles'
 
 
 // Tests
 
-describe('node: Profiles', () => {
+describe('Profiles', () => {
   describe('#retrieve', () => {
     it('returns `null` if profile ID doesn\'t exist', async () => {
       const profiles = await new Profiles(true)
@@ -18,18 +16,18 @@ describe('node: Profiles', () => {
 
     it('returns remote profile by its ID', async () => {
       const profiles = await new Profiles(true)
-      const baseProfile = fs.readFileSync('src/schemas/data-package.json', 'utf8')
+      const baseProfile = require('../src/schemas/data-package.json')
       const retrieved = profiles.retrieve('base')
 
-      assert.deepEqual(retrieved, JSON.parse(baseProfile))
+      assert.deepEqual(retrieved, baseProfile)
     })
 
     it('returns local profile by its ID', async () => {
       const profiles = await new Profiles(false)
-      const schema = fs.readFileSync('src/schemas/tabular-data-package.json', 'utf8')
+      const schema = require('../src/schemas/tabular-data-package.json')
       const retrieved = profiles.retrieve('tabular')
 
-      assert.deepEqual(retrieved, JSON.parse(schema))
+      assert.deepEqual(retrieved, schema)
     })
   })
 
@@ -42,9 +40,9 @@ describe('node: Profiles', () => {
 
     it('returns true for valid local descriptor', async () => {
       const profiles = await new Profiles(false)
-      const datapackage = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
+      const datapackage = require('../data/dp1/datapackage.json')
 
-      assert(profiles.validate(JSON.parse(datapackage)) === true)
+      assert(profiles.validate(datapackage) === true)
     })
 
     it('returns array of lint errors for invalid json string', async () => {
@@ -64,18 +62,16 @@ describe('node: Profiles', () => {
 
     it('returns true for valid data and schema passed as argument',
        async () => {
-         const schema = fs.readFileSync('src/schemas/tabular-data-package.json')
-         const descriptor = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
-         const schemaObject = JSON.parse(schema)
-         const descriptorObject = JSON.parse(descriptor)
+         const schema = require('../src/schemas/tabular-data-package.json')
+         const descriptor = require('../data/dp2-tabular/datapackage.json')
          const profiles = await new Profiles(false)
 
-         assert(profiles.validate(descriptorObject, schemaObject) === true)
+         assert(profiles.validate(descriptor, schema) === true)
        })
   })
 
   describe('#_basePath', () => {
-    it('returns the base path if using local', async () => {
+    it.skip('returns the base path if using local', async () => {
       const profiles = await new Profiles(false)
       const path = profiles._basePath
 

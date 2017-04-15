@@ -1,9 +1,9 @@
 import axios from 'axios'
 import {should} from 'chai'
-const registry = require('../../../src/profiles/registry.json')
-const dataPackage = require('../../../src/profiles/data-package.json')
-const tabularDataPackage = require('../../../src/profiles/tabular-data-package.json')
-const fiscalDataPackage = require('../../../src/profiles/fiscal-data-package.json')
+const registry = require('../../src/profiles/registry.json')
+const dataPackage = require('../../src/profiles/data-package.json')
+const tabularDataPackage = require('../../src/profiles/tabular-data-package.json')
+const fiscalDataPackage = require('../../src/profiles/fiscal-data-package.json')
 should()
 
 // Tests

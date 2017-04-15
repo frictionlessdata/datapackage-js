@@ -1,15 +1,14 @@
-import fs from 'fs'
 import { assert } from 'chai'
-import { validate } from '../../src/index'
+import validate from '../src/validate'
 
 
 // Tests
 
-describe('node: #Validate', () => {
+describe('#Validate', () => {
   describe('Using local profiles', () => {
     it('returns true for valid descriptor', async () => {
-      const dp1 = fs.readFileSync('data/dp1/datapackage.json', 'utf8')
-      const validation = await validate(JSON.parse(dp1))
+      const dp1 = require('../data/dp1/datapackage.json')
+      const validation = await validate(dp1)
 
       assert(validation === true)
     })
@@ -23,22 +22,22 @@ describe('node: #Validate', () => {
 
   describe('Using remote profiles', () => {
     it('returns true for valid datapackage with tabular resources', async () => {
-      const dp2 = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
-      const validation = await validate(JSON.parse(dp2), 'tabular', true)
+      const dp2 = require('../data/dp2-tabular/datapackage.json')
+      const validation = await validate(dp2, 'tabular', true)
 
       assert(validation === true)
     })
 
     it('returns Array with Errors when using wrong profile', async () => {
-      const dp2 = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
-      const validation = await validate(JSON.parse(dp2), 'fiscal', true)
+      const dp2 = require('../data/dp2-tabular/datapackage.json')
+      const validation = await validate(dp2, 'fiscal', true)
 
       assert(validation.length > 0)
     })
 
     it('returns Array of Errors when using not existing profile', async () => {
-      const dp2 = fs.readFileSync('data/dp2-tabular/datapackage.json', 'utf8')
-      const validation = await validate(JSON.parse(dp2), 'not-exsiting', true)
+      const dp2 = require('../data/dp2-tabular/datapackage.json')
+      const validation = await validate(dp2, 'not-exsiting', true)
 
       assert(validation[0] === 'Error loading requested profile.')
     })
