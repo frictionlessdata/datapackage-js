@@ -1,43 +1,24 @@
-import Profiles from './profiles'
-
-
-// Internal
-
-const PROFILES_CACHED = {}
+import {Profile} from './profile'
+import * as helpers from './helpers'
 
 
 // Module API
 
 /**
- * Standalone function for validating datapackage descriptor against a profile.
- * It encapsulates the Profiles class and exposes only validation. Profile
- * promises are cached and the class will not be initialized on every call.
- *
- * @param {Object} descriptor
- * @param {Object|String} profile
- * @param {Boolean} remoteProfiles
- * @return {Promise} Resolves `true` or Array of errors.
+ * Validate datapackage descriptor
+ * https://github.com/frictionlessdata/datapackage-js#validate
  */
-export default function validate(descriptor, profile = 'base', remoteProfiles = false) {
-  const remoteString = remoteProfiles.toString()
+export async function validate(descriptor) {
 
-  if (PROFILES_CACHED[remoteString]) {
-    return new Promise((resolve, reject) => {
-      PROFILES_CACHED[remoteString].then(profiles => {
-        resolve(profiles.validate(descriptor, profile))
-      }).catch(err => {
-        reject(err)
-      })
-    })
-  }
+  // Process descriptor
+  descriptor = await helpers.retrieveDescriptor(descriptor)
+  descriptor = await helpers.dereferenceDataPackageDescriptor(descriptor)
+  descriptor = helpers.expandDataPackageDescriptor(descriptor)
 
-  PROFILES_CACHED[remoteString] = new Profiles(remoteProfiles)
+  // Get descriptor profile
+  const profile = await Profile.load(descriptor.profile)
 
-  return new Promise((resolve, reject) => {
-    PROFILES_CACHED[remoteString].then(profiles => {
-      resolve(profiles.validate(descriptor, profile))
-    }).catch(err => {
-      reject(err)
-    })
-  })
+  // Validate descriptor
+  return profile.validate(descriptor)
+
 }

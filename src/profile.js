@@ -43,6 +43,7 @@ export class Profile {
     if (title) {
       return title.replace(' ', '-').toLowerCase()
     }
+    return null
   }
 
   /**
