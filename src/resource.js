@@ -1,201 +1,168 @@
-import url from 'url'
-import path from 'path'
-import jts from 'tableschema'
+import urljoin from 'url-join'
+import {Table} from 'tableschema'
+import * as helpers from './helpers'
 
-import Utils from './utils'
 
 // Module API
 
-export default class Resource {
+export class Resource {
 
   // Public
 
   /**
-   * Create a Resource instance.
-   *
-   * @param {Object} descriptor
-   * @param {String} [basePath='']
+   * Load resource class
+   * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  constructor(descriptor, basePath = '') {
-    this._descriptor = descriptor
-    this._basePath = basePath
+  static async load(descriptor, {basePath}={}) {
+
+    // Get base path
+    if (!basePath) {
+      basePath = helpers.locateDescriptor(descriptor)
+    }
+
+    // Process descriptor
+    descriptor = await helpers.retrieveDescriptor(descriptor)
+    descriptor = await helpers.dereferenceResourceDescriptor(descriptor, basePath)
+
+    return new Resource(descriptor, {basePath})
   }
 
   /**
-   * Returns the descriptor that was used to initialize the class.
-   *
-   * @returns {*}
-   */
-  get descriptor() {
-    return this._descriptor
-  }
-
-  /**
-   * Returns the name in the descriptor.
-   *
-   * @returns {String}
+   * Resource name
+   * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get name() {
     return this.descriptor.name
   }
 
   /**
-   * Returns the location type of the data. Possible values are 'inline', 'remote'
-   * and 'local'.
-   *
-   * @returns {String}
+   * Resource tabular
+   * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  get type() {
-    if (this._sourceKey === 'data') {
-      return 'inline'
-    }
-
-    const source = this.descriptor[this._sourceKey]
-    if (typeof source === 'string') {
-      if (Utils.isRemoteURL(source)) {
-        return 'remote'
-      }
-    }
-
-    return 'local'
+  get tabular() {
+    return this.descriptor.profile === 'tabular-data-resource'
   }
 
   /**
-   * Returns the path where data is located or
-   * if the data is inline it returns the actual data.
-   * If the source is a path, the basepath is prepended
-   * if provided on Resource initialization.
-   *
-   * @returns {String|Array|Object}
+   * Resource descriptor
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  get descriptor() {
+    return this._descriptor
+  }
+
+  /**
+   * Resource source type
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  get sourceType() {
+    return this._sourceType
+  }
+
+  /**
+   * Resource source
+   * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get source() {
-    const source = this.descriptor[this._sourceKey]
-
-    if (!source) {
-      // Neither inline data nor path available
-      return null
-
-    } else if (this.type === 'inline') {
-      // Data is inline
-      return source
-
-    } else if (this._sourceKey === 'path' && this._basePath === '') {
-      // Local or remote path, no basePath provided
-      if (this._validPaths) {
-        return source
-      }
-    } else if (this._sourceKey === 'path' && this._basePath !== '') {
-      // basePath needs to be prepended
-
-      // we need to check the validity of the paths here because one can use
-      // only the Resource class to read file contents with `table`
-      if (this._validPaths) {
-        if (Utils.isRemoteURL(this._basePath)) {
-          // basePath is remote URL
-          // in case when `source` is an absolute url, url.resolve returns only `source`
-
-          return url.resolve(this._basePath, source)
-
-        }
-        // basePath is local
-        return path.join(this._basePath, source)
-      }
-    }
+    return this._source
   }
 
   /**
-   * Initializes the jsontableschema.Table class with the provided descriptor.
-   * If data is not tabular or schema is not defined or not valid the promise
-   * resolves to `null`
-   *
-   * See https://github.com/frictionlessdata/jsontableschema-js#table
-   *
-   * @returns {Promise}
-   * @throws Array if resource path or basePath are not valid
+   * Resource table
+   * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get table() {
-    if (this._validPaths) {
-      if (!this._table) {
-        this._table = new Promise(resolve => {
-          new jts.Table(this.descriptor.schema, this.source).then(res => {
-            resolve(res)
-          }).catch(() => {
-            resolve(null)
-          })
-        })
-      }
-      return this._table
+
+    // Resource -> Regular
+    if (!this.tabular) {
+      return null
     }
 
-    throw new Array(['Can\'t initialize table because resource path or ' +
-                     'basePath contain invalid characters. Please see ' +
-                     'https://specs.frictionlessdata.io/data-packages/#data-location'])
+    // Resource -> Multipart
+    if (this.sourceType.startsWith('multipart')) {
+      throw new Error('Resource.table does not support multipart resources')
+    }
+
+    // Resource -> Tabular
+    if (!this._table) {
+      this._table = new Table(this.descriptor.schema, this.source)
+    }
+
+    // TODO: after tableschema fix this method should be sync (!!!)
+    // but for now it returns Promise
+    return this._table
+
   }
 
   // Private
 
-  /**
-   * Private function used to identify if the descriptor contains inline data
-   * or provides a path for the data.
-   *
-   * @returns {String}
-   * @private
-   */
-  get _sourceKey() {
-    const inlineData = this.descriptor.data
+  constructor(descriptor, {basePath}={}) {
 
-    if (inlineData) {
-      return 'data'
-    }
+    // Process descriptor
+    descriptor = helpers.expandResourceDescriptor(descriptor)
 
-    return 'path'
+    // Get source/source type
+    const [source, sourceType] = _getSourceWithType(
+      descriptor.data, descriptor.path, basePath)
+
+    // Set attributes
+    this._sourceType = sourceType
+    this._descriptor = descriptor
+    this._basePath = basePath
+    this._source = source
+
   }
 
-  /**
-   * Check if resource path and basePath are valid
-   *
-   * @return {true}
-   * @throws Array of errors if the resource path or basePath is not valid
-   * @private
-   */
-  get _validPaths() {
-    if (typeof this._valid !== 'undefined') {
-      return this._valid
-    }
-
-    if (this._sourceKey === 'path') {
-      Resource._validatePath(this._basePath)
-      Resource._validatePath(this.descriptor[this._sourceKey])
-      // If nothing is thrown by _.validatePath resource is marked as valid if
-      // late reference is needed
-      this._valid = true
-
-      return this._valid
-    }
-
-    // Data is inline
-    this._valid = true
-
-    return this._valid
-  }
-
-  /**
-   * Throws an Error if path is invalid or returns true
-   *
-   * @param {String} resourcePath
-   * @return {true}
-   * @throws Array of errors if the resource path or basePath is not valid
-   * @private
-   */
-  static _validatePath(resourcePath) {
-    const pathErrors = Utils.checkPath(resourcePath)
-    const pathValid = pathErrors.length === 0
-    if (!pathValid) {
-      throw pathErrors
-    }
-
-    return true
-  }
 }
 
-/* eslint consistent-return: off */
+
+// Internal
+
+function _getSourceWithType(data, path, basePath) {
+  let source
+  let sourceType
+
+  // Inline
+  if (data) {
+    source = data
+    sourceType = 'inline'
+  }
+
+  // Local/Remote
+  else if (path.length === 1) {
+    if (helpers.isRemotePath(path[0])) {
+      source = path[0]
+      sourceType = 'remote'
+    } else if (basePath && helpers.isRemotePath(basePath)) {
+      source = urljoin(basePath, path[0])
+      sourceType = 'remote'
+    } else {
+      if (!helpers.isSafePath(path[0])) {
+        throw new Error(`Local path "${path[0]}" is not safe`)
+      }
+      if (!basePath) {
+        throw new Error(`Local path "${path[0]}" requires base path`)
+      }
+      // TODO: support not only Unix
+      source = [basePath, path[0]].join('/')
+      sourceType = 'local'
+    }
+  }
+
+  // Multipart Local/Remote
+  else if (path.length > 1) {
+    source = []
+    sourceType = 'multipart-local'
+    for (const chunkPath of path) {
+      const [chunkSource, chunkSourceType] = _getSourceWithType(
+        null, [chunkPath], basePath)
+      source.push(chunkSource)
+      if (chunkSourceType === 'remote') {
+        sourceType = 'multipart-remote'
+      }
+    }
+  }
+
+  return [source, sourceType]
+
+}

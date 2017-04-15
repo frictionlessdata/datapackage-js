@@ -57,7 +57,7 @@ new Datapackage('http://bit.do/datapackage-json').then(datapackage => {
 
 ## Documentation
 
-## Datapackage
+### Datapackage
 
 A base class for working with datapackages. It provides means for modifying the datapackage descriptor and adding resources, handling validation on along the process.
 
@@ -131,63 +131,90 @@ Method for adding a resource to the datapackage.
 #### .**resources**
 ##### **Returns**: array of `Resource` class objects
 
-## Resource
+### Resource
 
-A class for working with resources. You can read or iterate resources with the `table` method.
+A class for working with data resources. You can read or iterate tabular resources using the `table` property.
 
-```javascript
-import { Resources } from 'datapackage'
+> Synchronous resource.table property and table.headers are WIP
 
-const resourceData = [[180, 18, 'Tony'], [192, 32, 'Jacob']]
-const resourceSchema = {
-  fields: [
-    {
-      name: 'height',
-      type: 'integer',
-    },
-    {
-      name: 'age',
-      type: 'integer',
-    },
-    {
-      name: 'name',
-      type: 'string',
-    },
+```js
+
+const descriptor = {
+  name: 'example',
+  profile: 'tabular-data-resource',
+  data: [
+    ['height', 'age', 'name'],
+    ['180', '18', 'Tony'],
+    ['192', '32', 'Jacob'],
   ],
+  schema:  {
+    fields: [
+      {name: 'height', type: 'integer'},
+      {name: 'age', type: 'integer'},
+      {name: 'name', type: 'string'},
+    ],
+  }
 }
-const resource = new Resource({ data: resourceData, schema: resourceSchema })
 
-// output the resource type
-console.log(resource.type)
+const resource = await Resource.load(data, schema)
 
-// if data is inline as in this example, you can get it with the `source` getter
-console.log(resource.source)
+resource.name // example
+resource.tabuler // true
+resource.descriptor // descriptor
+resource.source_type // inline
+resource.source // descriptor.data
+
+resource.table.headers // ['height', 'age', 'name]
+resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
 ```
 
-### Constructor
-#### **new Resources**({Object} **descriptor**, {String} **basePath**)
-##### **Returns**: Promise that resolves in a class instance or rejects with Array of errors.
+#### async Resource.load(descriptor, {basePath})
 
- - **descriptor** is a required argument representing the description of the Resource
- - **basePath** (defaults to `null`) is the path prepended to the path of the resource
+Factory method to instantiate `Resource` class. This method is async and it should be used with await keyword or as a `Promise`.
 
-### Class getters
-#### .**table**
-##### **Returns**: a Table instance of the resource.
+- descriptor (String/Object) - gets data resource descriptor as local path, url or object
+- basePath (String) - gets base path for all relative pathes
+- (Error) - raises error if resource can't be instantiated
+- (Resource) - returns resource class instance
 
-JSON Table Schema ([specs](http://specs.frictionlessdata.io/json-table-schema)) is a json representation for tabular data. Using the [Table](https://github.com/frictionlessdata/jsontableschema-js#table) instance you can iterate and read over the data.
+The descriptor will be:
+- retrieved (if path/url)
+- dereferenced (schema/dialect)
+- expanded (with profile defaults)
 
-#### .**descriptor**
-##### **Returns**: the resource descriptor
+#### resource.name
 
-#### .**name**
-##### **Returns**: the name of the resource
+- (String) - returns resource name
 
-#### .**type**
-##### **Returns**: the type of the resource which can be `inline`, `remote` or `local`
+#### resource.tabular
 
-#### .**source**
-##### **Returns**: the resource data if the resource is `inline`, the path if the resource is remote or the path prepended with the `basePath` if the resource is `local`
+- (Boolean) - returns true if resource is tabular
+
+#### resource.descriptor
+
+- (Object) - returns resource descriptor
+
+#### resource.sourceType
+
+- (String) - returns based on resource data/path property:
+  - inline
+  - local
+  - remote
+  - multipart-local
+  - multipart-remote
+
+#### resource.source
+
+- (any/String/String[]) - returns based on resource data/path property:
+  - descriptor.data (inline)
+  - descriptor.path[0] (local/remote)
+  - descriptor.path (multipart-loca/remote)
+
+#### resource.table
+
+- (null/tableschema.Table) - returns table instance if resource is tabular
+
+Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
 
 ### Profile
 
@@ -219,7 +246,7 @@ Factory method to instantiate `Profile` class. This method is async and it shoul
 
 #### profile.name
 
-- (String/undefined) - returns profile name if available
+- (String/null) - returns profile name if available
 
 #### profile.jsonschema
 

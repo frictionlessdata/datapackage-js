@@ -10,9 +10,12 @@ import * as helpers from './helpers'
  */
 export async function validate(descriptor) {
 
+  // Get base path
+  const basePath = helpers.locateDescriptor(descriptor)
+
   // Process descriptor
   descriptor = await helpers.retrieveDescriptor(descriptor)
-  descriptor = await helpers.dereferenceDataPackageDescriptor(descriptor)
+  descriptor = await helpers.dereferenceDataPackageDescriptor(descriptor, basePath)
   descriptor = helpers.expandDataPackageDescriptor(descriptor)
 
   // Get descriptor profile

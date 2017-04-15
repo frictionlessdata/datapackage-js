@@ -26,7 +26,7 @@ export class Profile {
         }
         Profile.cache[profile] = jsonschema
       } catch (error) {
-        throw Error(`Profile.load is not able to load profile "${profile}"`)
+        throw new Error(`Profile.load is not able to load profile "${profile}"`)
       }
     }
     return new Profile(jsonschema)
@@ -63,7 +63,7 @@ export class Profile {
       if (!validation.valid) {
         const errors = []
         for (const error of validation.errors) {
-          errors.push(Error(`Descriptor validation error: ${error.message}`))
+          errors.push(new Error(`Descriptor validation error: ${error.message}`))
         }
         throw errors
       }
