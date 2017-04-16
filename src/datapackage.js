@@ -1,296 +1,211 @@
-import _ from 'lodash'
-import path from 'path'
-import url from 'url'
-import Utils from './utils'
-import Resource from './resource'
-import Profiles from './profiles'
+import lodash from 'lodash'
+import {Profile} from './profile'
+import {Resource} from './resource'
+import * as helpers from './helpers'
+import * as config from './config'
 
 
 // Module API
 
-export default class DataPackage {
+export class DataPackage {
 
   // Public
 
   /**
-   * Returns a Promise that will resolve in Datapackage instance.
-   *
-   * @param {Object|String} descriptor - A datapackage descriptor Object or an
-   *   URI string
-   * @param {Object|String} [profile='base'] - Profile to validate against
-   * @param {Boolean} [raiseInvalid=true] - Throw errors if validation fails
-   * @param {Boolean} [remoteProfiles=false] - Use remote profiles
-   * @param {String} [basePath=''] - Base path for the resources. If the
-   *   provided descriptor is a local path to a file, the default value is the
-   *   dirname of the path.
-   * @return {Promise} - Resolves in class instance or rejects with errors
-   * @throws Array of errors if raiseInvalid is true and basePath contains illegal characters
+   * Load data package
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
-  constructor(descriptor, profile = 'base', raiseInvalid = true,
-    remoteProfiles = false, basePath = '') {
+  static async load(descriptor, {basePath, strict}={}) {
 
-    const self = this
+    // Get base path
+    if (lodash.isUndefined(basePath)) {
+      basePath = helpers.locateDescriptor(descriptor)
+    }
 
-    return new Promise((resolve, reject) => {
-      self._profile = profile
-      self._raiseInvalid = raiseInvalid
-      self._remoteProfiles = remoteProfiles
+    // Get strict
+    if (lodash.isUndefined(strict)) {
+      strict = true
+    }
 
-      // Check if basePath is valid and throw error if needed
-      const basePathErrors = Utils.checkPath(basePath)
-      const basePathValid = basePathErrors.length === 0
-      if (!basePathValid) throw basePathErrors
-      self._basePath = DataPackage._getBasePath(descriptor, basePath)
+    // Process descriptor
+    descriptor = await helpers.retrieveDescriptor(descriptor)
+    descriptor = await helpers.dereferenceDataPackageDescriptor(descriptor, basePath)
 
-      new Profiles(self._remoteProfiles).then(profilesInstance => {
-        self._Profiles = profilesInstance
-        return self._loadDescriptor(descriptor)
-      }).then(theDescriptor => {
-        self._descriptor = theDescriptor
-        const valid = self._validateDescriptor(self.descriptor, self._profile)
-        if (self._shouldRaise(valid)) reject(this._errors)
-        self._resources = self._loadResources(self.descriptor)
+    // Get profile
+    const profile = await Profile.load(
+      descriptor.profile || config.DEFAULT_DATA_PACKAGE_PROFILE)
 
-        resolve(self)
-      }).catch(err => {
-        reject(err)
-      })
-    })
+    return new DataPackage(descriptor, {basePath, strict, profile})
+
   }
 
   /**
-   * Get datapackage validity
-   *
-   * @return {Boolean}
+   * Data package valid
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get valid() {
-    return this._valid
+    return this._errors.length === 0
   }
 
   /**
-   * Get the errors
-   *
-   * @return {Array}
+   * Data package errors
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get errors() {
-    return this._errors || []
+    return this._errors
   }
 
   /**
-   * Get the datapackage descriptor
-   *
-   * @return {Object}
+   * Data package errors
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   */
+  get profile() {
+    return this._profile
+  }
+
+  /**
+   * Data package descriptor
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get descriptor() {
-    return this._descriptor
+    // Never use this.descriptor inside this class (!!!)
+    return this._nextDescriptor
   }
 
   /**
-   * Get the datapacka Resources
-   *
-   * @return {[Resource]}
+   * DataPackage resources
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get resources() {
     return this._resources
   }
 
   /**
-   * Updates the current descriptor with the properties of the provided Object.
-   * New properties are added and existing properties are replaced.
-   * Note: it doesn't do deep merging, it just adds/replaces top level
-   * properties
-   *
-   * @param {Object} newDescriptor
-   * @return {Boolean} - Returns validation status of the package
-   * @throws {Array} - Will throw Array of Errors if validation fails when
-   * raiseInvalid is `false`, or when trying to alter the `resources` property
-   */
-  update(newDescriptor) {
-    if (this._resourcesAreSame(newDescriptor) || !this._raiseInvalid) {
-      const mergedDescriptors = _.assignIn({}, this.descriptor, newDescriptor)
-      const valid = this._validateDescriptor(mergedDescriptors, this._profile)
-
-      if (this._shouldRaise(valid)) throw new Array(this._errors)
-      this._descriptor = mergedDescriptors
-
-      return this._valid
-    }
-
-    throw new Array(
-      ['Please use the "addResource" method for altering the resources'])
-  }
-
-  /**
-   * Adds new resource to the datapackage and triggers validation of the
-   * datapackage. When adding a resource that is already present in the
-   * datapackage, the provided resource will be omitted and the return value
-   * will be `true`.
-   *
-   * @param descriptor {Object}
-   * @returns {Boolean} - Returns validation status of the package
-   * @throws {Array} - Will throw Array of errors if validations fails and
-   * raiseInvalid is `true` or descriptor argument is not an Object
+   * Add data resource
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   addResource(descriptor) {
-    if (_.isObject(descriptor) && !_.isFunction(descriptor) && !_.isArray(descriptor)) {
-      const newResource = new Resource(descriptor, this._basePath)
-      const resourceFound = _.find(
-        this.resources, resource => _.isEqual(resource, newResource))
-
-      if (!resourceFound) {
-        const newDescriptor = this.descriptor
-        newDescriptor.resources.push(descriptor)
-        const valid = this._validateDescriptor(newDescriptor, this._profile)
-        if (this._shouldRaise(valid)) throw new Array(this._errors)
-        this._descriptor = newDescriptor
-        this._resources.push(new Resource(descriptor, this._basePath))
-
-        return this.valid
-      }
-
-      return true
+    this._descriptor.resources.push(descriptor)
+    this._nextDescriptor.resources.push(descriptor)
+    this._validateDescriptor()
+    if (this.valid) {
+      const resource = new Resource(descriptor, {basePath: this._basePath})
+      this._resources.push(resource)
+      return resource
     }
-
-    throw new Array(['Resource provided is not an Object'])
-  }
-
-  // Private
-
-  /**
-   * Validate the datapackage descriptor
-   *
-   * @param {Object} descriptor
-   * @param {Object|String} profile
-   * @returns {Boolean}
-   * @private
-   */
-  _validateDescriptor(descriptor, profile) {
-    const descriptorErrors = this._Profiles.validate(descriptor, profile)
-    if (descriptorErrors instanceof Array) {
-      this._errors = descriptorErrors
-      this._valid = false
-    } else {
-      this._valid = true
-    }
-
-    _.forEach(descriptor.resources, resource => {
-      this._valid = this.valid && this._validateResource(resource)
-    })
-
-    return this.valid
   }
 
   /**
-   * Validate a resource descriptor. It returns the validity of the resource
-   * and store any errors in this._errors.
-   *
-   * @param {Object} resource
-   * @return {boolean}
-   * @private
+   * Add data resource
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
-  _validateResource(resource) {
-    const resourceObject = new Resource(resource, this._basePath)
-
-    let pathErrors = []
-    if (resourceObject.type !== 'inline') {
-      try {
-        resourceObject._validPaths
-      } catch (err) {
-        pathErrors = err
-      }
-    }
-
-    const pathValid = pathErrors.length === 0
-    this._errors = this.errors.concat(pathErrors)
-
-    return pathValid
+  getResource(name) {
+    return this._resources.find(resource => resource.name === name) || null
   }
 
   /**
-   * Load the provided descriptor
-   *
-   * @param descriptor
-   * @return {Promise}
-   * @private
+   * Add data resource
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
-  _loadDescriptor(descriptor) {
-    const theDescriptor = descriptor
-    if (typeof theDescriptor === 'string') {
-      return new Promise((resolve, reject) => {
-        Utils.readFileOrURL(theDescriptor).then(res => {
-          resolve(JSON.parse(res))
-        }).catch(err => {
-          reject(err)
-        })
-      })
+  removeResource(name) {
+    const resource = this.getResource(name)
+    if (resource) {
+      const predicat = resource => resource.name !== name
+      this._descriptor.resources = this._descriptor.resources.filter(predicat)
+      this._nextDescriptor.resources = this._nextDescriptor.resources.filter(predicat)
+      this._validateDescriptor()
+      this._resources = this._resources.filter(predicat)
     }
-
-    return Promise.resolve(theDescriptor)
+    return resource
   }
 
   /**
-   * Check if the provided descriptor has da same resources property as the
-   * current descriptor
-   *
-   * @param newDescriptor
-   * @return {Boolean}
-   * @private
+   * Save data package descriptor
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
-  _resourcesAreSame(newDescriptor) {
-    if (newDescriptor.resources) {
-      return _.isEqual(newDescriptor.resources, this.descriptor.resources)
-    }
-
+  async save(target) {
+    helpers.writeDescriptor(this._descriptor, target)
     return true
   }
 
   /**
-   * Load resources from descriptor returning Array of Resource objects
-   *
-   * @param descriptor
-   * @return {[Resource]}
-   * @private
+   * Update data package
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
-  _loadResources(descriptor) {
-    const resources = []
-
-    _.forEach(descriptor.resources, resource => {
-      resources.push(new Resource(resource, this._basePath))
-    })
-
-    return resources
+  update() {
+    if (lodash.isEqual(this._descriptor, this._nextDescriptor)) {
+      return false
+    }
+    this._descriptor = lodash.cloneDeep(this._nextDescriptor)
+    this._validateDescriptor()
+    this._updateResources()
+    return true
   }
 
-  /**
-   * Returns true if errors should be raised depending on the validation result
-   * and the state of this._raiseInvalid
-   *
-   * @param valid
-   * @return {Boolean}
-   * @private
-   */
-  _shouldRaise(valid) {
-    return !valid && this._raiseInvalid
-  }
+  // Private
 
-  /**
-   * Returns the basepath from the path of the current descriptor if it is a
-   * local path, or the URL if the datapackage was loaded via URL.
-   *
-   * @param {String} descriptor
-   * @param {String} basePath
-   * @return {String|null}
-   * @private
-   */
-  static _getBasePath(descriptor, basePath = '') {
-    if (typeof descriptor === 'string') {
-      if (Utils.isRemoteURL(descriptor)) {
-        return url.resolve(descriptor, basePath)
+  constructor(descriptor, {basePath, strict, profile}={}) {
+
+    // Process descriptor
+    descriptor = helpers.expandDataPackageDescriptor(descriptor)
+
+    // Handle deprecated resource.path.url
+    for (const resource of (descriptor.resources || [])) {
+      if (resource.url) {
+        console.warn(
+          `Resource property "url: <url>" is deprecated.
+           Please use "path: [url]" instead (as array).`)
+        resource.path = [resource.url]
+        delete resource.url
       }
-
-      return path.join(path.dirname(descriptor), basePath)
+      if (lodash.isString(resource.path)) {
+        console.warn(
+          `Resource property "path: <path>" is deprecated.
+           Please use "path: [path]" instead (as array).`)
+        resource.path = [resource.path]
+      }
     }
 
-    return basePath
+    // Set attributes
+    this._nextDescriptor = lodash.cloneDeep(descriptor)
+    this._descriptor = descriptor
+    this._basePath = basePath
+    this._strict = strict
+    this._profile = profile
+    this._resources = []
+    this._errors = []
+
+    // Init data package
+    this._validateDescriptor()
+    this._fillResources()
+
   }
+
+  _validateDescriptor() {
+    try {
+      this._profile.validate(this._descriptor)
+    } catch (errors) {
+      if (this._strict) throw errors
+      this._errors = errors
+    }
+  }
+
+  _fillResources() {
+    if (this.valid) {
+      for (const descriptor of (this._descriptor.resources || [])) {
+        this._resources.push(new Resource(descriptor, {basePath: this._basePath}))
+      }
+    }
+  }
+
+  _updateResources() {
+    if (this.valid) {
+      for (const [index, resource] of Object.entries(this._resources)) {
+        const descriptor = this._descriptor.resources[index]
+        if (!lodash.isEqual(resource.descriptor, descriptor))
+          this._resources[index] = new Resource(descriptor, {basePath: this._basePath})
+      }
+    }
+  }
+
 }

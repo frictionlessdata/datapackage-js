@@ -4,6 +4,7 @@ import path from 'path'
 // Node and browser
 import axios from 'axios'
 import lodash from 'lodash'
+import urljoin from 'url-join'
 import jsonpointer from 'json-pointer'
 import * as config from './config'
 
@@ -24,7 +25,7 @@ export function locateDescriptor(descriptor) {
 
 export async function retrieveDescriptor(descriptor) {
   if (lodash.isPlainObject(descriptor)) {
-    return {...descriptor}
+    return lodash.cloneDeep(descriptor)
   }
   if (lodash.isString(descriptor)) {
 
@@ -59,7 +60,7 @@ export async function retrieveDescriptor(descriptor) {
 // Dereference descriptor
 
 export async function dereferenceDataPackageDescriptor(descriptor, basePath) {
-  descriptor = {...descriptor}
+  descriptor = lodash.cloneDeep(descriptor)
   for (const [index, resource] of (descriptor.resources || []).entries()) {
     // TODO: May be we should use Promise.all here
     descriptor.resources[index] = await dereferenceResourceDescriptor(
@@ -70,7 +71,7 @@ export async function dereferenceDataPackageDescriptor(descriptor, basePath) {
 
 
 export async function dereferenceResourceDescriptor(descriptor, basePath, baseDescriptor) {
-  descriptor = {...descriptor}
+  descriptor = lodash.cloneDeep(descriptor)
   baseDescriptor = baseDescriptor || descriptor
   const PROPERTIES = ['schema', 'dialect']
   for (const property of PROPERTIES) {
@@ -131,7 +132,7 @@ export async function dereferenceResourceDescriptor(descriptor, basePath, baseDe
 // Expand descriptor
 
 export function expandDataPackageDescriptor(descriptor) {
-  descriptor = {...descriptor}
+  descriptor = lodash.cloneDeep(descriptor)
   descriptor.profile = descriptor.profile || config.DEFAULT_DATA_PACKAGE_PROFILE
   for (const [index, resource] of (descriptor.resources || []).entries()) {
     descriptor.resources[index] = expandResourceDescriptor(resource)
@@ -141,7 +142,7 @@ export function expandDataPackageDescriptor(descriptor) {
 
 
 export function expandResourceDescriptor(descriptor) {
-  descriptor = {...descriptor}
+  descriptor = lodash.cloneDeep(descriptor)
   descriptor.profile = descriptor.profile || config.DEFAULT_RESOURCE_PROFILE
   descriptor.encoding = descriptor.encoding || config.DEFAULT_RESOURCE_ENCODING
   if (descriptor.profile == 'tabular-data-resource') {
@@ -170,6 +171,17 @@ export function expandResourceDescriptor(descriptor) {
 }
 
 
+// Write descriptor
+
+export async function writeDescriptor(descriptor, path) {
+  if (process.env.USER_ENV === 'browser') {
+    throw new Error('Writing descriptor on disk in browser is not supported')
+  }
+  // TODO: rebase on async function
+  fs.writeFileSync(path, JSON.stringify(descriptor))
+}
+
+
 // Miscellaneous
 
 export function isRemotePath(path) {
@@ -188,4 +200,8 @@ export function isSafePath(path) {
     return false
   }
   return true
+}
+
+export function joinUrl(...parts) {
+  return urljoin(...parts)
 }

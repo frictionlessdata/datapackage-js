@@ -4,7 +4,7 @@
     {
       "name": "random",
       "format": "csv",
-      "path": "data.csv",
+      "path": ["data.csv"],
       "schema": {
         "fields": [
           {

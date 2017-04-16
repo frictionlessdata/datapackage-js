@@ -247,8 +247,7 @@
         "description": "Data Resource.",
         "type": "object",
         "required": [
-          "name",
-          "data"
+          "name"
         ],
         "properties": {
           "profile": {

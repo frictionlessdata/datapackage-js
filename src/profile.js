@@ -14,20 +14,28 @@ export class Profile {
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   static async load(profile) {
-    let jsonschema = Profile.cache[profile]
+    let jsonschema = Profile._cache[profile]
     if (!jsonschema) {
-      const isRemote = helpers.isRemotePath(profile)
-      try {
-        if (isRemote) {
+
+      // Remote
+      if (helpers.isRemotePath(profile)) {
+        try {
           const response = await axios.get(profile)
           jsonschema = response.data
-        } else {
-          jsonschema = require(`./profiles/${profile}.json`)
+        } catch (error) {
+          throw new Error(`Can not retrieve remote profile "${profile}"`)
         }
-        Profile.cache[profile] = jsonschema
-      } catch (error) {
-        throw new Error(`Profile.load is not able to load profile "${profile}"`)
+
+      // Local
+      } else {
+        try {
+          jsonschema = require(`./profiles/${profile}.json`)
+        } catch (error) {
+          throw new Error(`Profiles registry hasn't profile "${profile}"`)
+        }
       }
+
+      Profile._cache[profile] = jsonschema
     }
     return new Profile(jsonschema)
   }
@@ -39,9 +47,8 @@ export class Profile {
   get name() {
     // TODO: rebase on jsonschema.spec property when available:
     // https://github.com/frictionlessdata/specs/issues/399#issuecomment-291116945
-    const title = this._jsonschema['title']
-    if (title) {
-      return title.replace(' ', '-').toLowerCase()
+    if (this._jsonschema.title) {
+      return this._jsonschema.title.replace(' ', '-').toLowerCase()
     }
     return null
   }
@@ -72,7 +79,7 @@ export class Profile {
 
   // Private
 
-  static cache = {}
+  static _cache = {}
 
   constructor(jsonschema) {
     this._jsonschema = jsonschema

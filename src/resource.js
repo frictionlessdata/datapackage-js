@@ -1,4 +1,4 @@
-import urljoin from 'url-join'
+import lodash from 'lodash'
 import {Table} from 'tableschema'
 import * as helpers from './helpers'
 
@@ -16,7 +16,7 @@ export class Resource {
   static async load(descriptor, {basePath}={}) {
 
     // Get base path
-    if (!basePath) {
+    if (lodash.isUndefined(basePath)) {
       basePath = helpers.locateDescriptor(descriptor)
     }
 
@@ -134,7 +134,7 @@ function _getSourceWithType(data, path, basePath) {
       source = path[0]
       sourceType = 'remote'
     } else if (basePath && helpers.isRemotePath(basePath)) {
-      source = urljoin(basePath, path[0])
+      source = helpers.joinUrl(basePath, path[0])
       sourceType = 'remote'
     } else {
       if (!helpers.isSafePath(path[0])) {

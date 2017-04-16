@@ -1,57 +1,59 @@
 # datapackage-js
 
-[![Travis Build Status](https://travis-ci.org/frictionlessdata/datapackage-js.svg?branch=master)](https://travis-ci.org/frictionlessdata/datapackage-js)
-[![Coverage Status](https://coveralls.io/repos/github/frictionlessdata/datapackage-js/badge.svg?branch=master)](https://coveralls.io/github/frictionlessdata/datapackage-js?branch=master)
+[![Travis](https://travis-ci.org/frictionlessdata/datapackage-js.svg?branch=master)](https://travis-ci.org/frictionlessdata/datapackage-js)
+[![Coveralls](https://coveralls.io/repos/github/frictionlessdata/datapackage-js/badge.svg?branch=master)](https://coveralls.io/github/frictionlessdata/datapackage-js?branch=master)
+[![NPM](https://img.shields.io/npm/v/datapackage.svg)](https://www.npmjs.com/package/datapackage)
 [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/frictionlessdata/chat)
 
-A model for working with [Data Packages](http://specs.frictionlessdata.io/data-package/).
+A ligrary for working with [Data Packages](http://specs.frictionlessdata.io/data-package/).
 
-> Version v1.0.0-alpha [WIP] has BREAKING CHANGES. A migration guide will be published.
-
-> - Starting from version v0.8.0 `datapackage` on NPM contains this library. Data Package Manager could be found [here](https://github.com/frictionlessdata/dpm-js).
-- Version v0.2.0 has renewed API introduced in NOT backward-compatibility manner. Previous version could be found [here](https://github.com/frictionlessdata/datapackage-js/tree/2bcf8e516fb1d871bd6b155962871f5cfd563c52).
-
+> Version v1.0 includes various important changes. Please read a [migration guide](#v10).
 
 ## Features
 
  - `Datapackage` class for working with datapackages.
  - `Resource` class for working with resources.
+ - `Profile` class for working with profiles.
  - `validate` function for validating datapackage descriptors.
- - Use remote or local datapackages
- - Use remote or local profiles
 
+## Getting Started
 
-## Installation
-
-> For now it's published in test mode. Please wait for publishing as `datapackage` before any usage except test usage.
-
+### Installation
 
 ```bash
-$ npm install datapackage
+$ npm install datapackage@latest # v1.0
+$ npm install datapackage # v0.8
 ```
 
-## Example
+### Example
 
-```javascript
-import { Datapackage } from 'datapackage'
+```js
+import {DataPackage} from 'datapackage'
 
-new Datapackage('http://bit.do/datapackage-json').then(datapackage => {
+const descriptor = {
+  resources: [
+    {
+      name: 'example',
+      profile: 'tabular-data-resource',
+      data: [
+        ['height', 'age', 'name'],
+        ['180', '18', 'Tony'],
+        ['192', '32', 'Jacob'],
+      ],
+      schema:  {
+        fields: [
+          {name: 'height', type: 'integer'},
+          {name: 'age', type: 'integer'},
+          {name: 'name', type: 'string'},
+        ],
+      }
+    }
+  ]
+}
 
-  // Print datapackage descriptor
-  console.log(datapackage.descriptor)
-
-  // Print datapackage resources
-  console.log(datapackage.resources)
-
-  // Print resource data
-  datapackage.resources[0].table(table => {
-      table.read().then(data => {
-          console.log(data)
-      })
-  })
-
-  // Change datapackage name
-  datapackage.update({name: 'Renamed datapackage'})
+DataPackage.load(data, schema).then(dataPackage, async () => {
+    const resource = dataPackage.resources[0]
+    await resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
 })
 ```
 
@@ -59,77 +61,111 @@ new Datapackage('http://bit.do/datapackage-json').then(datapackage => {
 
 ### Datapackage
 
-A base class for working with datapackages. It provides means for modifying the datapackage descriptor and adding resources, handling validation on along the process.
+A class for working with datapackages. It provides means for modifying the datapackage descriptor and adding resources, handling validation on along the process.
 
-```javascript
-import { Datapackage } from 'datapackage'
+```js
+const dataPackage = await DataPackage.load(<descriptor>)
 
-new Datapackage('http://bit.do/datapackage-json', 'base', false).then(datapackage => {
-  // see if datapackage is valid
-  datapackage.valid
-
-  // add new Resource
-  const valid = datapackage.addResource({ name: "New resource" })
-
-  // `addResource` returns the validation result of the changes
-  if (!valid) {
-    // see the errors why the package is invalid
-    console.log(datapackage.errors)
-
-    // output: [ 'Data does not match any schemas from "anyOf" in "/resources/1" schema path: "/properties/resources/items/anyOf"' ]
-  }
-})
+dataPackage.valid // true
+dataPackage.errors // []
+dataPackage.profile // profile instance (ses below)
+dataPackage.descriptor // retrieved/dereferenced/expanded descriptor
+dataPackage.resources // array of data resource instances (see below)
 ```
 
-### Constructor
-#### **new Datapackage**([Object|String] **descriptor**, [Object|String] **profile**, [Boolean] **raiseInvalid**, [Boolean] **remoteProfiles**, [String] **basePath**)
-##### **Returns:** Promise that resolves in Datapackage class instance or rejects with Array of descriptive errors.
+#### async DataPackage.load(descriptor, {basePath, strict=true})
 
- - **descriptor** is the only required argument and it represents the description of the Datapackage
- - **profile** (defaults to `base`) is the validation profile to validate the descriptor against. Available profiles are `base`, `tabular` and `fiscal`, but you can also provide your own profile Object for validation.
- - **raiseInvalid** (defaults to `true`) can be used to specify if you want a Array of descriptive errors to be throws if the datapacakge is invalid (or becomes invalid after modifying it), or to be able to work with datapackage which is in invalid state.
- - **remoteProfiles** (defaults to `false`) can be used to specify if you want to work with the local copies of the profiles or fetch the latest profiles from Internet.
- - **basePath** (defaults to empty string if the descriptor is an Object, the URL if it's a remote path or it's the `dirname` of the local path) can be used to specify the base path for the resources defined in the descriptor. Resources path is always appended to the `basePath`. The default behaviour of `basePath` is:
-   - If initialized with path to a local file
-     - default `basePath` is `dirname` of the path
-     - any explicitly provided `basePath` to the constructor is appended to the default `basepath`
-   - If initialized with a remote path
-     - default `basePath` is the remote path
-     - any explicitly provided `basePath` to the constructor is appended to the default `basePath`
-   - If initialized with `Object`
-     - default `basePath` is empty String (`''`)
-     - any explicit `basePath` will be used as `basePath`
-   - In case when the resource path is an absolute URL, `basePath` is disregarded and only the URL is used to fetch the resource.
-   - Examples
-     - `datapackage` is initialized with the `my-datapackages/datapackage.json` descriptor, the `basePath` is set to `data/` and the resource path is `november/resource.csv` the resource is expected to be in `my-datapackages/data/november/resource.cvs` relative of the directory where the library is executed.
+Factory method to instantiate `DataPackage` class. This method is async and it should be used with await keyword or as a `Promise`.
 
-### Class methods
+- descriptor (String/Object) - gets data package descriptor as local path, url or object
+- basePath (String) - gets base path for all relative pathes
+- strict (Boolean) - gets strict flag to alter validation behaviour:
+  - by default strict is true so any validation error will be raised
+  - it could be set to false to ignore and put validation errors to `dataPackage.errors`
+- (Error) - raises error if resource can't be instantiated
+- (Error) - raises error if there is a validation error and strict is true
+- (DataPackage) - returns data package class instance
 
-#### .**update**({Object} **descriptor**)
-##### **Returns:**  `true` or `false` for the validation status, or throws an Array of descriptive errors if `raiseInvalid` is set to `true`.
+List of actions on descriptor:
+- retrieved (if path/url)
+- dereferenced (schema/dialect)
+- expanded (with profile defaults)
+- validated (against descriptor.profile)
 
-The `update` method provides a way for updating the Datapackage descriptor properties. The provided Object is merged with the current descriptor and this is validated against the specified `profile`.
+#### dataPackage.valid
 
-**Note:** the objects are not deeply merged. Internally we use the `assignIn` method from Lodash.
+- (Boolean) - returns validation status. It always true in strict mode.
 
-####.**addResource**({Object} **resource**)
-#####**Returns:**  `true` or `false` for the validation status, or throws an Array of descriptive errors if `raiseInvalid` is set to `true`.
+#### dataPackage.errors
 
-Method for adding a resource to the datapackage.
+- (Error[]) - returns validation errors. It always empty in strict mode.
 
-### Class getters
+#### dataPackage.profile
 
-#### .**valid**
-##### **Returns**: `true` or `false` for the validation status of the datapackage. Datapackages are always valid if `raiseInvalid` is set to `true`.
+- (Profile) - returns an instance of `Profile` class (see below).
 
-#### .**errors**
-**Returns**: an empty array if there are no errors, or array with strings if there are errors found.
+#### dataPackage.descriptor
 
-#### .**descriptor**
-##### **Returns**: the datapackage descriptor
+- (Object) - returns data package descriptor
 
-#### .**resources**
-##### **Returns**: array of `Resource` class objects
+#### dataPackage.resources
+
+- (Resource[]) - returns an array of `Resource` instances (see below).
+
+#### dataPackage.addResource(descriptor)
+
+Add new resource to data package. The data package descriptor will be validated  with newly added resource descriptor.
+
+- descriptor (Object) - gets data resource descriptor
+- (Error[]) - raises list of validation errors
+- (Error) - raises any resource creation error
+- (Resource) - returns added `Resource` instance
+
+#### dataPackage.getResource(name)
+
+Get data package resource by name.
+
+- name (String) - gets data resource name
+- (Resource/null) - returns `Resource` instances or null if not found
+
+#### dataPackage.removeResource(name)
+
+Remove data package resource by name. The data package descriptor will be validated after resource descriptor removal.
+
+- name (String) - gets data resource name
+- (Error[]) - raises list of validation errors
+- (Resource/null) - returns removed `Resource` instances or null if not found
+
+#### async dataPackage.save(target)
+
+> For now only descriptor will be saved.
+
+Save data package to target destination.
+
+- target (String) - gets path where to save a data package
+- (Error) - raises an error if there is saving problem
+- (Boolean) - returns true on success
+
+#### dataPackage.update()
+
+Update data package instance if there are in-place changes in the descriptor.
+
+- (Error[]) - raises list of validation errors
+- (Error) - raises any resource creation error
+- (Boolean) - returns true on success and false if not modified
+
+```js
+const dataPackage = await DataPackage.load({
+    name: 'package',
+    resources: [{name: 'resource', data: ['data']}]
+})
+
+dataPackage.name // package
+dataPackage.descriptor.name = 'renamed-package'
+dataPackage.name // package
+dataPackage.update()
+dataPackage.name // renamed-package
+```
 
 ### Resource
 
@@ -138,7 +174,6 @@ A class for working with data resources. You can read or iterate tabular resourc
 > Synchronous resource.table property and table.headers are WIP
 
 ```js
-
 const descriptor = {
   name: 'example',
   profile: 'tabular-data-resource',
@@ -161,11 +196,11 @@ const resource = await Resource.load(data, schema)
 resource.name // example
 resource.tabuler // true
 resource.descriptor // descriptor
-resource.source_type // inline
+resource.sourceType // inline
 resource.source // descriptor.data
 
 resource.table.headers // ['height', 'age', 'name]
-resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
+await resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
 ```
 
 #### async Resource.load(descriptor, {basePath})
@@ -177,7 +212,7 @@ Factory method to instantiate `Resource` class. This method is async and it shou
 - (Error) - raises error if resource can't be instantiated
 - (Resource) - returns resource class instance
 
-The descriptor will be:
+List of actions on descriptor:
 - retrieved (if path/url)
 - dereferenced (schema/dialect)
 - expanded (with profile defaults)
@@ -210,8 +245,21 @@ The descriptor will be:
   - descriptor.path[0] (local/remote)
   - descriptor.path (multipart-loca/remote)
 
+Combination of `resource.source` and `resource.sourceType` provides predictable interface to work with resource data:
+
+```js
+if (resource.sourceType === 'local') {
+  // logic to handle local file
+} else if (resource.sourceType === 'remote') {
+  // logic to handle remote file
+} else if (resource.sourteType.startsWith('multipart')) {
+  // logic to handle list of chunks
+}
+```
+
 #### resource.table
 
+- (Error) - raises on any table opening error
 - (null/tableschema.Table) - returns table instance if resource is tabular
 
 Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
@@ -257,7 +305,7 @@ Factory method to instantiate `Profile` class. This method is async and it shoul
 Validate a data package `descriptor` against the profile.
 
 - descriptor (Object) - gets retrieved and dereferenced data package descriptor
-- (Error) - raises with list of errors for invalid
+- (Error[]) - raises with list of errors for invalid
 - (Boolean) - returns true for valid
 
 ### validate
@@ -279,8 +327,22 @@ try {
 This funcion is async so it has to be used with `await` keyword or as a `Promise`.
 
 - descriptor (String/Object) - gets data package descriptor (local/remote path or object)
-- (Error) - raises list of validation errors for invalid
+- (Error[]) - raises list of validation errors for invalid
 - (Boolean) - returns true for valid
+
+List of actions on descriptor:
+- retrieved (if path/url)
+- dereferenced (schema/dialect)
+- expanded (with profile defaults)
+- validated (against descriptor.profile)
+
+## Changelog
+
+Here described only breaking and the most important changes. The full changelog could be found in nicely formatted [commit history](https://github.com/frictionlessdata/datapackage-js/commits/master).
+
+### v1.0
+
+This version includes various big changes. A migration guide is under development and will be published here.
 
 ## Contributing
 
