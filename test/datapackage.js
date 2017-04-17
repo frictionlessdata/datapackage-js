@@ -45,7 +45,11 @@ describe('DataPackage', () => {
       assert.isFalse(datapackage.valid)
     })
 
-    it('loads relative resource', async () => {
+    it('loads relative resource', async function() {
+      // TODO: For now tableschema doesn't support in-browser table.read
+      if (process.env.USER_ENV === 'browser') {
+        this.skip()
+      }
       const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
       const datapackage = await DataPackage.load(descriptor)
       datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
@@ -54,7 +58,11 @@ describe('DataPackage', () => {
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
 
-    it('loads resource from absolute URL', async () => {
+    it('loads resource from absolute URL', async function() {
+      // TODO: For now tableschema doesn't support in-browser table.read
+      if (process.env.USER_ENV === 'browser') {
+        this.skip()
+      }
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
       const datapackage = await DataPackage.load(descriptor)
       datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
@@ -63,7 +71,11 @@ describe('DataPackage', () => {
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
 
-    it('loads resource from absolute URL disregarding basePath', async () => {
+    it('loads resource from absolute URL disregarding basePath', async function() {
+      // TODO: For now tableschema doesn't support in-browser table.read
+      if (process.env.USER_ENV === 'browser') {
+        this.skip()
+      }
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
       const datapackage = await DataPackage.load(descriptor, {basePath: 'local/basePath'})
       datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
@@ -72,7 +84,11 @@ describe('DataPackage', () => {
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
 
-    it('loads remote resource with basePath', async () => {
+    it('loads remote resource with basePath', async function() {
+      // TODO: For now tableschema doesn't support in-browser table.read
+      if (process.env.USER_ENV === 'browser') {
+        this.skip()
+      }
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
       const datapackage = await DataPackage.load(descriptor, {basePath: 'data'})
       datapackage.resources[1].descriptor.profile = 'tabular-data-resource'
@@ -149,11 +165,17 @@ describe('DataPackage', () => {
 
     it('mixed', async () => {
       const descriptor = 'data/data-package-dereference.json'
-      const datapackage = await DataPackage.load(descriptor)
-      assert.deepEqual(datapackage.descriptor.resources, [
-        {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
-        {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
-      ].map(expandResource))
+      if (process.env.USER_ENV !== 'browser') {
+        const datapackage = await DataPackage.load(descriptor)
+        assert.deepEqual(datapackage.descriptor.resources, [
+          {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
+          {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
+        ].map(expandResource))
+      } else {
+        const error = await catchError(DataPackage.load, descriptor)
+        assert.instanceOf(error, Error)
+        assert.include(error.message, 'in browser')
+      }
     })
 
     it('pointer', async () => {
@@ -218,11 +240,17 @@ describe('DataPackage', () => {
           {name: 'name2', data: ['data'], dialect: 'csv-dialect.json'},
         ],
       }
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data'})
-      assert.deepEqual(datapackage.descriptor.resources, [
-        {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
-        {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
-      ].map(expandResource))
+      if (process.env.USER_ENV !== 'browser') {
+        const datapackage = await DataPackage.load(descriptor, {basePath: 'data'})
+        assert.deepEqual(datapackage.descriptor.resources, [
+          {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
+          {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
+        ].map(expandResource))
+      } else {
+        const error = await catchError(DataPackage.load, descriptor, {basePath: 'data'})
+        assert.instanceOf(error, Error)
+        assert.include(error.message, 'in browser')
+      }
     })
 
     it('local bad', async () => {
@@ -233,7 +261,11 @@ describe('DataPackage', () => {
       }
       const error = await catchError(DataPackage.load, descriptor, {basePath: 'data'})
       assert.instanceOf(error, Error)
-      assert.include(error.message, 'Not resolved Local URI')
+      if (process.env.USER_ENV !== 'browser') {
+        assert.include(error.message, 'Not resolved Local URI')
+      } else {
+        assert.include(error.message, 'in browser')
+      }
     })
 
     it('local bad not safe', async () => {
@@ -244,7 +276,11 @@ describe('DataPackage', () => {
       }
       const error = await catchError(DataPackage.load, descriptor, {basePath: 'data'})
       assert.instanceOf(error, Error)
-      assert.include(error.message, 'Not safe path')
+      if (process.env.USER_ENV !== 'browser') {
+        assert.include(error.message, 'Not safe path')
+      } else {
+        assert.include(error.message, 'in browser')
+      }
     })
 
   })
@@ -445,11 +481,15 @@ describe('DataPackage', () => {
 
   describe('#save', () => {
 
-    it('general', async () => {
+    it('general', async function () {
+      // TODO: check it trows correct error in browser
+      if (process.env.USER_ENV === 'browser') {
+        this.skip()
+      }
       const descriptor = {resources: [{name: 'name', data: ['data']}]}
       const datapackage = await DataPackage.load(descriptor)
       const writeFileSync = sinon.stub(fs, 'writeFileSync')
-      datapackage.save('target')
+      await datapackage.save('target')
       writeFileSync.restore()
       sinon.assert.calledWith(writeFileSync,
         'target', JSON.stringify(expand(descriptor)))

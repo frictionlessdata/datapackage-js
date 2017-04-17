@@ -125,7 +125,11 @@ export class DataPackage {
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   async save(target) {
-    helpers.writeDescriptor(this._descriptor, target)
+    try {
+      await helpers.writeDescriptor(this._descriptor, target)
+    } catch (error) {
+      throw error
+    }
     return true
   }
 

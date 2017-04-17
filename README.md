@@ -5,27 +5,37 @@
 [![NPM](https://img.shields.io/npm/v/datapackage.svg)](https://www.npmjs.com/package/datapackage)
 [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/frictionlessdata/chat)
 
-A ligrary for working with [Data Packages](http://specs.frictionlessdata.io/data-package/).
+A library for working with [Data Packages](http://specs.frictionlessdata.io/data-package/).
 
 > Version v1.0 includes various important changes. Please read a [migration guide](#v10).
 
 ## Features
 
- - `Datapackage` class for working with datapackages.
- - `Resource` class for working with resources.
- - `Profile` class for working with profiles.
- - `validate` function for validating datapackage descriptors.
+ - `DataPackage` class for working with data packages
+ - `Resource` class for working with data resources
+ - `Profile` class for working with profiles
+ - `validate` function for validating data package descriptors
 
 ## Getting Started
 
 ### Installation
+
+#### NPM
 
 ```bash
 $ npm install datapackage@latest # v1.0
 $ npm install datapackage # v0.8
 ```
 
-### Example
+#### CDN
+
+```html
+<script src="//unpkg.com/datapackage/dist/datapackage.min.js"></script>
+```
+
+### Examples
+
+There are main examples and more are available in [examples](https://github.com/frictionlessdata/datapackage-py/tree/master/examples) directory.
 
 ```js
 import {DataPackage} from 'datapackage'
@@ -59,7 +69,7 @@ DataPackage.load(data, schema).then(dataPackage, async () => {
 
 ## Documentation
 
-### Datapackage
+### DataPackage
 
 A class for working with datapackages. It provides means for modifying the datapackage descriptor and adding resources, handling validation on along the process.
 

@@ -1,6 +1,5 @@
 // Node only
 import fs from 'fs'
-import path from 'path'
 // Node and browser
 import axios from 'axios'
 import lodash from 'lodash'
@@ -12,12 +11,10 @@ import * as config from './config'
 // Locate descriptor
 
 export function locateDescriptor(descriptor) {
-  let basePath = null
   if (lodash.isString(descriptor)) {
-    // TODO: support for browser
-    basePath = path.dirname(descriptor)
+    return descriptor.split('/').slice(0, -1).join('/') || '.'
   }
-  return basePath
+  return null
 }
 
 
@@ -111,7 +108,8 @@ export async function dereferenceResourceDescriptor(descriptor, basePath, baseDe
         throw new Error(`Local URI "${value}" requires base path for resource.${property}`)
       }
       try {
-        const fullPath = path.join(basePath, value)
+        // TODO: support other that Unix OS
+        const fullPath = [basePath, value].join('/')
         // TODO: rebase on promisified fs.readFile (async)
         const contents = fs.readFileSync(fullPath, 'utf-8')
         descriptor[property] = JSON.parse(contents)

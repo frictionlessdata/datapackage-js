@@ -104,14 +104,20 @@ describe('Resource', () => {
 
     it('general', async () => {
       const descriptor = 'data/data-resource-dereference.json'
-      const resource = await Resource.load(descriptor)
-      assert.deepEqual(resource.descriptor, expand({
-        name: 'name',
-        data: 'data',
-        schema: {fields: [{name: 'name'}]},
-        dialect: {delimiter: ','},
-        dialects: {main: {delimiter: ','}},
-      }))
+      if (process.env.USER_ENV !== 'browser') {
+        const resource = await Resource.load(descriptor)
+        assert.deepEqual(resource.descriptor, expand({
+          name: 'name',
+          data: 'data',
+          schema: {fields: [{name: 'name'}]},
+          dialect: {delimiter: ','},
+          dialects: {main: {delimiter: ','}},
+        }))
+      } else {
+        const error = await catchError(Resource.load, descriptor)
+        assert.instanceOf(error, Error)
+        assert.include(error.message, 'in browser')
+      }
     })
 
     it('pointer', async () => {
