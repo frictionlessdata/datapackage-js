@@ -108,7 +108,7 @@ describe('Resource', () => {
       assert.deepEqual(resource.descriptor, expand({
         name: 'name',
         data: 'data',
-        schema: {'fields': [{'name': 'name'}]},
+        schema: {fields: [{name: 'name'}]},
         dialect: {delimiter: ','},
         dialects: {main: {delimiter: ','}},
       }))
@@ -119,14 +119,14 @@ describe('Resource', () => {
         name: 'name',
         data: 'data',
         schema: '#/schemas/main',
-        schemas: {'main': {'fields': [{'name': 'name'}]}},
+        schemas: {main: {fields: [{name: 'name'}]}},
       }
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.descriptor, expand({
         name: 'name',
         data: 'data',
-        schema: {'fields': [{'name': 'name'}]},
-        schemas: {'main': {'fields': [{'name': 'name'}]}},
+        schema: {fields: [{name: 'name'}]},
+        schemas: {main: {fields: [{name: 'name'}]}},
       }))
     })
 
@@ -147,12 +147,12 @@ describe('Resource', () => {
         data: 'data',
         schema: 'http://example.com/schema',
       }
-      http.onGet(descriptor.schema).reply(200, {'fields': [{'name': 'name'}]})
+      http.onGet(descriptor.schema).reply(200, {fields: [{name: 'name'}]})
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.descriptor, expand({
         name: 'name',
         data: 'data',
-        schema: {'fields': [{'name': 'name'}]},
+        schema: {fields: [{name: 'name'}]},
       }))
     })
 
@@ -174,12 +174,12 @@ describe('Resource', () => {
         data: 'data',
         schema: 'table-schema.json',
       }
-      if(process.env.USER_ENV !== 'browser') {
+      if (process.env.USER_ENV !== 'browser') {
         const resource = await Resource.load(descriptor, {basePath: 'data'})
         assert.deepEqual(resource.descriptor, expand({
           name: 'name',
           data: 'data',
-          schema: {'fields': [{'name': 'name'}]},
+          schema: {fields: [{name: 'name'}]},
         }))
       } else {
         const error = await catchError(Resource.load, descriptor, {basePath: 'data'})
@@ -196,7 +196,7 @@ describe('Resource', () => {
       }
       const error = await catchError(Resource.load, descriptor, {basePath: 'data'})
       assert.instanceOf(error, Error)
-      if(process.env.USER_ENV !== 'browser') {
+      if (process.env.USER_ENV !== 'browser') {
         assert.include(error.message, 'Not resolved Local URI')
       } else {
         assert.include(error.message, 'in browser is not supported')
@@ -211,7 +211,7 @@ describe('Resource', () => {
       }
       const error = await catchError(Resource.load, descriptor, {basePath: 'data'})
       assert.instanceOf(error, Error)
-      if(process.env.USER_ENV !== 'browser') {
+      if (process.env.USER_ENV !== 'browser') {
         assert.include(error.message, 'Not safe path')
       } else {
         assert.include(error.message, 'in browser is not supported')
@@ -229,10 +229,10 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.descriptor, {
-          'name': 'name',
-          'data': 'data',
-          'profile': 'data-resource',
-          'encoding': 'utf-8',
+        name: 'name',
+        data: 'data',
+        profile: 'data-resource',
+        encoding: 'utf-8',
       })
     })
 
@@ -254,7 +254,7 @@ describe('Resource', () => {
         schema: {
           fields: [{name: 'name', type: 'string', format: 'default'}],
           missingValues: [''],
-        }
+        },
       })
     })
 
@@ -264,8 +264,8 @@ describe('Resource', () => {
         data: 'data',
         profile: 'tabular-data-resource',
         dialect: {
-            delimiter: 'custom',
-        }
+          delimiter: 'custom',
+        },
       }
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.descriptor, {
@@ -282,7 +282,7 @@ describe('Resource', () => {
           skipInitialSpace: true,
           header: true,
           caseSensitiveHeader: false,
-        }
+        },
       })
     })
 
@@ -468,13 +468,13 @@ describe('Resource', () => {
           ['180', '18', 'Tony'],
           ['192', '32', 'Jacob'],
         ],
-        schema:  {
+        schema: {
           fields: [
             {name: 'height', type: 'integer'},
             {name: 'age', type: 'integer'},
             {name: 'name', type: 'string'},
           ],
-        }
+        },
       }
       const resource = await Resource.load(descriptor)
       const table = await resource.table
@@ -495,12 +495,12 @@ describe('Resource', () => {
         name: 'example',
         profile: 'tabular-data-resource',
         path: ['dp1/data.csv'],
-        schema:  {
+        schema: {
           fields: [
             {name: 'name', type: 'string'},
             {name: 'size', type: 'integer'},
           ],
-        }
+        },
       }
       const resource = await Resource.load(descriptor, {basePath: 'data'})
       const table = await resource.table

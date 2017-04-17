@@ -119,7 +119,7 @@ Add new resource to data package. The data package descriptor will be validated 
 - descriptor (Object) - gets data resource descriptor
 - (Error[]) - raises list of validation errors
 - (Error) - raises any resource creation error
-- (Resource) - returns added `Resource` instance
+- (Resource/null) - returns added `Resource` instance or null if not added
 
 #### dataPackage.getResource(name)
 

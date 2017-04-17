@@ -14,7 +14,7 @@ export class Profile {
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   static async load(profile) {
-    let jsonschema = Profile._cache[profile]
+    let jsonschema = _cache[profile]
     if (!jsonschema) {
 
       // Remote
@@ -35,7 +35,7 @@ export class Profile {
         }
       }
 
-      Profile._cache[profile] = jsonschema
+      _cache[profile] = jsonschema
     }
     return new Profile(jsonschema)
   }
@@ -66,23 +66,26 @@ export class Profile {
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   validate(descriptor) {
-      const validation = tv4.validateMultiple(descriptor, this._jsonschema)
-      if (!validation.valid) {
-        const errors = []
-        for (const error of validation.errors) {
-          errors.push(new Error(`Descriptor validation error: ${error.message}`))
-        }
-        throw errors
+    const validation = tv4.validateMultiple(descriptor, this._jsonschema)
+    if (!validation.valid) {
+      const errors = []
+      for (const error of validation.errors) {
+        errors.push(new Error(`Descriptor validation error: ${error.message}`))
       }
-      return true
+      throw errors
+    }
+    return true
   }
 
   // Private
-
-  static _cache = {}
 
   constructor(jsonschema) {
     this._jsonschema = jsonschema
   }
 
 }
+
+
+// Internal
+
+const _cache = {}

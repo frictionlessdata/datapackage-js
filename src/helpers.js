@@ -41,7 +41,7 @@ export async function retrieveDescriptor(descriptor) {
     // Local
     } else {
       if (process.env.USER_ENV === 'browser') {
-        throw new Error('Local descriptor "${descriptor}" in browser is not supported')
+        throw new Error(`Local descriptor "${descriptor}" in browser is not supported`)
       }
       try {
         // TODO: rebase on promisified fs.readFile (async)
@@ -80,30 +80,27 @@ export async function dereferenceResourceDescriptor(descriptor, basePath, baseDe
     // URI -> No
     if (!lodash.isString(value)) {
       continue
-    }
 
     // URI -> Pointer
-    else if (value.startsWith('#')) {
+    } else if (value.startsWith('#')) {
       try {
         descriptor[property] = jsonpointer.get(baseDescriptor, value.slice(1))
       } catch (error) {
         throw new Error(`Not resolved Pointer URI "${value}" for resource.${property}`)
       }
-    }
 
     // URI -> Remote
     // TODO: remote base path also will lead to remote case!
-    else if (isRemotePath(value)) {
+    } else if (isRemotePath(value)) {
       try {
         const response = await axios.get(value)
         descriptor[property] = response.data
       } catch (error) {
         throw new Error(`Not resolved Remote URI "${value}" for resource.${property}`)
       }
-    }
 
     // URI -> Local
-    else {
+    } else {
       if (process.env.USER_ENV === 'browser') {
         throw new Error('Local URI dereferencing in browser is not supported')
       }
@@ -145,7 +142,7 @@ export function expandResourceDescriptor(descriptor) {
   descriptor = lodash.cloneDeep(descriptor)
   descriptor.profile = descriptor.profile || config.DEFAULT_RESOURCE_PROFILE
   descriptor.encoding = descriptor.encoding || config.DEFAULT_RESOURCE_ENCODING
-  if (descriptor.profile == 'tabular-data-resource') {
+  if (descriptor.profile === 'tabular-data-resource') {
 
     // Schema
     const schema = descriptor.schema
@@ -196,7 +193,7 @@ export function isSafePath(path) {
   if (path.startsWith('/')) {
     return false
   }
-  if (path.includes('../') || path.includes('..\\')){
+  if (path.includes('../') || path.includes('..\\')) {
     return false
   }
   return true

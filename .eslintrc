@@ -22,12 +22,12 @@ rules:
     - error
     - allowEmptyCatch: true
   no-use-before-define:
-    - error
+    - off
     - nofunc
   one-var:
     - off
   eqeqeq:
-    - warn
+    - error
     - smart
   no-unused-vars:
     - error
@@ -60,7 +60,21 @@ rules:
     - off
   space-before-function-paren:
     - off
+  block-spacing:
+    - off
+  space-infix-ops:
+    - off
+  no-shadow:
+    - off
+  no-console:
+    - off
+  no-continue:
+    - off
+  no-prototype-builtins:
+    - off
   import/no-dynamic-require:
     - off
   import/newline-after-import:
+    - off
+  import/prefer-default-export:
     - off

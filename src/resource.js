@@ -126,10 +126,9 @@ function _getSourceWithType(data, path, basePath) {
   if (data) {
     source = data
     sourceType = 'inline'
-  }
 
   // Local/Remote
-  else if (path.length === 1) {
+  } else if (path.length === 1) {
     if (helpers.isRemotePath(path[0])) {
       source = path[0]
       sourceType = 'remote'
@@ -147,10 +146,9 @@ function _getSourceWithType(data, path, basePath) {
       source = [basePath, path[0]].join('/')
       sourceType = 'local'
     }
-  }
 
   // Multipart Local/Remote
-  else if (path.length > 1) {
+  } else if (path.length > 1) {
     source = []
     sourceType = 'multipart-local'
     for (const chunkPath of path) {

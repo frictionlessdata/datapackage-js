@@ -3,7 +3,6 @@ import fs from 'fs'
 // Node and broswer
 import axios from 'axios'
 import sinon from 'sinon'
-import lodash from 'lodash'
 import {assert} from 'chai'
 import AxiosMock from 'axios-mock-adapter'
 import {DataPackage} from '../src/datapackage'
@@ -94,7 +93,7 @@ describe('DataPackage', () => {
       const descriptor = {
         resources: [
           {name: 'name', data: ['data']},
-        ]
+        ],
       }
       const datapackage = await DataPackage.load(descriptor)
       assert.deepEqual(datapackage.descriptor, expand(descriptor))
@@ -159,12 +158,12 @@ describe('DataPackage', () => {
 
     it('pointer', async () => {
       const descriptor = {
-          resources: [
-              {name: 'name1', data: ['data'], schema: '#/schemas/main'},
-              {name: 'name2', data: ['data'], dialect: '#/dialects/0'},
-           ],
-          schemas: {main: {fields: [{name: 'name'}]}},
-          dialects: [{delimiter: ','}],
+        resources: [
+          {name: 'name1', data: ['data'], schema: '#/schemas/main'},
+          {name: 'name2', data: ['data'], dialect: '#/dialects/0'},
+        ],
+        schemas: {main: {fields: [{name: 'name'}]}},
+        dialects: [{delimiter: ','}],
       }
       const datapackage = await DataPackage.load(descriptor)
       assert.deepEqual(datapackage.descriptor.resources, [
@@ -175,9 +174,9 @@ describe('DataPackage', () => {
 
     it('pointer bad', async () => {
       const descriptor = {
-          resources: [
-              {name: 'name1', data: ['data'], schema: '#/schemas/main'},
-           ],
+        resources: [
+          {name: 'name1', data: ['data'], schema: '#/schemas/main'},
+        ],
       }
       const error = await catchError(DataPackage.load, descriptor)
       assert.instanceOf(error, Error)
@@ -186,10 +185,10 @@ describe('DataPackage', () => {
 
     it('remote', async () => {
       const descriptor = {
-          resources: [
-              {name: 'name1', data: ['data'], schema: 'http://example.com/schema'},
-              {name: 'name2', data: ['data'], dialect: 'http://example.com/dialect'},
-           ],
+        resources: [
+          {name: 'name1', data: ['data'], schema: 'http://example.com/schema'},
+          {name: 'name2', data: ['data'], dialect: 'http://example.com/dialect'},
+        ],
       }
       http.onGet('http://example.com/schema').reply(200, {fields: [{name: 'name'}]})
       http.onGet('http://example.com/dialect').reply(200, {delimiter: ','})
@@ -202,9 +201,9 @@ describe('DataPackage', () => {
 
     it('remote bad', async () => {
       const descriptor = {
-          resources: [
-              {name: 'name1', data: ['data'], schema: 'http://example.com/schema'},
-           ],
+        resources: [
+          {name: 'name1', data: ['data'], schema: 'http://example.com/schema'},
+        ],
       }
       http.onGet('http://example.com/schema').reply(500)
       const error = await catchError(DataPackage.load, descriptor)
@@ -214,10 +213,10 @@ describe('DataPackage', () => {
 
     it('local', async () => {
       const descriptor = {
-          resources: [
-              {name: 'name1', data: ['data'], schema: 'table-schema.json'},
-              {name: 'name2', data: ['data'], dialect: 'csv-dialect.json'},
-           ],
+        resources: [
+          {name: 'name1', data: ['data'], schema: 'table-schema.json'},
+          {name: 'name2', data: ['data'], dialect: 'csv-dialect.json'},
+        ],
       }
       const datapackage = await DataPackage.load(descriptor, {basePath: 'data'})
       assert.deepEqual(datapackage.descriptor.resources, [
@@ -228,9 +227,9 @@ describe('DataPackage', () => {
 
     it('local bad', async () => {
       const descriptor = {
-          resources: [
-              {name: 'name1', data: ['data'], schema: 'bad-path.json'},
-           ],
+        resources: [
+          {name: 'name1', data: ['data'], schema: 'bad-path.json'},
+        ],
       }
       const error = await catchError(DataPackage.load, descriptor, {basePath: 'data'})
       assert.instanceOf(error, Error)
@@ -239,9 +238,9 @@ describe('DataPackage', () => {
 
     it('local bad not safe', async () => {
       const descriptor = {
-          resources: [
-              {name: 'name1', data: ['data'], schema: '../data/table-schema.json'},
-           ],
+        resources: [
+          {name: 'name1', data: ['data'], schema: '../data/table-schema.json'},
+        ],
       }
       const error = await catchError(DataPackage.load, descriptor, {basePath: 'data'})
       assert.instanceOf(error, Error)
@@ -258,7 +257,7 @@ describe('DataPackage', () => {
           {
             name: 'name',
             data: ['data'],
-          }
+          },
         ],
       }
       const datapackage = await DataPackage.load(descriptor)
@@ -270,7 +269,7 @@ describe('DataPackage', () => {
             data: ['data'],
             profile: 'data-resource',
             encoding: 'utf-8',
-          }
+          },
         ],
       })
     })
@@ -282,22 +281,22 @@ describe('DataPackage', () => {
             name: 'name',
             data: ['data'],
             profile: 'tabular-data-resource',
-            schema: {fields: [{name: 'name'}]}
-          }
+            schema: {fields: [{name: 'name'}]},
+          },
         ],
       }
       const datapackage = await DataPackage.load(descriptor)
       assert.deepEqual(datapackage.descriptor, {
         profile: 'data-package',
         resources: [{
-            name: 'name',
-            data: ['data'],
-            profile: 'tabular-data-resource',
-            encoding: 'utf-8',
-            schema: {
-              fields: [{name: 'name', type: 'string', format: 'default'}],
-              missingValues: [''],
-            }
+          name: 'name',
+          data: ['data'],
+          profile: 'tabular-data-resource',
+          encoding: 'utf-8',
+          schema: {
+            fields: [{name: 'name', type: 'string', format: 'default'}],
+            missingValues: [''],
+          },
         }],
       })
     })
@@ -309,28 +308,28 @@ describe('DataPackage', () => {
             name: 'name',
             data: ['data'],
             profile: 'tabular-data-resource',
-            dialect: {delimiter: 'custom'}
-          }
+            dialect: {delimiter: 'custom'},
+          },
         ],
       }
       const datapackage = await DataPackage.load(descriptor)
       assert.deepEqual(datapackage.descriptor, {
         profile: 'data-package',
         resources: [{
-            name: 'name',
-            data: ['data'],
-            profile: 'tabular-data-resource',
-            encoding: 'utf-8',
-            dialect: {
-              delimiter: 'custom',
-              doubleQuote: true,
-              lineTerminator: '\r\n',
-              quoteChar: '"',
-              escapeChar: '\\',
-              skipInitialSpace: true,
-              header: true,
-              caseSensitiveHeader: false,
-            }
+          name: 'name',
+          data: ['data'],
+          profile: 'tabular-data-resource',
+          encoding: 'utf-8',
+          dialect: {
+            delimiter: 'custom',
+            doubleQuote: true,
+            lineTerminator: '\r\n',
+            quoteChar: '"',
+            escapeChar: '\\',
+            skipInitialSpace: true,
+            header: true,
+            caseSensitiveHeader: false,
+          },
         }],
       })
     })
@@ -371,7 +370,7 @@ describe('DataPackage', () => {
       assert.isFalse(datapackage.valid)
     })
 
-    //Wait for specs-v1.rc2 resource.data/path
+    // Wait for specs-v1.rc2 resource.data/path
     it.skip('add tabular - can read data', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
       const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
@@ -383,8 +382,8 @@ describe('DataPackage', () => {
           fields: [
             {name: 'id', type: 'integer'},
             {name: 'name', type: 'string'},
-          ]
-        }
+          ],
+        },
       })
       const table = await datapackage.resources[1].table
       assert.deepEqual(await table.read(), [[1, 'alex'], [2, 'john']])
@@ -396,7 +395,7 @@ describe('DataPackage', () => {
       try {
         datapackage.addResource({
           name: 'name',
-          path: ['../dp1/data.csv']
+          path: ['../dp1/data.csv'],
         })
         assert.isNotOk(true)
       } catch (error) {

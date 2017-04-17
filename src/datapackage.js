@@ -93,6 +93,7 @@ export class DataPackage {
       this._resources.push(resource)
       return resource
     }
+    return null
   }
 
   /**
@@ -202,8 +203,9 @@ export class DataPackage {
     if (this.valid) {
       for (const [index, resource] of Object.entries(this._resources)) {
         const descriptor = this._descriptor.resources[index]
-        if (!lodash.isEqual(resource.descriptor, descriptor))
+        if (!lodash.isEqual(resource.descriptor, descriptor)) {
           this._resources[index] = new Resource(descriptor, {basePath: this._basePath})
+        }
       }
     }
   }

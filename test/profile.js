@@ -1,5 +1,4 @@
 import axios from 'axios'
-import lodash from 'lodash'
 import {assert} from 'chai'
 import AxiosMock from 'axios-mock-adapter'
 import {Profile} from '../src/profile'
@@ -81,7 +80,7 @@ describe('Profile', () => {
 
   })
 
-  //Wait for specs-v1.rc2 resource.data/path
+  // Wait for specs-v1.rc2 resource.data/path
   describe.skip('#up-to-date', () => {
 
     PROFILES.forEach(name => {
