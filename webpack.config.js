@@ -1,9 +1,8 @@
-'use strict'
-
-const _ = require('lodash')
+const path = require('path')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
 const ENV = process.env.NODE_ENV || 'development'
+
 
 // Base
 
@@ -12,13 +11,24 @@ let webpackConfig = {
   devtool: 'source-map',
   module: {
     loaders: [
-      { test: /\.json$/, loader: 'json' },
-      { test: /\.js$/, loaders: ['babel-loader'], exclude: /node_modules/ }
+      { test: /\.json$/, loader: 'json-loader' },
+      { test: /\.js$/, loaders: ['babel-loader'], exclude: /node_modules/ },
     ]
   },
-  output: { library: 'datapackage', libraryTarget: 'umd' },
+  output: {
+    library: 'datapackage',
+    libraryTarget: 'umd',
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.USER_ENV': JSON.stringify('browser')
+    })
+  ],
   node: {
-    fs: 'empty'
+    fs: 'empty',
+    path: 'empty',
+    http: 'empty',
+    https: 'empty',
   }
 }
 
@@ -29,10 +39,9 @@ if (ENV === 'development') {
   webpackConfig = merge(webpackConfig, {
     output: {
       filename: 'datapackage.js',
-      path: './dist'
+      path: path.resolve(__dirname, './dist'),
     },
     plugins: [
-      new webpack.optimize.OccurenceOrderPlugin(),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify('development')
       })
@@ -47,36 +56,19 @@ if (ENV === 'production') {
   webpackConfig = merge(webpackConfig, {
     output: {
       filename: 'datapackage.min.js',
-      path: './dist'
+      path: path.resolve(__dirname, './dist'),
     },
     plugins: [
-      new webpack.optimize.OccurenceOrderPlugin(),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify('production')
       }),
       new webpack.optimize.UglifyJsPlugin({
+        sourceMap: true,
         compressor: {
           screw_ie8: true,
-          warnings: false
+          warnings: false,
         }
       })
-    ]
-  });
-}
-
-if (ENV === 'test') {
-  webpackConfig = merge(webpackConfig, {
-    entry: './test/browser/buildIndex.js',
-    output: {
-      filename: 'datapackage.js',
-      path: './dist'
-    },
-    plugins: [
-      new webpack.optimize.OccurenceOrderPlugin(),
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('development')
-      }),
-      new webpack.IgnorePlugin(/jsdomSetup/),
     ]
   });
 }

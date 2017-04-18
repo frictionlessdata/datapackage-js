@@ -22,23 +22,25 @@ rules:
     - error
     - allowEmptyCatch: true
   no-use-before-define:
-    - error
+    - off
     - nofunc
   one-var:
     - off
   eqeqeq:
-    - warn
+    - error
     - smart
   no-unused-vars:
-    - warn
+    - error
   no-param-reassign:
-    - warn
+    - off
   no-cond-assign:
     - error
     - except-parens
   arrow-parens:
     - error
     - as-needed
+  object-curly-spacing:
+    - off
   no-underscore-dangle:
     - off
   class-methods-use-this:
@@ -52,3 +54,27 @@ rules:
   no-restricted-syntax:
     - error
     - WithStatement
+  no-unused-expressions:
+    - off
+  func-names:
+    - off
+  space-before-function-paren:
+    - off
+  block-spacing:
+    - off
+  space-infix-ops:
+    - off
+  no-shadow:
+    - off
+  no-console:
+    - off
+  no-continue:
+    - off
+  no-prototype-builtins:
+    - off
+  import/no-dynamic-require:
+    - off
+  import/newline-after-import:
+    - off
+  import/prefer-default-export:
+    - off
