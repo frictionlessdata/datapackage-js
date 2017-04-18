@@ -81,6 +81,14 @@ export class DataPackage {
   }
 
   /**
+   * DataPackage resource names
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   */
+  get resourceNames() {
+    return this._resources.map(resource => resource.name)
+  }
+
+  /**
    * Add data resource
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */

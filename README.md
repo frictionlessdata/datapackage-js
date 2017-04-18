@@ -35,7 +35,7 @@ $ npm install datapackage # v0.8
 
 ### Examples
 
-There are main examples and more are available in [examples](https://github.com/frictionlessdata/datapackage-py/tree/master/examples) directory.
+There are main examples and more are available in [examples](https://github.com/frictionlessdata/datapackage-js/tree/master/examples) directory.
 
 ```js
 import {DataPackage} from 'datapackage'

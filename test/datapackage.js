@@ -374,6 +374,13 @@ describe('DataPackage', () => {
 
   describe('#resources', () => {
 
+    it('names', async () => {
+      const descriptor = require('../data/data-package-multiple-resources.json')
+      const datapackage = await DataPackage.load(descriptor, {basePath: 'data'})
+      assert.lengthOf(datapackage.resources, 2)
+      assert.deepEqual(datapackage.resourceNames, ['name1', 'name2'])
+    })
+
     it('add', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
       const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
