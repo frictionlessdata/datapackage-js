@@ -93,7 +93,7 @@ Factory method to instantiate `DataPackage` class. This method is async and it s
   - by default strict is true so any validation error will be raised
   - it could be set to false to ignore and put validation errors to `dataPackage.errors`
 - (Error) - raises error if resource can't be instantiated
-- (Error) - raises error if there is a validation error and strict is true
+- (Error[]) - raises list of validation errors if strict is true
 - (DataPackage) - returns data package class instance
 
 List of actions on descriptor:
@@ -121,6 +121,10 @@ List of actions on descriptor:
 #### dataPackage.resources
 
 - (Resource[]) - returns an array of `Resource` instances (see below).
+
+#### dataPackage.resourceNames
+
+- (String[]) - returns an array of resource names.
 
 #### dataPackage.addResource(descriptor)
 
