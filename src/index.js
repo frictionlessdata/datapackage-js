@@ -1,8 +1,8 @@
-import {DataPackage} from './datapackage'
-import {Resource} from './resource'
-import {Profile} from './profile'
-import {validate} from './validate'
-
+require('babel-polyfill')
+const DataPackage = require('./datapackage').DataPackage
+const Resource = require('./resource').Resource
+const Profile = require('./resource').Profile
+const validate = require('./validate').validate
 
 // Module API
 
