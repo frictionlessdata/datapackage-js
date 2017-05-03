@@ -197,6 +197,7 @@ export class DataPackage {
   _validateDescriptor() {
     try {
       this._profile.validate(this._descriptor)
+      this._errors = []
     } catch (errors) {
       if (this._strict) throw errors
       this._errors = errors
