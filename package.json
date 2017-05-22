@@ -38,7 +38,7 @@
     "json-lint": "^0.1.0",
     "json-pointer": "^0.6.0",
     "lodash": "^4.13.1",
-    "tableschema": "^1.0.0-alpha.3",
+    "tableschema": "^1.0.0-alpha.7",
     "tv4": "^1.2.7",
     "url-join": "^2.0.1"
   },
