@@ -20,6 +20,8 @@ A library for working with [Data Packages](http://specs.frictionlessdata.io/data
 
 ### Installation
 
+The package use semantic versioning. It means that major versions  could include breaking changes. It's highly recommended to specify `datapackage` version range in your `package.json` file e.g. `datapackage: ^1.0` which  will be added by default by `npm install --save`.
+
 #### NPM
 
 ```bash
@@ -35,10 +37,11 @@ $ npm install datapackage # v0.8
 
 ### Examples
 
-There are main examples and more are available in [examples](https://github.com/frictionlessdata/datapackage-js/tree/master/examples) directory.
+
+Code examples in this readme requires Node v8.0+ or proper modern browser . Also you have to wrap code into async function if there is await keyword used. You could see even more example in [examples](https://github.com/frictionlessdata/datapackage-js/tree/master/examples) directory.
 
 ```js
-import {DataPackage} from 'datapackage'
+const {DataPackage} = require('datapackage')
 
 const descriptor = {
   resources: [
@@ -83,18 +86,18 @@ dataPackage.descriptor // retrieved/dereferenced/expanded descriptor
 dataPackage.resources // array of data resource instances (see below)
 ```
 
-#### async DataPackage.load(descriptor, {basePath, strict=true})
+#### `async DataPackage.load(descriptor, {basePath, strict=true})`
 
 Factory method to instantiate `DataPackage` class. This method is async and it should be used with await keyword or as a `Promise`.
 
-- descriptor (String/Object) - gets data package descriptor as local path, url or object
-- basePath (String) - gets base path for all relative pathes
-- strict (Boolean) - gets strict flag to alter validation behaviour:
+- `descriptor (String/Object)` - data package descriptor as local path, url or object
+- `basePath (String)` - base path for all relative pathes
+- `strict (Boolean)` - strict flag to alter validation behaviour
   - by default strict is true so any validation error will be raised
   - it could be set to false to ignore and put validation errors to `dataPackage.errors`
-- (Error) - raises error if resource can't be instantiated
-- (Error[]) - raises list of validation errors if strict is true
-- (DataPackage) - returns data package class instance
+- `(Error)` - raises error if resource can't be instantiated
+- `(Error[])` - raises list of validation errors if strict is true
+- `(DataPackage)` - returns data package class instance
 
 List of actions on descriptor:
 - retrieved (if path/url)
@@ -102,71 +105,71 @@ List of actions on descriptor:
 - expanded (with profile defaults)
 - validated (against descriptor.profile)
 
-#### dataPackage.valid
+#### `dataPackage.valid`
 
-- (Boolean) - returns validation status. It always true in strict mode.
+- `(Boolean)` - returns validation status. It always true in strict mode.
 
-#### dataPackage.errors
+#### `dataPackage.errors`
 
-- (Error[]) - returns validation errors. It always empty in strict mode.
+- `(Error[])` - returns validation errors. It always empty in strict mode.
 
-#### dataPackage.profile
+#### `dataPackage.profile`
 
-- (Profile) - returns an instance of `Profile` class (see below).
+- `(Profile)` - returns an instance of `Profile` class (see below).
 
-#### dataPackage.descriptor
+#### `dataPackage.descriptor`
 
-- (Object) - returns data package descriptor
+- `(Object)` - returns data package descriptor
 
-#### dataPackage.resources
+#### `dataPackage.resources`
 
-- (Resource[]) - returns an array of `Resource` instances (see below).
+- `(Resource[])` - returns an array of `Resource` instances (see below).
 
-#### dataPackage.resourceNames
+#### `dataPackage.resourceNames`
 
-- (String[]) - returns an array of resource names.
+- `(String[])` - returns an array of resource names.
 
-#### dataPackage.addResource(descriptor)
+#### `dataPackage.addResource(descriptor)`
 
 Add new resource to data package. The data package descriptor will be validated  with newly added resource descriptor.
 
-- descriptor (Object) - gets data resource descriptor
-- (Error[]) - raises list of validation errors
-- (Error) - raises any resource creation error
-- (Resource/null) - returns added `Resource` instance or null if not added
+- `descriptor (Object)` - data resource descriptor
+- `(Error[])` - raises list of validation errors
+- `(Error)` - raises any resource creation error
+- `(Resource/null)` - returns added `Resource` instance or null if not added
 
-#### dataPackage.getResource(name)
+#### `dataPackage.getResource(name)`
 
 Get data package resource by name.
 
-- name (String) - gets data resource name
-- (Resource/null) - returns `Resource` instances or null if not found
+- `name (String)` - data resource name
+- `(Resource/null)` - returns `Resource` instances or null if not found
 
-#### dataPackage.removeResource(name)
+#### `dataPackage.removeResource(name)`
 
 Remove data package resource by name. The data package descriptor will be validated after resource descriptor removal.
 
-- name (String) - gets data resource name
-- (Error[]) - raises list of validation errors
-- (Resource/null) - returns removed `Resource` instances or null if not found
+- `name (String)` - data resource name
+- `(Error[])` - raises list of validation errors
+- `(Resource/null)` - returns removed `Resource` instances or null if not found
 
-#### async dataPackage.save(target)
+#### `async dataPackage.save(target)`
 
 > For now only descriptor will be saved.
 
 Save data package to target destination.
 
-- target (String) - gets path where to save a data package
-- (Error) - raises an error if there is saving problem
-- (Boolean) - returns true on success
+- `target (String)` - path where to save a data package
+- `(Error)` - raises an error if there is saving problem
+- `(Boolean)` - returns true on success
 
-#### dataPackage.update()
+#### `dataPackage.update()`
 
 Update data package instance if there are in-place changes in the descriptor.
 
-- (Error[]) - raises list of validation errors
-- (Error) - raises any resource creation error
-- (Boolean) - returns true on success and false if not modified
+- `(Error[])` - raises list of validation errors
+- `(Error)` - raises any resource creation error
+- `(Boolean)` - returns true on success and false if not modified
 
 ```js
 const dataPackage = await DataPackage.load({
@@ -217,47 +220,47 @@ resource.table.headers // ['height', 'age', 'name]
 await resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
 ```
 
-#### async Resource.load(descriptor, {basePath})
+#### `async Resource.load(descriptor, {basePath})`
 
 Factory method to instantiate `Resource` class. This method is async and it should be used with await keyword or as a `Promise`.
 
-- descriptor (String/Object) - gets data resource descriptor as local path, url or object
-- basePath (String) - gets base path for all relative pathes
-- (Error) - raises error if resource can't be instantiated
-- (Resource) - returns resource class instance
+- `descriptor (String/Object)` - data resource descriptor as local path, url or object
+- `basePath (String)` - base path for all relative pathes
+- `(Error)` - raises error if resource can't be instantiated
+- `(Resource)` - returns resource class instance
 
 List of actions on descriptor:
 - retrieved (if path/url)
 - dereferenced (schema/dialect)
 - expanded (with profile defaults)
 
-#### resource.name
+#### `resource.name`
 
-- (String) - returns resource name
+- `(String)` - returns resource name
 
-#### resource.tabular
+#### `resource.tabular`
 
-- (Boolean) - returns true if resource is tabular
+- `(Boolean)` - returns true if resource is tabular
 
-#### resource.descriptor
+#### `resource.descriptor`
 
 - (Object) - returns resource descriptor
 
-#### resource.sourceType
+#### `resource.sourceType`
 
-- (String) - returns based on resource data/path property:
+- `(String)` - returns based on resource data/path property
   - inline
   - local
   - remote
   - multipart-local
   - multipart-remote
 
-#### resource.source
+#### `resource.source`
 
-- (any/String/String[]) - returns based on resource data/path property:
-  - descriptor.data (inline)
-  - descriptor.path[0] (local/remote)
-  - descriptor.path (multipart-loca/remote)
+- `(any/String/String[])` - returns based on resource data/path property
+  - `descriptor.data` - inline
+  - `descriptor.path[0]` - local/remote
+  - `descriptor.path` - multipart-loca/remote
 
 Combination of `resource.source` and `resource.sourceType` provides predictable interface to work with resource data:
 
@@ -271,10 +274,10 @@ if (resource.sourceType === 'local') {
 }
 ```
 
-#### resource.table
+#### `resource.table`
 
-- (Error) - raises on any table opening error
-- (null/tableschema.Table) - returns table instance if resource is tabular
+- `(Error)` - raises on any table opening error
+- `(null/tableschema.Table)` - returns table instance if resource is tabular
 
 Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
 
@@ -297,30 +300,30 @@ try {
 }
 ```
 
-#### async Profile.load(profile)
+#### `async Profile.load(profile)`
 
 Factory method to instantiate `Profile` class. This method is async and it should be used with await keyword or as a `Promise`.
 
-- profile (String) - gets profile name in registry or URL to JSON Schema
-- (Error) - raises error if profile not found in registry
-- (Error) - raises error if JSON Schema can't be loaded
-- (Profile) - returns profile class instance
+- `profile (String)` - profile name in registry or URL to JSON Schema
+- `(Error)` - raises error if profile not found in registry
+- `(Error)` - raises error if JSON Schema can't be loaded
+- `(Profile)` - returns profile class instance
 
-#### profile.name
+#### `profile.name`
 
-- (String/null) - returns profile name if available
+- `(String/null)` - returns profile name if available
 
-#### profile.jsonschema
+#### `profile.jsonschema`
 
-- (Object): returns profile JSON Schema contents
+- `(Object)` - returns profile JSON Schema contents
 
-#### profile.validate(descriptor)
+#### `profile.validate(descriptor)`
 
 Validate a data package `descriptor` against the profile.
 
-- descriptor (Object) - gets retrieved and dereferenced data package descriptor
-- (Error[]) - raises with list of errors for invalid
-- (Boolean) - returns true for valid
+- `descriptor (Object)` - retrieved and dereferenced data package descriptor
+- `(Error[])` - raises with list of errors for invalid
+- `(Boolean)` - returns true for valid
 
 ### validate
 
@@ -336,13 +339,13 @@ try {
 }
 ```
 
-#### async validate(descriptor)
+#### `async validate(descriptor)`
 
 This funcion is async so it has to be used with `await` keyword or as a `Promise`.
 
-- descriptor (String/Object) - gets data package descriptor (local/remote path or object)
-- (Error[]) - raises list of validation errors for invalid
-- (Boolean) - returns true for valid
+- `descriptor (String/Object)` - data package descriptor (local/remote path or object)
+- `(Error[])` - raises list of validation errors for invalid
+- `(Boolean)` - returns true for valid
 
 List of actions on descriptor:
 - retrieved (if path/url)
@@ -357,6 +360,10 @@ Here described only breaking and the most important changes. The full changelog 
 ### v1.0
 
 This version includes various big changes. A migration guide is under development and will be published here.
+
+### [v0.8](https://github.com/frictionlessdata/datapackage-js/tree/v0.8.x)
+
+First stable version of the library.
 
 ## Contributing
 
