@@ -70,7 +70,11 @@ export class Profile {
     if (!validation.valid) {
       const errors = []
       for (const error of validation.errors) {
-        errors.push(new Error(`Descriptor validation error: ${error.message}`))
+        errors.push(new Error(
+          `Descriptor validation error:
+          ${error.message}
+          at "${error.dataPath}" in descriptor and
+          at "${error.schemaPath}" in profile`))
       }
       throw errors
     }
