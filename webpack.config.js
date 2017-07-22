@@ -22,7 +22,8 @@ let webpackConfig = {
   plugins: [
     new webpack.DefinePlugin({
       'process.env.USER_ENV': JSON.stringify('browser')
-    })
+    }),
+    new webpack.IgnorePlugin(/fs-readfile-promise/),
   ],
   node: {
     fs: 'empty',

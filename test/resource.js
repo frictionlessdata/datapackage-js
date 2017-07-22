@@ -471,8 +471,7 @@ describe('Resource', () => {
         name: 'example',
         profile: 'tabular-data-resource',
         data: [
-          // TODO: tableschema bug (!!!)
-          // ['height', 'age', 'name'],
+          ['height', 'age', 'name'],
           ['180', '18', 'Tony'],
           ['192', '32', 'Jacob'],
         ],
@@ -485,9 +484,8 @@ describe('Resource', () => {
         },
       }
       const resource = await Resource.load(descriptor)
-      const table = await resource.table
-      assert.instanceOf(table, Table)
-      assert.deepEqual(await table.read(), [
+      assert.instanceOf(resource.table, Table)
+      assert.deepEqual(await resource.table.read(), [
           [180, 18, 'Tony'],
           [192, 32, 'Jacob'],
       ])
@@ -511,10 +509,9 @@ describe('Resource', () => {
         },
       }
       const resource = await Resource.load(descriptor, {basePath: 'data'})
-      const table = await resource.table
       // Assert
-      assert.instanceOf(table, Table)
-      assert.deepEqual(await table.read(), [
+      assert.instanceOf(resource.table, Table)
+      assert.deepEqual(await resource.table.read(), [
           ['gb', 100],
           ['us', 200],
           ['cn', 300],

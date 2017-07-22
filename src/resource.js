@@ -1,5 +1,5 @@
 const lodash = require('lodash')
-const {Table} = require('tableschema')
+const {Table, Schema} = require('tableschema')
 const helpers = require('./helpers')
 
 
@@ -78,11 +78,10 @@ class Resource {
 
     // Resource -> Tabular
     if (!this._table) {
-      this._table = new Table(this.descriptor.schema, this.source)
+      const schema = new Schema(this.descriptor.schema)
+      this._table = new Table(this.source, {schema})
     }
 
-    // TODO: after tableschema fix this method should be sync (!!!)
-    // but for now it returns Promise
     return this._table
 
   }

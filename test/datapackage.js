@@ -412,14 +412,13 @@ describe('DataPackage', () => {
       assert.isFalse(datapackage.valid)
     })
 
-    // Wait for specs-v1.rc2 resource.data/path
+    // TODO: Rebase on non-strict mode
     it.skip('add tabular - can read data', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
       const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
       datapackage.addResource({
         name: 'name',
-        // TODO: add headers - tableschema bug
-        data: [['1', 'alex'], ['2', 'john']],
+        data: [['id', 'name'], ['1', 'alex'], ['2', 'john']],
         schema: {
           fields: [
             {name: 'id', type: 'integer'},
@@ -427,8 +426,8 @@ describe('DataPackage', () => {
           ],
         },
       })
-      const table = await datapackage.resources[1].table
-      assert.deepEqual(await table.read(), [[1, 'alex'], [2, 'john']])
+      const rows = await datapackage.resources[1].table.read()
+      assert.deepEqual(rows, [[1, 'alex'], [2, 'john']])
     })
 
     it('add with not a safe path - throw an error', async () => {
