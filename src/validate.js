@@ -1,14 +1,13 @@
-import {Profile} from './profile'
-import * as helpers from './helpers'
+const {Profile} = require('./profile')
+const helpers = require('./helpers')
 
 
 // Module API
 
 /**
- * Validate datapackage descriptor
  * https://github.com/frictionlessdata/datapackage-js#validate
  */
-export async function validate(descriptor) {
+async function validate(descriptor) {
 
   // Get base path
   const basePath = helpers.locateDescriptor(descriptor)
@@ -24,4 +23,9 @@ export async function validate(descriptor) {
   // Validate descriptor
   return profile.validate(descriptor)
 
+}
+
+
+module.exports = {
+  validate,
 }

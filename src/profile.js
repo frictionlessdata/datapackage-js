@@ -1,16 +1,15 @@
-import tv4 from 'tv4'
-import axios from 'axios'
-import * as helpers from './helpers'
+const tv4 = require('tv4')
+const axios = require('axios')
+const helpers = require('./helpers')
 
 
 // Module API
 
-export class Profile {
+class Profile {
 
   // Public
 
   /**
-   * Load profile class
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   static async load(profile) {
@@ -41,7 +40,6 @@ export class Profile {
   }
 
   /**
-   * Profile name
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   get name() {
@@ -54,7 +52,6 @@ export class Profile {
   }
 
   /**
-   * Profile jsonschema
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   get jsonschema() {
@@ -62,7 +59,6 @@ export class Profile {
   }
 
   /**
-   * Validate descriptor
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   validate(descriptor) {
@@ -87,6 +83,11 @@ export class Profile {
     this._jsonschema = jsonschema
   }
 
+}
+
+
+module.exports = {
+  Profile,
 }
 
 

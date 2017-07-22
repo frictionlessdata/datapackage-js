@@ -1,18 +1,17 @@
-import lodash from 'lodash'
-import {Profile} from './profile'
-import {Resource} from './resource'
-import * as helpers from './helpers'
-import * as config from './config'
+const lodash = require('lodash')
+const {Profile} = require('./profile')
+const {Resource} = require('./resource')
+const helpers = require('./helpers')
+const config = require('./config')
 
 
 // Module API
 
-export class DataPackage {
+class DataPackage {
 
   // Public
 
   /**
-   * Load data package
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   static async load(descriptor, {basePath, strict}={}) {
@@ -40,7 +39,6 @@ export class DataPackage {
   }
 
   /**
-   * Data package valid
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get valid() {
@@ -48,7 +46,6 @@ export class DataPackage {
   }
 
   /**
-   * Data package errors
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get errors() {
@@ -56,7 +53,6 @@ export class DataPackage {
   }
 
   /**
-   * Data package errors
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get profile() {
@@ -64,7 +60,6 @@ export class DataPackage {
   }
 
   /**
-   * Data package descriptor
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get descriptor() {
@@ -73,7 +68,6 @@ export class DataPackage {
   }
 
   /**
-   * DataPackage resources
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get resources() {
@@ -81,7 +75,6 @@ export class DataPackage {
   }
 
   /**
-   * DataPackage resource names
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get resourceNames() {
@@ -89,7 +82,6 @@ export class DataPackage {
   }
 
   /**
-   * Add data resource
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   addResource(descriptor) {
@@ -105,7 +97,6 @@ export class DataPackage {
   }
 
   /**
-   * Add data resource
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   getResource(name) {
@@ -113,7 +104,6 @@ export class DataPackage {
   }
 
   /**
-   * Add data resource
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   removeResource(name) {
@@ -129,7 +119,6 @@ export class DataPackage {
   }
 
   /**
-   * Save data package descriptor
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   async save(target) {
@@ -142,7 +131,6 @@ export class DataPackage {
   }
 
   /**
-   * Update data package
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   update() {
@@ -223,4 +211,9 @@ export class DataPackage {
     }
   }
 
+}
+
+
+module.exports = {
+  DataPackage,
 }

@@ -1,7 +1,8 @@
-import axios from 'axios'
-import {assert} from 'chai'
-import AxiosMock from 'axios-mock-adapter'
-import {Profile} from '../src/profile'
+const axios = require('axios')
+const {assert} = require('chai')
+const {catchError} = require('./helpers')
+const AxiosMock = require('axios-mock-adapter')
+const {Profile} = require('../src/profile')
 
 
 // Constants
@@ -94,16 +95,3 @@ describe('Profile', () => {
   })
 
 })
-
-
-// Helpers
-
-async function catchError(func, ...args) {
-  let error
-  try {
-    await func(...args)
-  } catch (exception) {
-    error = exception
-  }
-  return error
-}

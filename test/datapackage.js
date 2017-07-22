@@ -1,12 +1,11 @@
-// Node only
-import fs from 'fs'
-// Node and broswer
-import axios from 'axios'
-import sinon from 'sinon'
-import {assert} from 'chai'
-import AxiosMock from 'axios-mock-adapter'
-import {DataPackage} from '../src/datapackage'
-import * as helpers from '../src/helpers'
+const fs = require('fs')
+const axios = require('axios')
+const sinon = require('sinon')
+const {assert} = require('chai')
+const {catchError} = require('./helpers')
+const AxiosMock = require('axios-mock-adapter')
+const {DataPackage} = require('../src')
+const helpers = require('../src/helpers')
 const expand = helpers.expandDataPackageDescriptor
 const expandResource = helpers.expandResourceDescriptor
 
@@ -541,16 +540,3 @@ describe('DataPackage', () => {
   })
 
 })
-
-
-// Helpers
-
-async function catchError(func, ...args) {
-  let error
-  try {
-    await func(...args)
-  } catch (exception) {
-    error = exception
-  }
-  return error
-}

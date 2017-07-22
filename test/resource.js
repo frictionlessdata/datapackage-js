@@ -1,9 +1,11 @@
-import axios from 'axios'
-import {assert} from 'chai'
-import {Table} from 'tableschema'
-import AxiosMock from 'axios-mock-adapter'
-import {Resource} from '../src/resource'
-import {expandResourceDescriptor as expand} from '../src/helpers'
+const axios = require('axios')
+const {assert} = require('chai')
+const {Table} = require('tableschema')
+const {catchError} = require('./helpers')
+const AxiosMock = require('axios-mock-adapter')
+const {Resource} = require('../src/resource')
+const helpers = require('../src/helpers')
+const expand = helpers.expandResourceDescriptor
 
 
 // Tests
@@ -522,16 +524,3 @@ describe('Resource', () => {
   })
 
 })
-
-
-// Helpers
-
-async function catchError(func, ...args) {
-  let error
-  try {
-    await func(...args)
-  } catch (exception) {
-    error = exception
-  }
-  return error
-}

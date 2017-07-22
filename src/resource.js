@@ -1,16 +1,15 @@
-import lodash from 'lodash'
-import {Table} from 'tableschema'
-import * as helpers from './helpers'
+const lodash = require('lodash')
+const {Table} = require('tableschema')
+const helpers = require('./helpers')
 
 
 // Module API
 
-export class Resource {
+class Resource {
 
   // Public
 
   /**
-   * Load resource class
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   static async load(descriptor, {basePath}={}) {
@@ -28,7 +27,6 @@ export class Resource {
   }
 
   /**
-   * Resource name
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get name() {
@@ -36,7 +34,6 @@ export class Resource {
   }
 
   /**
-   * Resource tabular
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get tabular() {
@@ -44,7 +41,6 @@ export class Resource {
   }
 
   /**
-   * Resource descriptor
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get descriptor() {
@@ -52,7 +48,6 @@ export class Resource {
   }
 
   /**
-   * Resource source type
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get sourceType() {
@@ -60,7 +55,6 @@ export class Resource {
   }
 
   /**
-   * Resource source
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get source() {
@@ -68,7 +62,6 @@ export class Resource {
   }
 
   /**
-   * Resource table
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get table() {
@@ -163,4 +156,9 @@ function _getSourceWithType(data, path, basePath) {
 
   return [source, sourceType]
 
+}
+
+
+module.exports = {
+  Resource,
 }
