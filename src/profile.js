@@ -1,5 +1,6 @@
 const tv4 = require('tv4')
 const axios = require('axios')
+const lodash = require('lodash')
 const helpers = require('./helpers')
 
 
@@ -13,38 +14,29 @@ class Profile {
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   static async load(profile) {
-    let jsonschema = _cache[profile]
-    if (!jsonschema) {
 
-      // Remote
-      if (helpers.isRemotePath(profile)) {
+    // Remote
+    if (lodash.isString(profile) && helpers.isRemotePath(profile)) {
+      let jsonschema = _cache[profile]
+      if (!jsonschema) {
         try {
           const response = await axios.get(profile)
           jsonschema = response.data
         } catch (error) {
           throw new Error(`Can not retrieve remote profile "${profile}"`)
         }
-
-      // Local
-      } else {
-        try {
-          jsonschema = require(`./profiles/${profile}.json`)
-        } catch (error) {
-          throw new Error(`Profiles registry hasn't profile "${profile}"`)
-        }
+        _cache[profile] = jsonschema
+        profile = jsonschema
       }
-
-      _cache[profile] = jsonschema
     }
-    return new Profile(jsonschema)
+
+    return new Profile(profile)
   }
 
   /**
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   get name() {
-    // TODO: rebase on jsonschema.spec property when available:
-    // https://github.com/frictionlessdata/specs/issues/399#issuecomment-291116945
     if (this._jsonschema.title) {
       return this._jsonschema.title.replace(' ', '-').toLowerCase()
     }
@@ -79,8 +71,18 @@ class Profile {
 
   // Private
 
-  constructor(jsonschema) {
-    this._jsonschema = jsonschema
+  constructor(profile) {
+
+    // Registry
+    if (lodash.isString(profile)) {
+      try {
+        profile = require(`./profiles/${profile}.json`)
+      } catch (error) {
+        throw new Error(`Profiles registry hasn't profile "${profile}"`)
+      }
+    }
+
+    this._jsonschema = profile
   }
 
 }
