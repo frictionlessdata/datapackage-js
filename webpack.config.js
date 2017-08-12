@@ -27,7 +27,6 @@ let webpackConfig = {
   ],
   node: {
     fs: 'empty',
-    path: 'empty',
     http: 'empty',
     https: 'empty',
   }

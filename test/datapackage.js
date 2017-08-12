@@ -52,8 +52,7 @@ describe('DataPackage', () => {
       const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
       const datapackage = await DataPackage.load(descriptor)
       datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
-      const table = await datapackage.resources[0].table
-      const data = await table.read()
+      const data = await datapackage.resources[0].table.read()
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
 

@@ -35,10 +35,12 @@
     "axios": "^0.16.1",
     "babel-polyfill": "^6.3.14",
     "isomorphic-fetch": "^2.2.1",
+    "jschardet": "^1.5.1",
     "json-lint": "^0.1.0",
     "json-pointer": "^0.6.0",
     "lodash": "^4.13.1",
-    "tableschema": "^1.0.0-alpha.11",
+    "stream-to-async-iterator": "^0.2.0",
+    "tableschema": "^1.0.0-alpha.13",
     "tv4": "^1.2.7",
     "url-join": "^2.0.1"
   },

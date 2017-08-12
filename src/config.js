@@ -1,5 +1,6 @@
 // Module API
 
+const IS_BROWSER = (typeof window !== 'undefined')
 const DEFAULT_DATA_PACKAGE_PROFILE = 'data-package'
 const DEFAULT_RESOURCE_PROFILE = 'data-resource'
 const DEFAULT_RESOURCE_ENCODING = 'utf-8'
@@ -19,6 +20,7 @@ const DEFAULT_DIALECT = {
 
 
 module.exports = {
+  IS_BROWSER,
   DEFAULT_DATA_PACKAGE_PROFILE,
   DEFAULT_RESOURCE_PROFILE,
   DEFAULT_RESOURCE_ENCODING,

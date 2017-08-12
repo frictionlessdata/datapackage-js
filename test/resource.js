@@ -27,7 +27,7 @@ describe('Resource', () => {
       assert.deepEqual(resource.name, 'name')
       assert.deepEqual(resource.tabular, false)
       assert.deepEqual(resource.descriptor, expand(descriptor))
-      assert.deepEqual(resource.sourceType, 'inline')
+      assert.deepEqual(resource.inline, true)
       assert.deepEqual(resource.source, ['data'])
       assert.deepEqual(resource.table, null)
     })
@@ -42,7 +42,7 @@ describe('Resource', () => {
       assert.deepEqual(resource.name, 'name')
       assert.deepEqual(resource.tabular, true)
       assert.deepEqual(resource.descriptor, expand(descriptor))
-      assert.deepEqual(resource.sourceType, 'inline')
+      assert.deepEqual(resource.inline, true)
       assert.deepEqual(resource.source, ['data'])
       assert.isOk(resource.table)
     })
@@ -306,7 +306,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.source, 'data')
-      assert.deepEqual(resource.sourceType, 'inline')
+      assert.deepEqual(resource.inline, true)
     })
 
     it('local', async () => {
@@ -316,7 +316,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'data'})
       assert.deepEqual(resource.source, 'data/table.csv')
-      assert.deepEqual(resource.sourceType, 'local')
+      assert.deepEqual(resource.local, true)
     })
 
     it('local base no base path', async () => {
@@ -356,7 +356,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.source, 'http://example.com/table.csv')
-      assert.deepEqual(resource.sourceType, 'remote')
+      assert.deepEqual(resource.remote, true)
     })
 
     it('remote path relative and base path remote', async () => {
@@ -366,7 +366,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'http://example.com/'})
       assert.deepEqual(resource.source, 'http://example.com/table.csv')
-      assert.deepEqual(resource.sourceType, 'remote')
+      assert.deepEqual(resource.remote, true)
     })
 
     it('remote path remote and base path remote', async () => {
@@ -376,7 +376,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'http://example2.com/'})
       assert.deepEqual(resource.source, 'http://example1.com/table.csv')
-      assert.deepEqual(resource.sourceType, 'remote')
+      assert.deepEqual(resource.remote, true)
     })
 
     it('multipart local', async () => {
@@ -386,7 +386,8 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'data'})
       assert.deepEqual(resource.source, ['data/chunk1.csv', 'data/chunk2.csv'])
-      assert.deepEqual(resource.sourceType, 'multipart-local')
+      assert.deepEqual(resource.local, true)
+      assert.deepEqual(resource.multipart, true)
     })
 
     it('multipart local bad no base path', async () => {
@@ -428,7 +429,8 @@ describe('Resource', () => {
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.source,
           ['http://example.com/chunk1.csv', 'http://example.com/chunk2.csv'])
-      assert.deepEqual(resource.sourceType, 'multipart-remote')
+      assert.deepEqual(resource.remote, true)
+      assert.deepEqual(resource.multipart, true)
     })
 
     it('multipart remote path relative and base path remote', async () => {
@@ -439,7 +441,8 @@ describe('Resource', () => {
       const resource = await Resource.load(descriptor, {basePath: 'http://example.com'})
       assert.deepEqual(resource.source,
           ['http://example.com/chunk1.csv', 'http://example.com/chunk2.csv'])
-      assert.deepEqual(resource.sourceType, 'multipart-remote')
+      assert.deepEqual(resource.remote, true)
+      assert.deepEqual(resource.multipart, true)
     })
 
     it('multipart remote path remote and base path remote', async () => {
@@ -450,7 +453,8 @@ describe('Resource', () => {
       const resource = await Resource.load(descriptor, {basePath: 'http://example1.com'})
       assert.deepEqual(resource.source,
           ['http://example1.com/chunk1.csv', 'http://example2.com/chunk2.csv'])
-      assert.deepEqual(resource.sourceType, 'multipart-remote')
+      assert.deepEqual(resource.remote, true)
+      assert.deepEqual(resource.multipart, true)
     })
 
   })
