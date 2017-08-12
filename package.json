@@ -27,6 +27,8 @@
     "profiles:data-package": "wget -O src/profiles/data-package.json https://specs.frictionlessdata.io/schemas/data-package.json",
     "profiles:tabular-data-package": "wget -O src/profiles/tabular-data-package.json https://specs.frictionlessdata.io/schemas/tabular-data-package.json",
     "profiles:fiscal-data-package": "wget -O src/profiles/fiscal-data-package.json https://specs.frictionlessdata.io/schemas/fiscal-data-package.json",
+    "profiles:data-resource": "wget -O src/profiles/data-resource.json https://specs.frictionlessdata.io/schemas/data-resource.json",
+    "profiles:tabular-data-resource": "wget -O src/profiles/tabular-data-resource.json https://specs.frictionlessdata.io/schemas/tabular-data-resource.json",
     "test": "npm run test:node && npm run test:browser",
     "test:node": "NODE_ENV=testing nyc mocha",
     "test:browser": "NODE_ENV=testing karma start"
