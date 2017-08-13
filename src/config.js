@@ -19,6 +19,8 @@ const DEFAULT_DIALECT = {
 }
 
 
+// System
+
 module.exports = {
   IS_BROWSER,
   DEFAULT_DATA_PACKAGE_PROFILE,

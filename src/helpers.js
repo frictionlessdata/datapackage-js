@@ -164,17 +164,6 @@ function expandResourceDescriptor(descriptor) {
 }
 
 
-// Write descriptor
-
-async function writeDescriptor(descriptor, path) {
-  if (process.env.USER_ENV === 'browser') {
-    throw new Error('Writing descriptor on disk in browser is not supported')
-  }
-  // TODO: rebase on async function
-  fs.writeFileSync(path, JSON.stringify(descriptor))
-}
-
-
 // Miscellaneous
 
 function isRemotePath(path) {
@@ -201,6 +190,8 @@ function joinUrl(...parts) {
 }
 
 
+// System
+
 module.exports = {
   locateDescriptor,
   retrieveDescriptor,
@@ -208,7 +199,6 @@ module.exports = {
   dereferenceResourceDescriptor,
   expandDataPackageDescriptor,
   expandResourceDescriptor,
-  writeDescriptor,
   isRemotePath,
   isSafePath,
   joinUrl,

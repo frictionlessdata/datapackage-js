@@ -1,3 +1,5 @@
+const fs = require('fs')
+const glob = require('glob')
 const lodash = require('lodash')
 const {Profile} = require('./profile')
 const {Resource} = require('./resource')
@@ -80,6 +82,7 @@ class DataPackage {
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   addResource(descriptor) {
+    if (!this._nextDescriptor.resources) this._nextDescriptor.resources = []
     this._nextDescriptor.resources.push(descriptor)
     this.commit()
     return this._resources[this._resources.length - 1]
@@ -108,13 +111,32 @@ class DataPackage {
   /**
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
-  async save(target) {
-    try {
-      await helpers.writeDescriptor(this._currentDescriptor, target)
-    } catch (error) {
-      throw error
+  async infer(pattern='**/*.csv') {
+
+    // It's broswer
+    if (config.IS_BROWSER) {
+      throw new Error('Browser is not supported for infer')
     }
-    return true
+
+    // No base path
+    if (!this._basePath) {
+      throw new Error('Base path is required for infer')
+    }
+
+    // Add resources
+    const files = await findFiles(pattern, this._basePath)
+    for (const file of files) {
+      const resource = this.addResource({path: file})
+    }
+
+    // Infer resources
+    for (const [index, resource] of this.resources.entries()) {
+      const descriptor = await resource.infer()
+      this._nextDescriptor.resources[index] = descriptor
+      this.commit()
+    }
+
+    return this._currentDescriptor
   }
 
   /**
@@ -125,6 +147,16 @@ class DataPackage {
     this._currentDescriptor = lodash.cloneDeep(this._nextDescriptor)
     this._build()
     return true
+  }
+
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   */
+  save(target) {
+    return new Promise((resolve, reject) => {
+      const contents = JSON.stringify(this._currentDescriptor, null, 4)
+      fs.writeFile(target, contents, error => (!error) ? resolve() : reject(error))
+    })
   }
 
   // Private
@@ -192,6 +224,20 @@ class DataPackage {
 
 }
 
+
+// Internal
+
+function findFiles(pattern, basePath) {
+  return new Promise((resolve, reject) => {
+    const options = {cwd: basePath, ignore: 'node_modules/**'}
+    glob(pattern, options, (error, files) => {
+      resolve(files)
+    })
+  })
+}
+
+
+// System
 
 module.exports = {
   DataPackage,
