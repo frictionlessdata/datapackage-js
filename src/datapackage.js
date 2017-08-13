@@ -149,7 +149,7 @@ class DataPackage {
 
     // Profile
     if (this._nextDescriptor.profile === config.DEFAULT_DATA_PACKAGE_PROFILE) {
-      if (this.resources.every(resouce => resouce.tabular)) {
+      if (this.resources.length && this.resources.every(resouce => resouce.tabular)) {
         this._nextDescriptor.profile = 'tabular-data-resource'
         this.commit()
       }
