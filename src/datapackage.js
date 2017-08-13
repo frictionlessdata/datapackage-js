@@ -14,16 +14,11 @@ class DataPackage {
   /**
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
-  static async load(descriptor, {basePath, strict}={}) {
+  static async load(descriptor={}, {basePath, strict=false}={}) {
 
     // Get base path
     if (lodash.isUndefined(basePath)) {
       basePath = helpers.locateDescriptor(descriptor)
-    }
-
-    // Get strict
-    if (lodash.isUndefined(strict)) {
-      strict = true
     }
 
     // Process descriptor
@@ -85,15 +80,9 @@ class DataPackage {
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   addResource(descriptor) {
-    this._descriptor.resources.push(descriptor)
     this._nextDescriptor.resources.push(descriptor)
-    this._validateDescriptor()
-    if (this.valid) {
-      const resource = new Resource(descriptor, {basePath: this._basePath})
-      this._resources.push(resource)
-      return resource
-    }
-    return null
+    this.commit()
+    return this._resources[this._resources.length - 1]
   }
 
   /**
@@ -110,10 +99,8 @@ class DataPackage {
     const resource = this.getResource(name)
     if (resource) {
       const predicat = resource => resource.name !== name
-      this._descriptor.resources = this._descriptor.resources.filter(predicat)
       this._nextDescriptor.resources = this._nextDescriptor.resources.filter(predicat)
-      this._validateDescriptor()
-      this._resources = this._resources.filter(predicat)
+      this.commit()
     }
     return resource
   }
@@ -123,7 +110,7 @@ class DataPackage {
    */
   async save(target) {
     try {
-      await helpers.writeDescriptor(this._descriptor, target)
+      await helpers.writeDescriptor(this._currentDescriptor, target)
     } catch (error) {
       throw error
     }
@@ -133,22 +120,16 @@ class DataPackage {
   /**
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
-  update() {
-    if (lodash.isEqual(this._descriptor, this._nextDescriptor)) {
-      return false
-    }
-    this._descriptor = lodash.cloneDeep(this._nextDescriptor)
-    this._validateDescriptor()
-    this._updateResources()
+  commit() {
+    if (lodash.isEqual(this._currentDescriptor, this._nextDescriptor)) return false
+    this._currentDescriptor = lodash.cloneDeep(this._nextDescriptor)
+    this._build()
     return true
   }
 
   // Private
 
   constructor(descriptor, {basePath, strict, profile}={}) {
-
-    // Process descriptor
-    descriptor = helpers.expandDataPackageDescriptor(descriptor)
 
     // Handle deprecated resource.path.url
     for (const resource of (descriptor.resources || [])) {
@@ -168,47 +149,45 @@ class DataPackage {
     }
 
     // Set attributes
+    this._currentDescriptor = lodash.cloneDeep(descriptor)
     this._nextDescriptor = lodash.cloneDeep(descriptor)
-    this._descriptor = descriptor
     this._basePath = basePath
     this._strict = strict
     this._profile = profile
     this._resources = []
     this._errors = []
 
-    // Init data package
-    this._validateDescriptor()
-    this._fillResources()
+    // Build package
+    this._build()
 
   }
 
-  _validateDescriptor() {
+  _build() {
+
+    // Process descriptor
+    this._currentDescriptor = helpers.expandDataPackageDescriptor(this._currentDescriptor)
+    this._nextDescriptor = lodash.cloneDeep(this._currentDescriptor)
+
+    // Validate descriptor
     try {
-      this._profile.validate(this._descriptor)
+      this._profile.validate(this._currentDescriptor)
       this._errors = []
     } catch (errors) {
       if (this._strict) throw errors
       this._errors = errors
     }
-  }
 
-  _fillResources() {
-    if (this.valid) {
-      for (const descriptor of (this._descriptor.resources || [])) {
-        this._resources.push(new Resource(descriptor, {basePath: this._basePath}))
+    // Update resources
+    this._resources.length = (this._currentDescriptor.resources || []).length
+    for (const [index, descriptor] of (this._currentDescriptor.resources || []).entries()) {
+      const resource = this._resources[index]
+      if (!resource || !lodash.isEqual(resource.descriptor, descriptor)) {
+        this._resources[index] = new Resource(descriptor, {
+          strict: this._strict, basePath: this._basePath,
+        })
       }
     }
-  }
 
-  _updateResources() {
-    if (this.valid) {
-      for (const [index, resource] of Object.entries(this._resources)) {
-        const descriptor = this._descriptor.resources[index]
-        if (!lodash.isEqual(resource.descriptor, descriptor)) {
-          this._resources[index] = new Resource(descriptor, {basePath: this._basePath})
-        }
-      }
-    }
   }
 
 }

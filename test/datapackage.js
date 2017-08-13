@@ -29,15 +29,15 @@ describe('DataPackage', () => {
       assert.deepEqual(datapackage.descriptor, expand(descriptor))
     })
 
-    it('throws errors for invalid datapackage', async () => {
-      const errors = await catchError(DataPackage.load, {})
+    it('throws errors for invalid datapackage in strict mode', async () => {
+      const errors = await catchError(DataPackage.load, {}, {strict: true})
       assert.instanceOf(errors, Array)
       assert.instanceOf(errors[0], Error)
       assert.include(errors[0].message, 'required property')
     })
 
-    it('stores errors for invalid datapackage in not a strict mode', async () => {
-      const datapackage = await DataPackage.load({}, {strict: false})
+    it('stores errors for invalid datapackage', async () => {
+      const datapackage = await DataPackage.load()
       assert.instanceOf(datapackage.errors, Array)
       assert.instanceOf(datapackage.errors[0], Error)
       assert.include(datapackage.errors[0].message, 'required property')
@@ -388,9 +388,11 @@ describe('DataPackage', () => {
       assert.deepEqual(datapackage.resources[1].source, ['test'])
     })
 
-    it('add invalid - throws array of errors', async () => {
+    it('add invalid - throws array of errors in strict mode', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
+      const datapackage = await DataPackage.load(descriptor, {
+        basePath: 'data/dp1', strict: true,
+      })
       try {
         datapackage.addResource({})
         assert.isOk(false)
@@ -403,16 +405,14 @@ describe('DataPackage', () => {
 
     it('add invalid - save errors in not a strict mode', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor,
-        {basePath: 'data/dp1', strict: false})
+      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
       datapackage.addResource({})
       assert.instanceOf(datapackage.errors[0], Error)
       assert.include(datapackage.errors[0].message, 'Missing required property')
       assert.isFalse(datapackage.valid)
     })
 
-    // TODO: Rebase on non-strict mode
-    it.skip('add tabular - can read data', async () => {
+    it('add tabular - can read data', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
       const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
       datapackage.addResource({
@@ -501,24 +501,26 @@ describe('DataPackage', () => {
 
   })
 
-  describe('#update', () => {
+  describe('#commit', () => {
 
     it('modified', async () => {
       const descriptor = {resources: [{name: 'name', data: ['data']}]}
       const datapackage = await DataPackage.load(descriptor)
       datapackage.descriptor.resources[0].name = 'modified'
       assert.deepEqual(datapackage.resources[0].name, 'name')
-      const result = datapackage.update()
+      const result = datapackage.commit()
       assert.deepEqual(datapackage.resources[0].name, 'modified')
       assert.isTrue(result)
     })
 
-    it('modified invalid', async () => {
-      const descriptor = {resources: [{name: 'name', data: ['data']}]}
-      const datapackage = await DataPackage.load(descriptor)
+    it('modified invalid in strict mode', async () => {
+      const descriptor = {resources: [{name: 'name', path: 'data.csv'}]}
+      const datapackage = await DataPackage.load(descriptor, {
+        basePath: 'data', strict: true,
+      })
       datapackage.descriptor.resources = []
       try {
-        datapackage.update()
+        datapackage.commit()
         assert.isOk(false)
       } catch (errors) {
         assert.instanceOf(errors, Array)
@@ -530,7 +532,7 @@ describe('DataPackage', () => {
     it('not modified', async () => {
       const descriptor = {resources: [{name: 'name', data: ['data']}]}
       const datapackage = await DataPackage.load(descriptor)
-      const result = datapackage.update()
+      const result = datapackage.commit()
       assert.deepEqual(datapackage.descriptor, expand(descriptor))
       assert.isFalse(result)
     })

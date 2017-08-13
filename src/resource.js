@@ -219,8 +219,8 @@ class Resource {
   constructor(descriptor={}, {basePath, strict=false}={}) {
 
     // Set attributes
-    this._currentDescriptor = lodash.clone(descriptor)
-    this._nextDescriptor = lodash.clone(descriptor)
+    this._currentDescriptor = lodash.cloneDeep(descriptor)
+    this._nextDescriptor = lodash.cloneDeep(descriptor)
     this._basePath = basePath
     this._strict = strict
     this._errors = []
@@ -234,7 +234,7 @@ class Resource {
 
     // Process descriptor
     this._currentDescriptor = helpers.expandResourceDescriptor(this._currentDescriptor)
-    this._nextDescriptor = lodash.clone(this._currentDescriptor)
+    this._nextDescriptor = lodash.cloneDeep(this._currentDescriptor)
 
     // Inspect source
     this._sourceInspection = inspectSource(

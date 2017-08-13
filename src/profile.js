@@ -88,11 +88,11 @@ class Profile {
 }
 
 
-module.exports = {
-  Profile,
-}
-
-
 // Internal
 
 const _cache = {}
+
+
+module.exports = {
+  Profile,
+}
