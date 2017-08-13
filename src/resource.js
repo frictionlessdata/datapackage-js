@@ -1,6 +1,7 @@
 const fs = require('fs')
 const axios = require('axios')
 const lodash = require('lodash')
+const {Buffer} = require('buffer')
 const jschardet = require('jschardet')
 const pathModule = require('path')
 const {Readable} = require('stream')
@@ -213,6 +214,19 @@ class Resource {
   async iter({stream=false}={}) {
     const byteStream = await createByteStream(this.source, this.remote)
     return (stream) ? byteStream : new S2A(byteStream)
+  }
+
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  read() {
+    return new Promise(resolve => {
+      let bytes
+      this.iter({stream: true}).then(stream => {
+        stream.on('data', data => {bytes = (bytes) ? Buffer.concat([bytes, data]) : data})
+        stream.on('end', () => resolve(bytes))
+      })
+    })
   }
 
   // Private
