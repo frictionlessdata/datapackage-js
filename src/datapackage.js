@@ -117,29 +117,42 @@ class DataPackage {
   /**
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
-  async infer(pattern='**/*.csv') {
+  async infer(pattern=false) {
 
-    // It's broswer
-    if (config.IS_BROWSER) {
-      throw new Error('Browser is not supported for infer')
+    // Files
+    if (pattern) {
+
+      // It's broswer
+      if (config.IS_BROWSER) {
+        throw new Error('Browser is not supported for pattern infer')
+      }
+
+      // No base path
+      if (!this._basePath) {
+        throw new Error('Base path is required for pattern infer')
+      }
+
+      // Add resources
+      const files = await findFiles(pattern, this._basePath)
+      for (const file of files) {
+        this.addResource({path: file})
+      }
+
     }
 
-    // No base path
-    if (!this._basePath) {
-      throw new Error('Base path is required for infer')
-    }
-
-    // Add resources
-    const files = await findFiles(pattern, this._basePath)
-    for (const file of files) {
-      this.addResource({path: file})
-    }
-
-    // Infer resources
+    // Resources
     for (const [index, resource] of this.resources.entries()) {
       const descriptor = await resource.infer()
       this._nextDescriptor.resources[index] = descriptor
       this.commit()
+    }
+
+    // Profile
+    if (this._nextDescriptor.profile === config.DEFAULT_DATA_PACKAGE_PROFILE) {
+      if (this.resources.every(resouce => resouce.tabular)) {
+        this._nextDescriptor.profile = 'tabular-data-resource'
+        this.commit()
+      }
     }
 
     return this._currentDescriptor

@@ -186,6 +186,12 @@ class Resource {
     if (!descriptor.schema) {
       if (this.tabular) {
         descriptor.schema = await this.table.infer()
+      }
+    }
+
+    // Profile
+    if (descriptor.profile === config.DEFAULT_RESOURCE_PROFILE) {
+      if (this.tabular) {
         descriptor.profile = 'tabular-data-resource'
       }
     }
