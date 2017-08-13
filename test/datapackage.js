@@ -399,7 +399,7 @@ describe('DataPackage', () => {
       } catch (errors) {
         assert.instanceOf(errors, Array)
         assert.instanceOf(errors[0], Error)
-        assert.include(errors[0].message, 'Missing required property')
+        assert.include(errors[0].message, 'Data does not match any schemas')
       }
     })
 
@@ -408,7 +408,7 @@ describe('DataPackage', () => {
       const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
       datapackage.addResource({})
       assert.instanceOf(datapackage.errors[0], Error)
-      assert.include(datapackage.errors[0].message, 'Missing required property')
+      assert.include(datapackage.errors[0].message, 'Data does not match any schemas')
       assert.isFalse(datapackage.valid)
     })
 

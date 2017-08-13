@@ -3,9 +3,19 @@
   "title": "Data Resource",
   "description": "Data Resource.",
   "type": "object",
-  "required": [
-    "name",
-    "path"
+  "oneOf": [
+    {
+      "required": [
+        "name",
+        "data"
+      ]
+    },
+    {
+      "required": [
+        "name",
+        "path"
+      ]
+    }
   ],
   "properties": {
     "profile": {
@@ -72,6 +82,11 @@
         "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
       ]
     },
+    "data": {
+      "propertyOrder": 230,
+      "title": "Data",
+      "description": "Inline data for this resource."
+    },
     "schema": {
       "propertyOrder": 40,
       "title": "Schema",
@@ -101,39 +116,10 @@
       "propertyOrder": 70,
       "title": "Home Page",
       "description": "The home on the web that is related to this data package.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "description": "An identifier string. Lower case characters with `.`, `_`, `-` and `/` are allowed.",
-          "type": "string",
-          "pattern": "^([-a-z0-9._/])+$",
-          "context": "This is ideally a url-usable and human-readable name. Name `SHOULD` be invariant, meaning it `SHOULD NOT` change when its parent descriptor is updated.",
-          "examples": [
-            "{\n  \"name\": \"my-nice-name\"\n}\n"
-          ]
-        },
-        "path": {
-          "title": "Path",
-          "description": "A fully qualified URL, or a POSIX file path..",
-          "type": "string",
-          "examples": [
-            "{\n  \"path\": \"file.csv\"\n}\n",
-            "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
-          ],
-          "context": "Implementations need to negotiate the type of path provided, and dereference the data accordingly."
-        },
-        "title": {
-          "title": "Title",
-          "description": "A human-readable title.",
-          "type": "string",
-          "examples": [
-            "{\n  \"title\": \"My Package Title\"\n}\n"
-          ]
-        }
-      },
+      "type": "string",
+      "format": "uri",
       "examples": [
-        "{\n  \"homepage\": {\n    \"name\": \"My Web Page\",\n    \"uri\": \"http://example.com/\"\n  }\n}\n"
+        "{\n  \"homepage\": \"http://example.com/\"\n}\n"
       ]
     },
     "sources": {
@@ -150,17 +136,15 @@
         "description": "A source file.",
         "type": "object",
         "required": [
-          "uri"
+          "title"
         ],
         "properties": {
-          "name": {
-            "title": "Name",
-            "description": "An identifier string. Lower case characters with `.`, `_`, `-` and `/` are allowed.",
+          "title": {
+            "title": "Title",
+            "description": "A human-readable title.",
             "type": "string",
-            "pattern": "^([-a-z0-9._/])+$",
-            "context": "This is ideally a url-usable and human-readable name. Name `SHOULD` be invariant, meaning it `SHOULD NOT` change when its parent descriptor is updated.",
             "examples": [
-              "{\n  \"name\": \"my-nice-name\"\n}\n"
+              "{\n  \"title\": \"My Package Title\"\n}\n"
             ]
           },
           "path": {
@@ -201,19 +185,12 @@
         "title": "License",
         "description": "A license for this descriptor.",
         "type": "object",
-        "required": [
-          "uri"
-        ],
         "properties": {
           "name": {
-            "title": "Name",
-            "description": "An identifier string. Lower case characters with `.`, `_`, `-` and `/` are allowed.",
+            "title": "Open Definition license identifier",
+            "description": "MUST be an Open Definition license identifier, see http://licenses.opendefinition.org/",
             "type": "string",
-            "pattern": "^([-a-z0-9._/])+$",
-            "context": "This is ideally a url-usable and human-readable name. Name `SHOULD` be invariant, meaning it `SHOULD NOT` change when its parent descriptor is updated.",
-            "examples": [
-              "{\n  \"name\": \"my-nice-name\"\n}\n"
-            ]
+            "pattern": "^([-a-zA-Z0-9._])+$"
           },
           "path": {
             "title": "Path",

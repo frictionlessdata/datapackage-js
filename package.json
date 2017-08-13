@@ -22,7 +22,7 @@
     "prepublish": "npm run build",
     "prepush": "npm run test",
     "pretest": "npm run lint",
-    "profiles": "npm run profiles:registry && npm run profiles:data-package && npm run profiles:tabular-data-package && npm run profiles:fiscal-data-package",
+    "profiles": "npm run profiles:registry && npm run profiles:data-package && npm run profiles:tabular-data-package && npm run profiles:fiscal-data-package && npm run profiles:data-resource && npm run profiles:tabular-data-resource",
     "profiles:registry": "wget -O src/profiles/registry.json https://specs.frictionlessdata.io/schemas/registry.json",
     "profiles:data-package": "wget -O src/profiles/data-package.json https://specs.frictionlessdata.io/schemas/data-package.json",
     "profiles:tabular-data-package": "wget -O src/profiles/tabular-data-package.json https://specs.frictionlessdata.io/schemas/tabular-data-package.json",
