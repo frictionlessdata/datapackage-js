@@ -199,8 +199,9 @@ class Resource {
   /**
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  commit() {
-    if (lodash.isEqual(this._currentDescriptor, this._nextDescriptor)) return false
+  commit({strict}={}) {
+    if (lodash.isBoolean(strict)) this._strict = strict
+    else if (lodash.isEqual(this._currentDescriptor, this._nextDescriptor)) return false
     this._currentDescriptor = lodash.cloneDeep(this._nextDescriptor)
     this._build()
     return true
