@@ -39,14 +39,20 @@ class DataPackage {
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get valid() {
-    return this._errors.length === 0
+    return this._errors.length === 0 && this.resources.every(resource => resource.valid)
   }
 
   /**
    * https://github.com/frictionlessdata/datapackage-js#datapackage
    */
   get errors() {
-    return this._errors
+    const errors = lodash.cloneDeep(this._errors)
+    for (const [index, resource] of this.resources.entries()) {
+      if (!resource.valid) {
+        errors.push(new Error(`Resource "${resource.name || index}" validation error(s)`))
+      }
+    }
+    return errors
   }
 
   /**
@@ -126,7 +132,7 @@ class DataPackage {
     // Add resources
     const files = await findFiles(pattern, this._basePath)
     for (const file of files) {
-      const resource = this.addResource({path: file})
+      this.addResource({path: file})
     }
 
     // Infer resources
@@ -231,6 +237,7 @@ function findFiles(pattern, basePath) {
   return new Promise((resolve, reject) => {
     const options = {cwd: basePath, ignore: 'node_modules/**'}
     glob(pattern, options, (error, files) => {
+      if (error) reject(error)
       resolve(files)
     })
   })

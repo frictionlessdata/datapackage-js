@@ -76,6 +76,8 @@ rules:
     - off
   no-lonely-if:
     - off
+  no-confusing-arrow:
+    - off
   import/no-dynamic-require:
     - off
   import/newline-after-import:
