@@ -14,7 +14,7 @@ class Package {
   // Public
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   static async load(descriptor={}, {basePath, strict=false}={}) {
 
@@ -36,14 +36,14 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   get valid() {
     return this._errors.length === 0 && this.resources.every(resource => resource.valid)
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   get errors() {
     const errors = lodash.cloneDeep(this._errors)
@@ -56,14 +56,14 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   get profile() {
     return this._profile
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   get descriptor() {
     // Never use this.descriptor inside this class (!!!)
@@ -71,21 +71,21 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   get resources() {
     return this._resources
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   get resourceNames() {
     return this._resources.map(resource => resource.name)
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   addResource(descriptor) {
     if (!this._nextDescriptor.resources) this._nextDescriptor.resources = []
@@ -95,14 +95,14 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   getResource(name) {
     return this._resources.find(resource => resource.name === name) || null
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   removeResource(name) {
     const resource = this.getResource(name)
@@ -115,7 +115,7 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   async infer(pattern=false) {
 
@@ -159,7 +159,7 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   commit({strict}={}) {
     if (lodash.isBoolean(strict)) this._strict = strict
@@ -170,7 +170,7 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#datapackage
+   * https://github.com/frictionlessdata/datapackage-js#package
    */
   save(target) {
     return new Promise((resolve, reject) => {
