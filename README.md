@@ -259,6 +259,130 @@ Save data package to target destination.
 
 A class for working with data resources. You can read or iterate tabular resources using the `table` property.
 
+Consider we have some local csv file. It could be inline data or remote link - all supported by `Resource` class (except local files for in-brower usage of course). But say it's `data.csv` for now:
+
+```csv
+city,location
+london,"51.50,-0.11"
+paris,"48.85,2.30"
+rome,N/A
+```
+
+Let's create and read a resource. We use static `Resource.load` method instantiate a resource. Because resource is tabular we could use `resource.table.read` method with a `keyed` option to get an array of keyed rows:
+
+```javascript
+const resource = await Resource.load({path: 'data.csv'})
+resource.tabular // true
+resource.table.headers // ['city', 'location']
+await resource.table.read({keyed: true})
+// [
+//   {city: 'london', location: '51.50,-0.11'},
+//   {city: 'paris', location: '48.85,2.30'},
+//   {city: 'rome', location: 'N/A'},
+// ]
+```
+
+As we could see our locations are just a strings. But it should be geopoints. Also Rome's location is not available but it's also just a `N/A` string instead of JavaScript `null`. First we have to infer resource metadata:
+
+```javascript
+await resource.infer()
+resource.descriptor
+//{ path: 'data.csv',
+//  profile: 'tabular-data-resource',
+//  encoding: 'utf-8',
+//  name: 'data',
+//  format: 'csv',
+//  mediatype: 'text/csv',
+// schema: { fields: [ [Object], [Object] ], missingValues: [ '' ] } }
+await resource.table.read({keyed: true})
+// Fails with a data validation error
+```
+
+Let's fix not available location. There is a `missingValues` property in Table Schema specification. As a first try we set `missingValues` to `N/A` in `resource.descriptor.schema`. Resource descriptor could be changed in-place but all changes sould be commited by `resource.commit()`:
+
+```javascript
+resource.descriptor.schema.missingValues = 'N/A'
+resource.commit()
+resource.valid // false
+resource.errors
+// Error: Descriptor validation error:
+//   Invalid type: string (expected array)
+//    at "/missingValues" in descriptor and
+//    at "/properties/missingValues/type" in profile
+```
+
+As a good citiziens we've decided to check out recource descriptor validity. And it's not valid! We sould use an array for `missingValues` property. Also don't forget to have an empty string as a missing value:
+
+```javascript
+resource.descriptor.schema['missingValues'] = ['', 'N/A']
+resource.commit()
+resource.valid // true
+```
+
+All good. It looks like we're ready to read our data again:
+
+```javascript
+await resource.table.read({keyed: true})
+// [
+//   {city: 'london', location: [51.50,-0.11]},
+//   {city: 'paris', location: [48.85,2.30]},
+//   {city: 'rome', location: null},
+// ]
+```
+
+Now we see that:
+- locations are arrays with numeric lattide and longitude
+- Rome's location is a native JavaScript `null`
+
+And because there are no errors on data reading we could be sure that our data is valid againt our schema. Let's save our resource descriptor:
+
+```javascript
+await resource.save('dataresource.json')
+```
+
+Let's check newly-crated `dataresource.json`. It contains path to our data file, inferred metadata and our `missingValues` tweak:
+
+```json
+{
+    "path": "data.csv",
+    "profile": "tabular-data-resource",
+    "encoding": "utf-8",
+    "name": "data",
+    "format": "csv",
+    "mediatype": "text/csv",
+    "schema": {
+        "fields": [
+            {
+                "name": "city",
+                "type": "string",
+                "format": "default"
+            },
+            {
+                "name": "location",
+                "type": "geopoint",
+                "format": "default"
+            }
+        ],
+        "missingValues": [
+            "",
+            "N/A"
+        ]
+    }
+}
+```
+
+If we decide to improve it even more we could update the `dataresource.json` file and then open it again. But this time let's read our resoure as a byte stream:
+
+```javascript
+const resource = await Resource.load('dataresource.json')
+const stream = await resource.iter({stream: true})
+stream.on('data', (data) => {
+  // handle data chunk as a Buffer
+})
+```
+
+It was onle basic introduction to the `Resource` class. To learn more let's take a look on `Resource` class API reference.
+
 #### `async Resource.load(descriptor, {basePath, strict=false})`
 
 Factory method to instantiate `Resource` class. This method is async and it should be used with await keyword or as a `Promise`.

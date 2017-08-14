@@ -228,6 +228,16 @@ class Resource {
     })
   }
 
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  save(target) {
+    return new Promise((resolve, reject) => {
+      const contents = JSON.stringify(this._currentDescriptor, null, 4)
+      fs.writeFile(target, contents, error => (!error) ? resolve() : reject(error))
+    })
+  }
+
   // Private
 
   constructor(descriptor={}, {basePath, strict=false}={}) {
