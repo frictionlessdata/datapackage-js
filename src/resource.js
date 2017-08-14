@@ -232,6 +232,15 @@ class Resource {
 
   constructor(descriptor={}, {basePath, strict=false}={}) {
 
+    // Handle deprecated resource.path.url
+    if (descriptor.url) {
+      console.warn(
+        `Resource property "url: <url>" is deprecated.
+         Please use "path: <url>" instead.`)
+      descriptor.path = descriptor.url
+      delete descriptor.url
+    }
+
     // Set attributes
     this._currentDescriptor = lodash.cloneDeep(descriptor)
     this._nextDescriptor = lodash.cloneDeep(descriptor)

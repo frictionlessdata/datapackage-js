@@ -188,15 +188,9 @@ class Package {
       if (resource.url) {
         console.warn(
           `Resource property "url: <url>" is deprecated.
-           Please use "path: [url]" instead (as array).`)
-        resource.path = [resource.url]
+           Please use "path: <url>" instead.`)
+        resource.path = resource.url
         delete resource.url
-      }
-      if (lodash.isString(resource.path)) {
-        console.warn(
-          `Resource property "path: <path>" is deprecated.
-           Please use "path: [path]" instead (as array).`)
-        resource.path = [resource.path]
       }
     }
 
