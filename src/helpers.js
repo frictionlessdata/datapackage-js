@@ -54,7 +54,7 @@ async function retrieveDescriptor(descriptor) {
 
 // Dereference descriptor
 
-async function dereferenceDataPackageDescriptor(descriptor, basePath) {
+async function dereferencePackageDescriptor(descriptor, basePath) {
   descriptor = lodash.cloneDeep(descriptor)
   for (const [index, resource] of (descriptor.resources || []).entries()) {
     // TODO: May be we should use Promise.all here
@@ -124,7 +124,7 @@ async function dereferenceResourceDescriptor(descriptor, basePath, baseDescripto
 
 // Expand descriptor
 
-function expandDataPackageDescriptor(descriptor) {
+function expandPackageDescriptor(descriptor) {
   descriptor = lodash.cloneDeep(descriptor)
   descriptor.profile = descriptor.profile || config.DEFAULT_DATA_PACKAGE_PROFILE
   for (const [index, resource] of (descriptor.resources || []).entries()) {
@@ -195,9 +195,9 @@ function joinUrl(...parts) {
 module.exports = {
   locateDescriptor,
   retrieveDescriptor,
-  dereferenceDataPackageDescriptor,
+  dereferencePackageDescriptor,
   dereferenceResourceDescriptor,
-  expandDataPackageDescriptor,
+  expandPackageDescriptor,
   expandResourceDescriptor,
   isRemotePath,
   isSafePath,

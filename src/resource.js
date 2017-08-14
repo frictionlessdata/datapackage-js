@@ -74,13 +74,6 @@ class Resource {
   /**
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  get blank() {
-    return !!this._sourceInspection.blank
-  }
-
-  /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
-   */
   get inline() {
     return !!this._sourceInspection.inline
   }
@@ -155,7 +148,7 @@ class Resource {
     const descriptor = lodash.cloneDeep(this._currentDescriptor)
 
     // Blank -> Stop
-    if (this.blank) {
+    if (this._sourceInspection.blank) {
       return descriptor
     }
 

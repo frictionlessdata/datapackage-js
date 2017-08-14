@@ -9,7 +9,7 @@ const config = require('./config')
 
 // Module API
 
-class DataPackage {
+class Package {
 
   // Public
 
@@ -25,13 +25,13 @@ class DataPackage {
 
     // Process descriptor
     descriptor = await helpers.retrieveDescriptor(descriptor)
-    descriptor = await helpers.dereferenceDataPackageDescriptor(descriptor, basePath)
+    descriptor = await helpers.dereferencePackageDescriptor(descriptor, basePath)
 
     // Get profile
     const profile = await Profile.load(
       descriptor.profile || config.DEFAULT_DATA_PACKAGE_PROFILE)
 
-    return new DataPackage(descriptor, {basePath, strict, profile})
+    return new Package(descriptor, {basePath, strict, profile})
 
   }
 
@@ -217,7 +217,7 @@ class DataPackage {
   _build() {
 
     // Process descriptor
-    this._currentDescriptor = helpers.expandDataPackageDescriptor(this._currentDescriptor)
+    this._currentDescriptor = helpers.expandPackageDescriptor(this._currentDescriptor)
     this._nextDescriptor = lodash.cloneDeep(this._currentDescriptor)
 
     // Validate descriptor
@@ -261,5 +261,5 @@ function findFiles(pattern, basePath) {
 // System
 
 module.exports = {
-  DataPackage,
+  Package,
 }

@@ -14,8 +14,8 @@ async function validate(descriptor) {
 
   // Process descriptor
   descriptor = await helpers.retrieveDescriptor(descriptor)
-  descriptor = await helpers.dereferenceDataPackageDescriptor(descriptor, basePath)
-  descriptor = helpers.expandDataPackageDescriptor(descriptor)
+  descriptor = await helpers.dereferencePackageDescriptor(descriptor, basePath)
+  descriptor = helpers.expandPackageDescriptor(descriptor)
 
   // Get descriptor profile
   const profile = await Profile.load(descriptor.profile)
