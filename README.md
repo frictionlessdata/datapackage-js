@@ -11,7 +11,7 @@ A library for working with [Data Packages](http://specs.frictionlessdata.io/data
 
 ## Features
 
- - `DataPackage` class for working with data packages
+ - `Package` class for working with data packages
  - `Resource` class for working with data resources
  - `Profile` class for working with profiles
  - `validate` function for validating data package descriptors
@@ -38,10 +38,10 @@ $ npm install datapackage # v0.8
 ### Examples
 
 
-Code examples in this readme requires Node v8.0+ or proper modern browser . Also you have to wrap code into async function if there is await keyword used. You could see even more example in [examples](https://github.com/frictionlessdata/datapackage-js/tree/master/examples) directory.
+Code examples in this readme requires Node v8.3+ or proper modern browser . Also you have to wrap code into async function if there is await keyword used. You could see even more example in [examples](https://github.com/frictionlessdata/datapackage-js/tree/master/examples) directory.
 
 ```js
-const {DataPackage} = require('datapackage')
+const {Package} = require('datapackage')
 
 const descriptor = {
   resources: [
@@ -64,72 +64,135 @@ const descriptor = {
   ]
 }
 
-DataPackage.load(data, schema).then(dataPackage, async () => {
-    const resource = dataPackage.resources[0]
-    await resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
-})
+const datapackage = await Package.load(descriptor)
+const resource = datapackage.getResource('example')
+await resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
 ```
 
 ## Documentation
 
-### DataPackage
+### Package
 
-A class for working with datapackages. It provides means for modifying the datapackage descriptor and adding resources, handling validation on along the process.
+A class for working with data packages. It provides various capabilities like loading local or remote data package, inferring a data package descriptor, saving a data package descriptor and many more.
 
-```js
-const dataPackage = await DataPackage.load(<descriptor>)
+Consider we have some local csv files in a `data` directory. Let's create a data package based on this data using a `Package` class:
 
-dataPackage.valid // true
-dataPackage.errors // []
-dataPackage.profile // profile instance (ses below)
-dataPackage.descriptor // retrieved/dereferenced/expanded descriptor
-dataPackage.resources // array of data resource instances (see below)
+> data/cities.csv
+
+```csv
+city,location
+london,"51.50,-0.11"
+paris,"48.85,2.30"
+rome,"41.89,12.51"
 ```
 
-#### `async DataPackage.load(descriptor, {basePath, strict=true})`
+> data/population.csv
 
-Factory method to instantiate `DataPackage` class. This method is async and it should be used with await keyword or as a `Promise`.
+```csv
+city,year,population
+london,2017,8780000
+paris,2017,2240000
+rome,2017,2860000
+```
+
+First we create a blank data package. We need to provide a base path because we're going to work with local files:
+
+```javascript
+const datapackage = await Package.load({}, {basePath: '.'})
+```
+
+Now we're ready to infer a data package descriptor based on data files we have. Because we have two csv files we use glob pattern `**/*.csv`:
+
+```javascript
+await datapackage.infer('**/*.csv')
+datapackage.descriptor
+//{ profile: 'tabular-data-resource',
+//  resources:
+//   [ { path: 'data/cities.csv',
+//       profile: 'tabular-data-resource',
+//       encoding: 'utf-8',
+//       name: 'cities',
+//       format: 'csv',
+//       mediatype: 'text/csv',
+//       schema: [Object] },
+//     { path: 'data/population.csv',
+//       profile: 'tabular-data-resource',
+//       encoding: 'utf-8',
+//       name: 'population',
+//       format: 'csv',
+//       mediatype: 'text/csv',
+//       schema: [Object] } ] }
+```
+
+An `infer` method has found all our files and inspected it to extract useful metadata like profile, encoding, format, Table Schema etc. Let's tweak it a little bit:
+
+```javascript
+datapackage.descriptor.resources[1].schema.fields[1].type = 'year'
+datapackage.commit()
+datapackage.valid // true
+```
+
+Because our resources are tabular we could read it as a tabular data:
+
+```javascript
+await datapackage.getResource('population').table.read({keyed: true})
+
+//[ { city: 'london', year: 2017, population: 8780000 },
+//  { city: 'paris', year: 2017, population: 2240000 },
+//  { city: 'rome', year: 2017, population: 2860000 } ]
+```
+
+Let's save our descriptor on the disk. After it we could update our `datapackage.json` as we want, make some changes etc:
+
+```javascript
+await datapackage.save('datapackage.json')
+```
+
+To continue the work with the data package we just load it again but this time using local `datapackage.json`:
+
+```javascript
+const datapackage = await Package.load('datapackage.json')
+// Continue the work
+```
+
+It was onle basic introduction to the `Package` class. To learn more let's take a look on `Package` class API reference.
+
+#### `async Package.load(descriptor, {basePath, strict=false})`
+
+Factory method to instantiate `Package` class. This method is async and it should be used with await keyword or as a `Promise`.
 
 - `descriptor (String/Object)` - data package descriptor as local path, url or object
-- `basePath (String)` - base path for all relative pathes
-- `strict (Boolean)` - strict flag to alter validation behaviour
-  - by default strict is true so any validation error will be raised
-  - it could be set to false to ignore and put validation errors to `dataPackage.errors`
+- `basePath (String)` - base path for all relative paths
+- `strict (Boolean)` - strict flag to alter validation behavior. Setting it to `true` leads to throwing errors on any operation with invalid descriptor
 - `(Error)` - raises error if resource can't be instantiated
 - `(Error[])` - raises list of validation errors if strict is true
-- `(DataPackage)` - returns data package class instance
+- `(Package)` - returns data package class instance
 
-List of actions on descriptor:
-- retrieved (if path/url)
-- dereferenced (schema/dialect)
-- expanded (with profile defaults)
-- validated (against descriptor.profile)
-
-#### `dataPackage.valid`
+#### `package.valid`
 
 - `(Boolean)` - returns validation status. It always true in strict mode.
 
-#### `dataPackage.errors`
+#### `package.errors`
 
 - `(Error[])` - returns validation errors. It always empty in strict mode.
 
-#### `dataPackage.profile`
+#### `package.profile`
 
 - `(Profile)` - returns an instance of `Profile` class (see below).
 
-#### `dataPackage.descriptor`
+#### `package.descriptor`
 
 - `(Object)` - returns data package descriptor
 
-#### `dataPackage.resources`
+#### `package.resources`
 
 - `(Resource[])` - returns an array of `Resource` instances (see below).
 
-#### `dataPackage.resourceNames`
+#### `package.resourceNames`
 
 - `(String[])` - returns an array of resource names.
 
-#### `dataPackage.addResource(descriptor)`
+#### `package.addResource(descriptor)`
 
 Add new resource to data package. The data package descriptor will be validated  with newly added resource descriptor.
 
@@ -138,14 +201,14 @@ Add new resource to data package. The data package descriptor will be validated 
 - `(Error)` - raises any resource creation error
 - `(Resource/null)` - returns added `Resource` instance or null if not added
 
-#### `dataPackage.getResource(name)`
+#### `package.getResource(name)`
 
 Get data package resource by name.
 
 - `name (String)` - data resource name
 - `(Resource/null)` - returns `Resource` instances or null if not found
 
-#### `dataPackage.removeResource(name)`
+#### `package.removeResource(name)`
 
 Remove data package resource by name. The data package descriptor will be validated after resource descriptor removal.
 
@@ -153,7 +216,36 @@ Remove data package resource by name. The data package descriptor will be valida
 - `(Error[])` - raises list of validation errors
 - `(Resource/null)` - returns removed `Resource` instances or null if not found
 
-#### `async dataPackage.save(target)`
+#### `async package.infer(pattern=false)`
+
+Infer a data package metadata. If `pattern` is not provided only existent resources will be inferred (added metadata like encoding, profile etc). If `pattern` is provided new resoures with file names mathing the pattern will be added and inferred. It commits changes to data package instance.
+
+- `pattern (String)` - glob pattern for new resources
+- `(Object)` - returns data package descriptor
+
+#### `package.commit({strict})`
+
+Update data package instance if there are in-place changes in the descriptor.
+
+- `strict (Boolean)` - alter `strict` mode for further work
+- `(Error[])` - raises list of validation errors
+- `(Error)` - raises any resource creation error
+- `(Boolean)` - returns true on success and false if not modified
+
+```javascript
+const datapackage = await Package.load({
+    name: 'package',
+    resources: [{name: 'resource', data: ['data']}]
+})
+
+datapackage.name // package
+datapackage.descriptor.name = 'renamed-package'
+datapackage.name // package
+datapackage.commit()
+datapackage.name // renamed-package
+```
+
+#### `async package.save(target)`
 
 > For now only descriptor will be saved.
 
@@ -163,80 +255,51 @@ Save data package to target destination.
 - `(Error)` - raises an error if there is saving problem
 - `(Boolean)` - returns true on success
 
-#### `dataPackage.update()`
-
-Update data package instance if there are in-place changes in the descriptor.
-
-- `(Error[])` - raises list of validation errors
-- `(Error)` - raises any resource creation error
-- `(Boolean)` - returns true on success and false if not modified
-
-```js
-const dataPackage = await DataPackage.load({
-    name: 'package',
-    resources: [{name: 'resource', data: ['data']}]
-})
-
-dataPackage.name // package
-dataPackage.descriptor.name = 'renamed-package'
-dataPackage.name // package
-dataPackage.update()
-dataPackage.name // renamed-package
-```
-
 ### Resource
 
 A class for working with data resources. You can read or iterate tabular resources using the `table` property.
 
-> Synchronous resource.table property and table.headers are WIP
-
-```js
-const descriptor = {
-  name: 'example',
-  profile: 'tabular-data-resource',
-  data: [
-    ['height', 'age', 'name'],
-    ['180', '18', 'Tony'],
-    ['192', '32', 'Jacob'],
-  ],
-  schema:  {
-    fields: [
-      {name: 'height', type: 'integer'},
-      {name: 'age', type: 'integer'},
-      {name: 'name', type: 'string'},
-    ],
-  }
-}
-
-const resource = await Resource.load(data, schema)
-
-resource.name // example
-resource.tabuler // true
-resource.descriptor // descriptor
-resource.sourceType // inline
-resource.source // descriptor.data
-
-resource.table.headers // ['height', 'age', 'name]
-await resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
-```
-
-#### `async Resource.load(descriptor, {basePath})`
+#### `async Resource.load(descriptor, {basePath, strict=false})`
 
 Factory method to instantiate `Resource` class. This method is async and it should be used with await keyword or as a `Promise`.
 
 - `descriptor (String/Object)` - data resource descriptor as local path, url or object
-- `basePath (String)` - base path for all relative pathes
+- `basePath (String)` - base path for all relative paths
+- `strict (Boolean)` - strict flag to alter validation behavior. Setting it to `true` leads to throwing errors on any operation with invalid descriptor
 - `(Error)` - raises error if resource can't be instantiated
 - `(Resource)` - returns resource class instance
 
-List of actions on descriptor:
-- retrieved (if path/url)
-- dereferenced (schema/dialect)
-- expanded (with profile defaults)
+#### `package.valid`
+
+- `(Boolean)` - returns validation status. It always true in strict mode.
+
+#### `package.errors`
+
+- `(Error[])` - returns validation errors. It always empty in strict mode.
+
+#### `package.profile`
+
+- `(Profile)` - returns an instance of `Profile` class (see below).
 
 #### `resource.name`
 
 - `(String)` - returns resource name
+
+#### `resource.inline`
+
+- `(Boolean)` - returns true if resource is inline
+
+#### `resource.local`
+
+- `(Boolean)` - returns true if resource is local
+
+#### `resource.remote`
+
+- `(Boolean)` - returns true if resource is remote
+
+#### `resource.multipart`
+
+- `(Boolean)` - returns true if resource is multipart
 
 #### `resource.tabular`
 
@@ -246,46 +309,52 @@ List of actions on descriptor:
 
 - (Object) - returns resource descriptor
 
-#### `resource.sourceType`
-
-- `(String)` - returns based on resource data/path property
-  - inline
-  - local
-  - remote
-  - multipart-local
-  - multipart-remote
-
 #### `resource.source`
 
-- `(any/String/String[])` - returns based on resource data/path property
-  - `descriptor.data` - inline
-  - `descriptor.path[0]` - local/remote
-  - `descriptor.path` - multipart-loca/remote
+- `(Array/String)` - returns `data` or `path` property
 
-Combination of `resource.source` and `resource.sourceType` provides predictable interface to work with resource data:
+Combination of `resource.source` and `resource.inline/local/remote/multipart` provides predictable interface to work with resource data.
 
-```js
-if (resource.sourceType === 'local') {
-  // logic to handle local file
-} else if (resource.sourceType === 'remote') {
-  // logic to handle remote file
-} else if (resource.sourteType.startsWith('multipart')) {
-  // logic to handle list of chunks
-}
-```
+#### `await resource.iter({stream=false})`
+
+Iterate over data chunks as bytes. If `stream` is true Node Stream will be returned.
+
+- `stream (Boolean)` - Node Stream will be returned
+- `(Iterator/Stream)` - returns Iterator/Stream
+
+#### `await resource.read()`
+
+Returns resource data as bytes.
+
+- (Buffer) - returns Buffer with resource data
 
 #### `resource.table`
+
+For tabular resources it returns `Table` instance to interact with data table. Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
 
 - `(Error)` - raises on any table opening error
 - `(null/tableschema.Table)` - returns table instance if resource is tabular
 
-Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
+#### `async resource.infer()`
+
+Infer resource metadata like name, format, mediatype, encoding, schema and profile. It commits this changes into resource instance.
+
+- `(Object)` - returns resource descriptor
+
+#### `resource.commit({strict})`
+
+Update resource instance if there are in-place changes in the descriptor.
+
+- `strict (Boolean)` - alter `strict` mode for further work
+- `(Error[])` - raises list of validation errors
+- `(Error)` - raises any resource creation error
+- `(Boolean)` - returns true on success and false if not modified
 
 ### Profile
 
-A component to represent JSON Schema profile from [Schema Registry]( https://specs.frictionlessdata.io/schemas/registry.json).
+A component to represent JSON Schema profile from [Profiles Registry]( https://specs.frictionlessdata.io/schemas/registry.json):
 
-```js
+```javascript
 await profile = Profile.load('data-package')
 
 profile.name // data-package
@@ -329,7 +398,7 @@ Validate a data package `descriptor` against the profile.
 
 A standalone function to validate a data package descriptor.
 
-```js
+```javascript
 try {
   const valid = await validate({name: 'Invalid Datapackage'})
 } catch (errors) {
@@ -341,27 +410,53 @@ try {
 
 #### `async validate(descriptor)`
 
-This funcion is async so it has to be used with `await` keyword or as a `Promise`.
+This function is async so it has to be used with `await` keyword or as a `Promise`.
 
 - `descriptor (String/Object)` - data package descriptor (local/remote path or object)
 - `(Error[])` - raises list of validation errors for invalid
 - `(Boolean)` - returns true for valid
 
-List of actions on descriptor:
-- retrieved (if path/url)
-- dereferenced (schema/dialect)
-- expanded (with profile defaults)
-- validated (against descriptor.profile)
+### infer
+
+A standalone function to infer a data package descriptor.
+
+```javascript
+const descriptor = await infer('**/*.csv', {basePath: '.'})
+datapackage.descriptor
+//{ profile: 'tabular-data-resource',
+//  resources:
+//   [ { path: 'data/cities.csv',
+//       profile: 'tabular-data-resource',
+//       encoding: 'utf-8',
+//       name: 'cities',
+//       format: 'csv',
+//       mediatype: 'text/csv',
+//       schema: [Object] },
+//     { path: 'data/population.csv',
+//       profile: 'tabular-data-resource',
+//       encoding: 'utf-8',
+//       name: 'population',
+//       format: 'csv',
+//       mediatype: 'text/csv',
+//       schema: [Object] } ] }
+```
+
+#### `async infer(pattern, {basePath})`
+
+This function is async so it has to be used with `await` keyword or as a `Promise`.
+
+- `pattern (String)` - glob file pattern
+- `(Object)` - returns data package descriptor
 
 ## Changelog
 
-Here described only breaking and the most important changes. The full changelog could be found in nicely formatted [commit history](https://github.com/frictionlessdata/datapackage-js/commits/master).
+Here described only breaking and the most important changes. The full changelog and documentation for all released versions could be found in nicely formatted [commit history](https://github.com/frictionlessdata/datapackage-js/commits/master).
 
 ### v1.0
 
 This version includes various big changes. A migration guide is under development and will be published here.
 
-### [v0.8](https://github.com/frictionlessdata/datapackage-js/tree/v0.8.x)
+### v0.8
 
 First stable version of the library.
 

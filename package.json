@@ -81,7 +81,7 @@
     "karma-webpack": "^2.0.2",
     "mocha": "^2.4.5",
     "mocha-lcov-reporter": "^1.2.0",
-    "nyc": "^10.2.0",
+    "nyc": "^11.1.0",
     "sinon": "^2.1.0",
     "sinon-chai": "^2.9.0",
     "webpack": "^2.2.0",
