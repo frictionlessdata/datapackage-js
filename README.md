@@ -556,7 +556,6 @@ A standalone function to infer a data package descriptor.
 
 ```javascript
 const descriptor = await infer('**/*.csv', {basePath: '.'})
-datapackage.descriptor
 //{ profile: 'tabular-data-resource',
 //  resources:
 //   [ { path: 'data/cities.csv',
