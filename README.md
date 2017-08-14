@@ -474,6 +474,16 @@ Update resource instance if there are in-place changes in the descriptor.
 - `(Error)` - raises any resource creation error
 - `(Boolean)` - returns true on success and false if not modified
 
+#### `async resource.save(target)`
+
+> For now only descriptor will be saved.
+
+Save resource to target destination.
+
+- `target (String)` - path where to save a resource
+- `(Error)` - raises an error if there is saving problem
+- `(Boolean)` - returns true on success
+
 ### Profile
 
 A component to represent JSON Schema profile from [Profiles Registry]( https://specs.frictionlessdata.io/schemas/registry.json):
