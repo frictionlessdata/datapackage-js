@@ -528,7 +528,7 @@ Validate a data package `descriptor` against the profile.
 - `(Error[])` - raises with list of errors for invalid
 - `(Boolean)` - returns true for valid
 
-### validate
+### Validate
 
 A standalone function to validate a data package descriptor.
 
@@ -550,7 +550,7 @@ This function is async so it has to be used with `await` keyword or as a `Promis
 - `(Error[])` - raises list of validation errors for invalid
 - `(Boolean)` - returns true for valid
 
-### infer
+### Infer
 
 A standalone function to infer a data package descriptor.
 
