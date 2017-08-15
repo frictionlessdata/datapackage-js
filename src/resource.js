@@ -211,6 +211,7 @@ class Resource {
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   async iter({stream=false}={}) {
+    if (this.inline) throw new Error('Methods iter/read are not supported for inline data')
     const byteStream = await createByteStream(this.source, this.remote)
     return (stream) ? byteStream : new S2A(byteStream)
   }
