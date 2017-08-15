@@ -1,16 +1,14 @@
-// Node only
-import fs from 'fs'
-// Node and browser
-import axios from 'axios'
-import lodash from 'lodash'
-import urljoin from 'url-join'
-import jsonpointer from 'json-pointer'
-import * as config from './config'
+const fs = require('fs')
+const axios = require('axios')
+const lodash = require('lodash')
+const urljoin = require('url-join')
+const jsonpointer = require('json-pointer')
+const config = require('./config')
 
 
 // Locate descriptor
 
-export function locateDescriptor(descriptor) {
+function locateDescriptor(descriptor) {
   if (lodash.isString(descriptor)) {
     return descriptor.split('/').slice(0, -1).join('/') || '.'
   }
@@ -20,7 +18,7 @@ export function locateDescriptor(descriptor) {
 
 // Retrieve descriptor
 
-export async function retrieveDescriptor(descriptor) {
+async function retrieveDescriptor(descriptor) {
   if (lodash.isPlainObject(descriptor)) {
     return lodash.cloneDeep(descriptor)
   }
@@ -56,7 +54,7 @@ export async function retrieveDescriptor(descriptor) {
 
 // Dereference descriptor
 
-export async function dereferenceDataPackageDescriptor(descriptor, basePath) {
+async function dereferencePackageDescriptor(descriptor, basePath) {
   descriptor = lodash.cloneDeep(descriptor)
   for (const [index, resource] of (descriptor.resources || []).entries()) {
     // TODO: May be we should use Promise.all here
@@ -67,7 +65,7 @@ export async function dereferenceDataPackageDescriptor(descriptor, basePath) {
 }
 
 
-export async function dereferenceResourceDescriptor(descriptor, basePath, baseDescriptor) {
+async function dereferenceResourceDescriptor(descriptor, basePath, baseDescriptor) {
   descriptor = lodash.cloneDeep(descriptor)
   baseDescriptor = baseDescriptor || descriptor
   const PROPERTIES = ['schema', 'dialect']
@@ -126,7 +124,7 @@ export async function dereferenceResourceDescriptor(descriptor, basePath, baseDe
 
 // Expand descriptor
 
-export function expandDataPackageDescriptor(descriptor) {
+function expandPackageDescriptor(descriptor) {
   descriptor = lodash.cloneDeep(descriptor)
   descriptor.profile = descriptor.profile || config.DEFAULT_DATA_PACKAGE_PROFILE
   for (const [index, resource] of (descriptor.resources || []).entries()) {
@@ -136,7 +134,7 @@ export function expandDataPackageDescriptor(descriptor) {
 }
 
 
-export function expandResourceDescriptor(descriptor) {
+function expandResourceDescriptor(descriptor) {
   descriptor = lodash.cloneDeep(descriptor)
   descriptor.profile = descriptor.profile || config.DEFAULT_RESOURCE_PROFILE
   descriptor.encoding = descriptor.encoding || config.DEFAULT_RESOURCE_ENCODING
@@ -166,26 +164,15 @@ export function expandResourceDescriptor(descriptor) {
 }
 
 
-// Write descriptor
-
-export async function writeDescriptor(descriptor, path) {
-  if (process.env.USER_ENV === 'browser') {
-    throw new Error('Writing descriptor on disk in browser is not supported')
-  }
-  // TODO: rebase on async function
-  fs.writeFileSync(path, JSON.stringify(descriptor))
-}
-
-
 // Miscellaneous
 
-export function isRemotePath(path) {
+function isRemotePath(path) {
   // TODO: improve implementation
   return path.startsWith('http')
 }
 
 
-export function isSafePath(path) {
+function isSafePath(path) {
   // TODO: support not only Unix
   // Even for safe path always join with basePath!
   if (path.startsWith('/')) {
@@ -197,6 +184,22 @@ export function isSafePath(path) {
   return true
 }
 
-export function joinUrl(...parts) {
+
+function joinUrl(...parts) {
   return urljoin(...parts)
+}
+
+
+// System
+
+module.exports = {
+  locateDescriptor,
+  retrieveDescriptor,
+  dereferencePackageDescriptor,
+  dereferenceResourceDescriptor,
+  expandPackageDescriptor,
+  expandResourceDescriptor,
+  isRemotePath,
+  isSafePath,
+  joinUrl,
 }

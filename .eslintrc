@@ -64,6 +64,8 @@ rules:
     - off
   space-infix-ops:
     - off
+  consistent-return:
+    - off
   no-shadow:
     - off
   no-console:
@@ -71,6 +73,10 @@ rules:
   no-continue:
     - off
   no-prototype-builtins:
+    - off
+  no-lonely-if:
+    - off
+  no-confusing-arrow:
     - off
   import/no-dynamic-require:
     - off

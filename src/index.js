@@ -1,10 +1,17 @@
 require('babel-polyfill')
-const DataPackage = require('./datapackage').DataPackage
-const Resource = require('./resource').Resource
-const Profile = require('./resource').Profile
-const validate = require('./validate').validate
+const {Package} = require('./package')
+const {Resource} = require('./resource')
+const {Profile} = require('./resource')
+const {validate} = require('./validate')
+const {infer} = require('./infer')
+
 
 // Module API
 
-export default {DataPackage, Resource, Profile, validate}
-export {DataPackage, Resource, Profile, validate}
+module.exports = {
+  Package,
+  Resource,
+  Profile,
+  validate,
+  infer,
+}

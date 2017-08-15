@@ -1,9 +1,11 @@
-import axios from 'axios'
-import {assert} from 'chai'
-import {Table} from 'tableschema'
-import AxiosMock from 'axios-mock-adapter'
-import {Resource} from '../src/resource'
-import {expandResourceDescriptor as expand} from '../src/helpers'
+const axios = require('axios')
+const {assert} = require('chai')
+const {Table} = require('tableschema')
+const {catchError} = require('./helpers')
+const AxiosMock = require('axios-mock-adapter')
+const {Resource} = require('../src/resource')
+const helpers = require('../src/helpers')
+const expand = helpers.expandResourceDescriptor
 
 
 // Tests
@@ -25,7 +27,7 @@ describe('Resource', () => {
       assert.deepEqual(resource.name, 'name')
       assert.deepEqual(resource.tabular, false)
       assert.deepEqual(resource.descriptor, expand(descriptor))
-      assert.deepEqual(resource.sourceType, 'inline')
+      assert.deepEqual(resource.inline, true)
       assert.deepEqual(resource.source, ['data'])
       assert.deepEqual(resource.table, null)
     })
@@ -40,7 +42,7 @@ describe('Resource', () => {
       assert.deepEqual(resource.name, 'name')
       assert.deepEqual(resource.tabular, true)
       assert.deepEqual(resource.descriptor, expand(descriptor))
-      assert.deepEqual(resource.sourceType, 'inline')
+      assert.deepEqual(resource.inline, true)
       assert.deepEqual(resource.source, ['data'])
       assert.isOk(resource.table)
     })
@@ -304,7 +306,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.source, 'data')
-      assert.deepEqual(resource.sourceType, 'inline')
+      assert.deepEqual(resource.inline, true)
     })
 
     it('local', async () => {
@@ -314,7 +316,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'data'})
       assert.deepEqual(resource.source, 'data/table.csv')
-      assert.deepEqual(resource.sourceType, 'local')
+      assert.deepEqual(resource.local, true)
     })
 
     it('local base no base path', async () => {
@@ -354,7 +356,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.source, 'http://example.com/table.csv')
-      assert.deepEqual(resource.sourceType, 'remote')
+      assert.deepEqual(resource.remote, true)
     })
 
     it('remote path relative and base path remote', async () => {
@@ -364,7 +366,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'http://example.com/'})
       assert.deepEqual(resource.source, 'http://example.com/table.csv')
-      assert.deepEqual(resource.sourceType, 'remote')
+      assert.deepEqual(resource.remote, true)
     })
 
     it('remote path remote and base path remote', async () => {
@@ -374,7 +376,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'http://example2.com/'})
       assert.deepEqual(resource.source, 'http://example1.com/table.csv')
-      assert.deepEqual(resource.sourceType, 'remote')
+      assert.deepEqual(resource.remote, true)
     })
 
     it('multipart local', async () => {
@@ -384,7 +386,8 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'data'})
       assert.deepEqual(resource.source, ['data/chunk1.csv', 'data/chunk2.csv'])
-      assert.deepEqual(resource.sourceType, 'multipart-local')
+      assert.deepEqual(resource.local, true)
+      assert.deepEqual(resource.multipart, true)
     })
 
     it('multipart local bad no base path', async () => {
@@ -426,7 +429,8 @@ describe('Resource', () => {
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.source,
           ['http://example.com/chunk1.csv', 'http://example.com/chunk2.csv'])
-      assert.deepEqual(resource.sourceType, 'multipart-remote')
+      assert.deepEqual(resource.remote, true)
+      assert.deepEqual(resource.multipart, true)
     })
 
     it('multipart remote path relative and base path remote', async () => {
@@ -437,7 +441,8 @@ describe('Resource', () => {
       const resource = await Resource.load(descriptor, {basePath: 'http://example.com'})
       assert.deepEqual(resource.source,
           ['http://example.com/chunk1.csv', 'http://example.com/chunk2.csv'])
-      assert.deepEqual(resource.sourceType, 'multipart-remote')
+      assert.deepEqual(resource.remote, true)
+      assert.deepEqual(resource.multipart, true)
     })
 
     it('multipart remote path remote and base path remote', async () => {
@@ -448,7 +453,8 @@ describe('Resource', () => {
       const resource = await Resource.load(descriptor, {basePath: 'http://example1.com'})
       assert.deepEqual(resource.source,
           ['http://example1.com/chunk1.csv', 'http://example2.com/chunk2.csv'])
-      assert.deepEqual(resource.sourceType, 'multipart-remote')
+      assert.deepEqual(resource.remote, true)
+      assert.deepEqual(resource.multipart, true)
     })
 
   })
@@ -469,8 +475,7 @@ describe('Resource', () => {
         name: 'example',
         profile: 'tabular-data-resource',
         data: [
-          // TODO: tableschema bug (!!!)
-          // ['height', 'age', 'name'],
+          ['height', 'age', 'name'],
           ['180', '18', 'Tony'],
           ['192', '32', 'Jacob'],
         ],
@@ -483,9 +488,8 @@ describe('Resource', () => {
         },
       }
       const resource = await Resource.load(descriptor)
-      const table = await resource.table
-      assert.instanceOf(table, Table)
-      assert.deepEqual(await table.read(), [
+      assert.instanceOf(resource.table, Table)
+      assert.deepEqual(await resource.table.read(), [
           [180, 18, 'Tony'],
           [192, 32, 'Jacob'],
       ])
@@ -509,10 +513,9 @@ describe('Resource', () => {
         },
       }
       const resource = await Resource.load(descriptor, {basePath: 'data'})
-      const table = await resource.table
       // Assert
-      assert.instanceOf(table, Table)
-      assert.deepEqual(await table.read(), [
+      assert.instanceOf(resource.table, Table)
+      assert.deepEqual(await resource.table.read(), [
           ['gb', 100],
           ['us', 200],
           ['cn', 300],
@@ -522,16 +525,3 @@ describe('Resource', () => {
   })
 
 })
-
-
-// Helpers
-
-async function catchError(func, ...args) {
-  let error
-  try {
-    await func(...args)
-  } catch (exception) {
-    error = exception
-  }
-  return error
-}

@@ -1,7 +1,8 @@
-import axios from 'axios'
-import {assert} from 'chai'
-import AxiosMock from 'axios-mock-adapter'
-import {Profile} from '../src/profile'
+const axios = require('axios')
+const {assert} = require('chai')
+const {catchError} = require('./helpers')
+const AxiosMock = require('axios-mock-adapter')
+const {Profile} = require('../src/profile')
 
 
 // Constants
@@ -10,6 +11,8 @@ const PROFILES = [
   'data-package',
   'tabular-data-package',
   'fiscal-data-package',
+  'data-resource',
+  'tabular-data-resource',
 ]
 
 
@@ -80,11 +83,12 @@ describe('Profile', () => {
 
   })
 
-  // Wait for specs-v1.rc2 resource.data/path
-  describe.skip('#up-to-date', () => {
+  describe('#up-to-date', () => {
 
     PROFILES.forEach(name => {
-      it(`profile ${name} should be up-to-date`, async () => {
+      it(`profile ${name} should be up-to-date`, async function() {
+        if (process.env.USER_ENV === 'browser') this.skip()
+        if (process.env.TRAVIS_BRANCH !== 'master') this.skip()
         const profile = await Profile.load(name)
         const response = await axios.get(`https://specs.frictionlessdata.io/schemas/${name}.json`)
         assert.deepEqual(profile.jsonschema, response.data)
@@ -94,16 +98,3 @@ describe('Profile', () => {
   })
 
 })
-
-
-// Helpers
-
-async function catchError(func, ...args) {
-  let error
-  try {
-    await func(...args)
-  } catch (exception) {
-    error = exception
-  }
-  return error
-}

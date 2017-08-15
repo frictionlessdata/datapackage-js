@@ -1,44 +1,43 @@
-// Node only
-import fs from 'fs'
-// Node and broswer
-import axios from 'axios'
-import sinon from 'sinon'
-import {assert} from 'chai'
-import AxiosMock from 'axios-mock-adapter'
-import {DataPackage} from '../src/datapackage'
-import * as helpers from '../src/helpers'
-const expand = helpers.expandDataPackageDescriptor
+const fs = require('fs')
+const axios = require('axios')
+const sinon = require('sinon')
+const {assert} = require('chai')
+const {catchError} = require('./helpers')
+const AxiosMock = require('axios-mock-adapter')
+const {Package} = require('../src')
+const helpers = require('../src/helpers')
+const expand = helpers.expandPackageDescriptor
 const expandResource = helpers.expandResourceDescriptor
 
 
 // Tests
 
-describe('DataPackage', () => {
+describe('Package', () => {
 
   describe('#load', () => {
 
     it('initializes with Object descriptor', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
       assert.deepEqual(datapackage.descriptor, expand(descriptor))
     })
 
     it('initializes with URL descriptor', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(
+      const datapackage = await Package.load(
         'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json')
       assert.deepEqual(datapackage.descriptor, expand(descriptor))
     })
 
-    it('throws errors for invalid datapackage', async () => {
-      const errors = await catchError(DataPackage.load, {})
+    it('throws errors for invalid datapackage in strict mode', async () => {
+      const errors = await catchError(Package.load, {}, {strict: true})
       assert.instanceOf(errors, Array)
       assert.instanceOf(errors[0], Error)
       assert.include(errors[0].message, 'required property')
     })
 
-    it('stores errors for invalid datapackage in not a strict mode', async () => {
-      const datapackage = await DataPackage.load({}, {strict: false})
+    it('stores errors for invalid datapackage', async () => {
+      const datapackage = await Package.load()
       assert.instanceOf(datapackage.errors, Array)
       assert.instanceOf(datapackage.errors[0], Error)
       assert.include(datapackage.errors[0].message, 'required property')
@@ -51,10 +50,9 @@ describe('DataPackage', () => {
         this.skip()
       }
       const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
-      const table = await datapackage.resources[0].table
-      const data = await table.read()
+      const data = await datapackage.resources[0].table.read()
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
 
@@ -64,7 +62,7 @@ describe('DataPackage', () => {
         this.skip()
       }
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
       const table = await datapackage.resources[0].table
       const data = await table.read()
@@ -77,7 +75,7 @@ describe('DataPackage', () => {
         this.skip()
       }
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'local/basePath'})
+      const datapackage = await Package.load(descriptor, {basePath: 'local/basePath'})
       datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
       const table = await datapackage.resources[0].table
       const data = await table.read()
@@ -90,7 +88,7 @@ describe('DataPackage', () => {
         this.skip()
       }
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data'})
       datapackage.resources[1].descriptor.profile = 'tabular-data-resource'
       const table = await datapackage.resources[1].table
       const data = await table.read()
@@ -111,7 +109,7 @@ describe('DataPackage', () => {
           {name: 'name', data: ['data']},
         ],
       }
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       assert.deepEqual(datapackage.descriptor, expand(descriptor))
     })
 
@@ -119,14 +117,14 @@ describe('DataPackage', () => {
       const contents = require('../data/data-package.json')
       const descriptor = 'http://example.com/data-package.json'
       http.onGet(descriptor).reply(200, contents)
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       assert.deepEqual(datapackage.descriptor, expand(contents))
     })
 
     it('string remote path bad', async () => {
       const descriptor = 'http://example.com/bad-path.json'
       http.onGet(descriptor).reply(500)
-      const error = await catchError(DataPackage.load, descriptor)
+      const error = await catchError(Package.load, descriptor)
       assert.instanceOf(error, Error)
       assert.include(error.message, 'Can not retrieve remote')
     })
@@ -135,10 +133,10 @@ describe('DataPackage', () => {
       const contents = require('../data/data-package.json')
       const descriptor = 'data/data-package.json'
       if (process.env.USER_ENV !== 'browser') {
-        const datapackage = await DataPackage.load(descriptor)
+        const datapackage = await Package.load(descriptor)
         assert.deepEqual(datapackage.descriptor, expand(contents))
       } else {
-        const error = await catchError(DataPackage.load, descriptor)
+        const error = await catchError(Package.load, descriptor)
         assert.instanceOf(error, Error)
         assert.include(error.message, 'in browser is not supported')
       }
@@ -146,7 +144,7 @@ describe('DataPackage', () => {
 
     it('string local path bad', async () => {
       const descriptor = 'data/bad-path.json'
-      const error = await catchError(DataPackage.load, descriptor)
+      const error = await catchError(Package.load, descriptor)
       assert.instanceOf(error, Error)
       if (process.env.USER_ENV !== 'browser') {
         assert.include(error.message, 'Can not retrieve local')
@@ -166,13 +164,13 @@ describe('DataPackage', () => {
     it('mixed', async () => {
       const descriptor = 'data/data-package-dereference.json'
       if (process.env.USER_ENV !== 'browser') {
-        const datapackage = await DataPackage.load(descriptor)
+        const datapackage = await Package.load(descriptor)
         assert.deepEqual(datapackage.descriptor.resources, [
           {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
           {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
         ].map(expandResource))
       } else {
-        const error = await catchError(DataPackage.load, descriptor)
+        const error = await catchError(Package.load, descriptor)
         assert.instanceOf(error, Error)
         assert.include(error.message, 'in browser')
       }
@@ -187,7 +185,7 @@ describe('DataPackage', () => {
         schemas: {main: {fields: [{name: 'name'}]}},
         dialects: [{delimiter: ','}],
       }
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       assert.deepEqual(datapackage.descriptor.resources, [
         {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
         {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
@@ -200,7 +198,7 @@ describe('DataPackage', () => {
           {name: 'name1', data: ['data'], schema: '#/schemas/main'},
         ],
       }
-      const error = await catchError(DataPackage.load, descriptor)
+      const error = await catchError(Package.load, descriptor)
       assert.instanceOf(error, Error)
       assert.include(error.message, 'Not resolved Pointer URI')
     })
@@ -214,7 +212,7 @@ describe('DataPackage', () => {
       }
       http.onGet('http://example.com/schema').reply(200, {fields: [{name: 'name'}]})
       http.onGet('http://example.com/dialect').reply(200, {delimiter: ','})
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       assert.deepEqual(datapackage.descriptor.resources, [
         {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
         {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
@@ -228,7 +226,7 @@ describe('DataPackage', () => {
         ],
       }
       http.onGet('http://example.com/schema').reply(500)
-      const error = await catchError(DataPackage.load, descriptor)
+      const error = await catchError(Package.load, descriptor)
       assert.instanceOf(error, Error)
       assert.include(error.message, 'Not resolved Remote URI')
     })
@@ -241,13 +239,13 @@ describe('DataPackage', () => {
         ],
       }
       if (process.env.USER_ENV !== 'browser') {
-        const datapackage = await DataPackage.load(descriptor, {basePath: 'data'})
+        const datapackage = await Package.load(descriptor, {basePath: 'data'})
         assert.deepEqual(datapackage.descriptor.resources, [
           {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
           {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
         ].map(expandResource))
       } else {
-        const error = await catchError(DataPackage.load, descriptor, {basePath: 'data'})
+        const error = await catchError(Package.load, descriptor, {basePath: 'data'})
         assert.instanceOf(error, Error)
         assert.include(error.message, 'in browser')
       }
@@ -259,7 +257,7 @@ describe('DataPackage', () => {
           {name: 'name1', data: ['data'], schema: 'bad-path.json'},
         ],
       }
-      const error = await catchError(DataPackage.load, descriptor, {basePath: 'data'})
+      const error = await catchError(Package.load, descriptor, {basePath: 'data'})
       assert.instanceOf(error, Error)
       if (process.env.USER_ENV !== 'browser') {
         assert.include(error.message, 'Not resolved Local URI')
@@ -274,7 +272,7 @@ describe('DataPackage', () => {
           {name: 'name1', data: ['data'], schema: '../data/table-schema.json'},
         ],
       }
-      const error = await catchError(DataPackage.load, descriptor, {basePath: 'data'})
+      const error = await catchError(Package.load, descriptor, {basePath: 'data'})
       assert.instanceOf(error, Error)
       if (process.env.USER_ENV !== 'browser') {
         assert.include(error.message, 'Not safe path')
@@ -296,7 +294,7 @@ describe('DataPackage', () => {
           },
         ],
       }
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       assert.deepEqual(datapackage.descriptor, {
         profile: 'data-package',
         resources: [
@@ -321,7 +319,7 @@ describe('DataPackage', () => {
           },
         ],
       }
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       assert.deepEqual(datapackage.descriptor, {
         profile: 'data-package',
         resources: [{
@@ -348,7 +346,7 @@ describe('DataPackage', () => {
           },
         ],
       }
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       assert.deepEqual(datapackage.descriptor, {
         profile: 'data-package',
         resources: [{
@@ -376,51 +374,50 @@ describe('DataPackage', () => {
 
     it('names', async () => {
       const descriptor = require('../data/data-package-multiple-resources.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data'})
       assert.lengthOf(datapackage.resources, 2)
       assert.deepEqual(datapackage.resourceNames, ['name1', 'name2'])
     })
 
     it('add', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
       const resource = datapackage.addResource({name: 'name', data: ['test']})
       assert.isOk(resource)
       assert.lengthOf(datapackage.resources, 2)
       assert.deepEqual(datapackage.resources[1].source, ['test'])
     })
 
-    it('add invalid - throws array of errors', async () => {
+    it('add invalid - throws array of errors in strict mode', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
+      const datapackage = await Package.load(descriptor, {
+        basePath: 'data/dp1', strict: true,
+      })
       try {
         datapackage.addResource({})
         assert.isOk(false)
       } catch (errors) {
         assert.instanceOf(errors, Array)
         assert.instanceOf(errors[0], Error)
-        assert.include(errors[0].message, 'Missing required property')
+        assert.include(errors[0].message, 'Data does not match any schemas')
       }
     })
 
     it('add invalid - save errors in not a strict mode', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor,
-        {basePath: 'data/dp1', strict: false})
+      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
       datapackage.addResource({})
       assert.instanceOf(datapackage.errors[0], Error)
-      assert.include(datapackage.errors[0].message, 'Missing required property')
+      assert.include(datapackage.errors[0].message, 'Data does not match any schemas')
       assert.isFalse(datapackage.valid)
     })
 
-    // Wait for specs-v1.rc2 resource.data/path
-    it.skip('add tabular - can read data', async () => {
+    it('add tabular - can read data', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
       datapackage.addResource({
         name: 'name',
-        // TODO: add headers - tableschema bug
-        data: [['1', 'alex'], ['2', 'john']],
+        data: [['id', 'name'], ['1', 'alex'], ['2', 'john']],
         schema: {
           fields: [
             {name: 'id', type: 'integer'},
@@ -428,13 +425,13 @@ describe('DataPackage', () => {
           ],
         },
       })
-      const table = await datapackage.resources[1].table
-      assert.deepEqual(await table.read(), [[1, 'alex'], [2, 'john']])
+      const rows = await datapackage.resources[1].table.read()
+      assert.deepEqual(rows, [[1, 'alex'], [2, 'john']])
     })
 
     it('add with not a safe path - throw an error', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
       try {
         datapackage.addResource({
           name: 'name',
@@ -449,21 +446,21 @@ describe('DataPackage', () => {
 
     it('get existent', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
       const resource = datapackage.getResource('random')
       assert.deepEqual(resource.name, 'random')
     })
 
     it('get non existent', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
       const resource = datapackage.getResource('non-existent')
       assert.isNull(resource)
     })
 
     it('remove existent', async () => {
       const descriptor = require('../data/data-package-multiple-resources.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data'})
       assert.lengthOf(datapackage.resources, 2)
       assert.lengthOf(datapackage.descriptor.resources, 2)
       assert.deepEqual(datapackage.resources[0].name, 'name1')
@@ -477,7 +474,7 @@ describe('DataPackage', () => {
 
     it('remove non existent', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await DataPackage.load(descriptor, {basePath: 'data/dp1'})
+      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
       const resource = datapackage.removeResource('non-existent')
       assert.isNull(resource)
       assert.lengthOf(datapackage.resources, 1)
@@ -488,40 +485,43 @@ describe('DataPackage', () => {
 
   describe('#save', () => {
 
-    it('general', async function () {
+    // TODO: recover stub with async writeFile
+    it.skip('general', async function () {
       // TODO: check it trows correct error in browser
       if (process.env.USER_ENV === 'browser') {
         this.skip()
       }
       const descriptor = {resources: [{name: 'name', data: ['data']}]}
-      const datapackage = await DataPackage.load(descriptor)
-      const writeFileSync = sinon.stub(fs, 'writeFileSync')
+      const datapackage = await Package.load(descriptor)
+      const writeFile = sinon.stub(fs, 'writeFile')
       await datapackage.save('target')
-      writeFileSync.restore()
-      sinon.assert.calledWith(writeFileSync,
+      writeFile.restore()
+      sinon.assert.calledWith(writeFile,
         'target', JSON.stringify(expand(descriptor)))
     })
 
   })
 
-  describe('#update', () => {
+  describe('#commit', () => {
 
     it('modified', async () => {
       const descriptor = {resources: [{name: 'name', data: ['data']}]}
-      const datapackage = await DataPackage.load(descriptor)
+      const datapackage = await Package.load(descriptor)
       datapackage.descriptor.resources[0].name = 'modified'
       assert.deepEqual(datapackage.resources[0].name, 'name')
-      const result = datapackage.update()
+      const result = datapackage.commit()
       assert.deepEqual(datapackage.resources[0].name, 'modified')
       assert.isTrue(result)
     })
 
-    it('modified invalid', async () => {
-      const descriptor = {resources: [{name: 'name', data: ['data']}]}
-      const datapackage = await DataPackage.load(descriptor)
+    it('modified invalid in strict mode', async () => {
+      const descriptor = {resources: [{name: 'name', path: 'data.csv'}]}
+      const datapackage = await Package.load(descriptor, {
+        basePath: 'data', strict: true,
+      })
       datapackage.descriptor.resources = []
       try {
-        datapackage.update()
+        datapackage.commit()
         assert.isOk(false)
       } catch (errors) {
         assert.instanceOf(errors, Array)
@@ -532,8 +532,8 @@ describe('DataPackage', () => {
 
     it('not modified', async () => {
       const descriptor = {resources: [{name: 'name', data: ['data']}]}
-      const datapackage = await DataPackage.load(descriptor)
-      const result = datapackage.update()
+      const datapackage = await Package.load(descriptor)
+      const result = datapackage.commit()
       assert.deepEqual(datapackage.descriptor, expand(descriptor))
       assert.isFalse(result)
     })
@@ -541,16 +541,3 @@ describe('DataPackage', () => {
   })
 
 })
-
-
-// Helpers
-
-async function catchError(func, ...args) {
-  let error
-  try {
-    await func(...args)
-  } catch (exception) {
-    error = exception
-  }
-  return error
-}
