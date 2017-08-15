@@ -40,7 +40,7 @@ $ npm install datapackage # v0.8
 
 Code examples in this readme requires Node v8.3+ or proper modern browser . Also you have to wrap code into async function if there is await keyword used. You could see even more example in [examples](https://github.com/frictionlessdata/datapackage-js/tree/master/examples) directory.
 
-```js
+```javascript
 const {Package} = require('datapackage')
 
 const descriptor = {
@@ -198,7 +198,7 @@ Get data package resource by name.
 
 - `name (String)` - data resource name
 - `(Resource/null)` - returns `Resource` instances or null if not found
--
+
 #### `package.addResource(descriptor)`
 
 Add new resource to data package. The data package descriptor will be validated  with newly added resource descriptor.
@@ -408,7 +408,7 @@ Factory method to instantiate `Resource` class. This method is async and it shou
 #### `resource.descriptor`
 
 - (Object) - returns resource descriptor
--
+
 #### `resource.name`
 
 - `(String)` - returns resource name
