@@ -192,6 +192,13 @@ Factory method to instantiate `Package` class. This method is async and it shoul
 
 - `(String[])` - returns an array of resource names.
 
+#### `package.getResource(name)`
+
+Get data package resource by name.
+
+- `name (String)` - data resource name
+- `(Resource/null)` - returns `Resource` instances or null if not found
+-
 #### `package.addResource(descriptor)`
 
 Add new resource to data package. The data package descriptor will be validated  with newly added resource descriptor.
@@ -200,13 +207,6 @@ Add new resource to data package. The data package descriptor will be validated 
 - `(Error[])` - raises list of validation errors
 - `(Error)` - raises any resource creation error
 - `(Resource/null)` - returns added `Resource` instance or null if not added
-
-#### `package.getResource(name)`
-
-Get data package resource by name.
-
-- `name (String)` - data resource name
-- `(Resource/null)` - returns `Resource` instances or null if not found
 
 #### `package.removeResource(name)`
 
@@ -405,6 +405,10 @@ Factory method to instantiate `Resource` class. This method is async and it shou
 
 - `(Profile)` - returns an instance of `Profile` class (see below).
 
+#### `resource.descriptor`
+
+- (Object) - returns resource descriptor
+-
 #### `resource.name`
 
 - `(String)` - returns resource name
@@ -428,10 +432,6 @@ Factory method to instantiate `Resource` class. This method is async and it shou
 #### `resource.tabular`
 
 - `(Boolean)` - returns true if resource is tabular
-
-#### `resource.descriptor`
-
-- (Object) - returns resource descriptor
 
 #### `resource.source`
 

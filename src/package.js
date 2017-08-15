@@ -87,18 +87,18 @@ class Package {
   /**
    * https://github.com/frictionlessdata/datapackage-js#package
    */
-  addResource(descriptor) {
-    if (!this._nextDescriptor.resources) this._nextDescriptor.resources = []
-    this._nextDescriptor.resources.push(descriptor)
-    this.commit()
-    return this._resources[this._resources.length - 1]
+  getResource(name) {
+    return this._resources.find(resource => resource.name === name) || null
   }
 
   /**
    * https://github.com/frictionlessdata/datapackage-js#package
    */
-  getResource(name) {
-    return this._resources.find(resource => resource.name === name) || null
+  addResource(descriptor) {
+    if (!this._nextDescriptor.resources) this._nextDescriptor.resources = []
+    this._nextDescriptor.resources.push(descriptor)
+    this.commit()
+    return this._resources[this._resources.length - 1]
   }
 
   /**

@@ -144,6 +144,28 @@ class Resource {
   /**
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
+  async iter({stream=false}={}) {
+    if (this.inline) throw new Error('Methods iter/read are not supported for inline data')
+    const byteStream = await createByteStream(this.source, this.remote)
+    return (stream) ? byteStream : new S2A(byteStream)
+  }
+
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  read() {
+    return new Promise(resolve => {
+      let bytes
+      this.iter({stream: true}).then(stream => {
+        stream.on('data', data => {bytes = (bytes) ? Buffer.concat([bytes, data]) : data})
+        stream.on('end', () => resolve(bytes))
+      })
+    })
+  }
+
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
   async infer() {
     const descriptor = lodash.cloneDeep(this._currentDescriptor)
 
@@ -205,28 +227,6 @@ class Resource {
     this._currentDescriptor = lodash.cloneDeep(this._nextDescriptor)
     this._build()
     return true
-  }
-
-  /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
-   */
-  async iter({stream=false}={}) {
-    if (this.inline) throw new Error('Methods iter/read are not supported for inline data')
-    const byteStream = await createByteStream(this.source, this.remote)
-    return (stream) ? byteStream : new S2A(byteStream)
-  }
-
-  /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
-   */
-  read() {
-    return new Promise(resolve => {
-      let bytes
-      this.iter({stream: true}).then(stream => {
-        stream.on('data', data => {bytes = (bytes) ? Buffer.concat([bytes, data]) : data})
-        stream.on('end', () => resolve(bytes))
-      })
-    })
   }
 
   /**
