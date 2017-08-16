@@ -15,6 +15,7 @@ A library for working with [Data Packages](http://specs.frictionlessdata.io/data
  - `Resource` class for working with data resources
  - `Profile` class for working with profiles
  - `validate` function for validating data package descriptors
+ - `infer` function for inferring data package descriptors
 
 ## Getting Started
 
@@ -106,7 +107,7 @@ Now we're ready to infer a data package descriptor based on data files we have. 
 ```javascript
 await datapackage.infer('**/*.csv')
 datapackage.descriptor
-//{ profile: 'tabular-data-resource',
+//{ profile: 'tabular-data-package',
 //  resources:
 //   [ { path: 'data/cities.csv',
 //       profile: 'tabular-data-resource',
@@ -298,7 +299,7 @@ await resource.table.read({keyed: true})
 // Fails with a data validation error
 ```
 
-Let's fix not available location. There is a `missingValues` property in Table Schema specification. As a first try we set `missingValues` to `N/A` in `resource.descriptor.schema`. Resource descriptor could be changed in-place but all changes sould be commited by `resource.commit()`:
+Let's fix not available location. There is a `missingValues` property in Table Schema specification. As a first try we set `missingValues` to `N/A` in `resource.descriptor.schema`. Resource descriptor could be changed in-place but all changes should be commited by `resource.commit()`:
 
 ```javascript
 resource.descriptor.schema.missingValues = 'N/A'
@@ -311,7 +312,7 @@ resource.errors
 //    at "/properties/missingValues/type" in profile
 ```
 
-As a good citiziens we've decided to check out recource descriptor validity. And it's not valid! We sould use an array for `missingValues` property. Also don't forget to have an empty string as a missing value:
+As a good citiziens we've decided to check out recource descriptor validity. And it's not valid! We should use an array for `missingValues` property. Also don't forget to have an empty string as a missing value:
 
 ```javascript
 resource.descriptor.schema['missingValues'] = ['', 'N/A']

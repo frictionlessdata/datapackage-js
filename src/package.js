@@ -150,7 +150,7 @@ class Package {
     // Profile
     if (this._nextDescriptor.profile === config.DEFAULT_DATA_PACKAGE_PROFILE) {
       if (this.resources.length && this.resources.every(resouce => resouce.tabular)) {
-        this._nextDescriptor.profile = 'tabular-data-resource'
+        this._nextDescriptor.profile = 'tabular-data-package'
         this.commit()
       }
     }
