@@ -72,6 +72,7 @@ describe('Profile', () => {
       const descriptor = {}
       const profile = await Profile.load('data-package')
       const {valid, errors} = profile.validate(descriptor)
+      assert.deepEqual(valid, false)
       assert.instanceOf(errors[0], Error)
       assert.include(errors[0].message, 'Missing required property')
     })

@@ -2,6 +2,7 @@ const tv4 = require('tv4')
 const axios = require('axios')
 const lodash = require('lodash')
 const helpers = require('./helpers')
+const {DataPackageError} = require('./errors')
 
 
 // Module API
@@ -23,7 +24,7 @@ class Profile {
           const response = await axios.get(profile)
           jsonschema = response.data
         } catch (error) {
-          throw new Error(`Can not retrieve remote profile "${profile}"`)
+          throw new DataPackageError(`Can not retrieve remote profile "${profile}"`)
         }
         _cache[profile] = jsonschema
         profile = jsonschema
@@ -81,7 +82,7 @@ class Profile {
       try {
         profile = require(`./profiles/${profile}.json`)
       } catch (error) {
-        throw new Error(`Profiles registry hasn't profile "${profile}"`)
+        throw new DataPackageError(`Profiles registry hasn't profile "${profile}"`)
       }
     }
 

@@ -7,6 +7,7 @@ const pathModule = require('path')
 const {Readable} = require('stream')
 const S2A = require('stream-to-async-iterator').default
 const {Table, Schema} = require('tableschema')
+const {DataPackageError} = require('./errors')
 const {Profile} = require('./profile')
 const helpers = require('./helpers')
 const config = require('./config')
@@ -127,7 +128,7 @@ class Resource {
 
     // Resource -> Multipart
     if (this.multipart) {
-      throw new Error('Resource.table does not support multipart resources')
+      throw new DataPackageError('Resource.table does not support multipart resources')
     }
 
     // Resource -> Tabular
@@ -145,7 +146,12 @@ class Resource {
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   async iter({stream=false}={}) {
-    if (this.inline) throw new Error('Methods iter/read are not supported for inline data')
+
+    // Error for inline
+    if (this.inline) {
+      throw new DataPackageError('Methods iter/read are not supported for inline data')
+    }
+
     const byteStream = await createByteStream(this.source, this.remote)
     return (stream) ? byteStream : new S2A(byteStream)
   }
@@ -283,9 +289,8 @@ class Resource {
     if (!valid) {
       this._errors = errors
       if (this._strict) {
-        // const message = `There are ${errors.length} validation errors (see 'error.errors')`
-        // throw new DataPackageError(message, errors)
-        throw errors
+        const message = `There are ${errors.length} validation errors (see 'error.errors')`
+        throw new DataPackageError(message, errors)
       }
     }
 
@@ -331,12 +336,17 @@ function inspectSource(data, path, basePath) {
 
     // Local
     } else {
+
+      // Path is not safe
       if (!helpers.isSafePath(path[0])) {
-        throw new Error(`Local path "${path[0]}" is not safe`)
+        throw new DataPackageError(`Local path "${path[0]}" is not safe`)
       }
+
+      // Not base path
       if (!basePath) {
-        throw new Error(`Local path "${path[0]}" requires base path`)
+        throw new DataPackageError(`Local path "${path[0]}" requires base path`)
       }
+
       descriptor.source = [basePath, path[0]].join('/')
       descriptor.local = true
     }
@@ -377,7 +387,7 @@ async function createByteStream(source, remote) {
   // Local source
   } else {
     if (config.IS_BROWSER) {
-      throw new Error('Local paths are not supported in the browser')
+      throw new DataPackageError('Local paths are not supported in the browser')
     } else {
       stream = fs.createReadStream(source)
     }

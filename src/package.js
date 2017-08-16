@@ -3,6 +3,7 @@ const glob = require('glob')
 const lodash = require('lodash')
 const {Profile} = require('./profile')
 const {Resource} = require('./resource')
+const {DataPackageError} = require('./errors')
 const helpers = require('./helpers')
 const config = require('./config')
 
@@ -124,12 +125,12 @@ class Package {
 
       // It's broswer
       if (config.IS_BROWSER) {
-        throw new Error('Browser is not supported for pattern infer')
+        throw new DataPackageError('Browser is not supported for pattern infer')
       }
 
       // No base path
       if (!this._basePath) {
-        throw new Error('Base path is required for pattern infer')
+        throw new DataPackageError('Base path is required for pattern infer')
       }
 
       // Add resources
@@ -220,9 +221,8 @@ class Package {
     if (!valid) {
       this._errors = errors
       if (this._strict) {
-        // const message = `There are ${errors.length} validation errors (see 'error.errors')`
-        // throw new DataPackageError(message, errors)
-        throw errors
+        const message = `There are ${errors.length} validation errors (see 'error.errors')`
+        throw new DataPackageError(message, errors)
       }
     }
 

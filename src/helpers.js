@@ -3,6 +3,7 @@ const axios = require('axios')
 const lodash = require('lodash')
 const urljoin = require('url-join')
 const jsonpointer = require('json-pointer')
+const {DataPackageError} = require('./errors')
 const config = require('./config')
 
 
@@ -30,25 +31,28 @@ async function retrieveDescriptor(descriptor) {
         const response = await axios.get(descriptor)
         return response.data
       } catch (error) {
-        throw new Error(`Can not retrieve remote descriptor "${descriptor}"`)
+        const message = `Can not retrieve remote descriptor "${descriptor}"`
+        throw new DataPackageError(message)
       }
 
     // Local
     } else {
       if (process.env.USER_ENV === 'browser') {
-        throw new Error(`Local descriptor "${descriptor}" in browser is not supported`)
+        const message = `Local descriptor "${descriptor}" in browser is not supported`
+        throw new DataPackageError(message)
       }
       try {
         // TODO: rebase on promisified fs.readFile (async)
         const contents = fs.readFileSync(descriptor, 'utf-8')
         return JSON.parse(contents)
       } catch (error) {
-        throw new Error(`Can not retrieve local descriptor "${descriptor}"`)
+        const message = `Can not retrieve local descriptor "${descriptor}"`
+        throw new DataPackageError(message)
       }
     }
 
   }
-  throw new Error('Descriptor must be String or Object')
+  throw new DataPackageError('Descriptor must be String or Object')
 }
 
 
@@ -81,7 +85,8 @@ async function dereferenceResourceDescriptor(descriptor, basePath, baseDescripto
       try {
         descriptor[property] = jsonpointer.get(baseDescriptor, value.slice(1))
       } catch (error) {
-        throw new Error(`Not resolved Pointer URI "${value}" for resource.${property}`)
+        const message = `Not resolved Pointer URI "${value}" for resource.${property}`
+        throw new DataPackageError(message)
       }
 
     // URI -> Remote
@@ -91,19 +96,23 @@ async function dereferenceResourceDescriptor(descriptor, basePath, baseDescripto
         const response = await axios.get(value)
         descriptor[property] = response.data
       } catch (error) {
-        throw new Error(`Not resolved Remote URI "${value}" for resource.${property}`)
+        const message = `Not resolved Remote URI "${value}" for resource.${property}`
+        throw new DataPackageError(message)
       }
 
     // URI -> Local
     } else {
       if (process.env.USER_ENV === 'browser') {
-        throw new Error('Local URI dereferencing in browser is not supported')
+        const message = 'Local URI dereferencing in browser is not supported'
+        throw new DataPackageError(message)
       }
       if (!isSafePath(value)) {
-        throw new Error(`Not safe path in Local URI "${value}" for resource.${property}`)
+        const message = `Not safe path in Local URI "${value}" for resource.${property}`
+        throw new DataPackageError(message)
       }
       if (!basePath) {
-        throw new Error(`Local URI "${value}" requires base path for resource.${property}`)
+        const message = `Local URI "${value}" requires base path for resource.${property}`
+        throw new DataPackageError(message)
       }
       try {
         // TODO: support other that Unix OS
@@ -112,7 +121,8 @@ async function dereferenceResourceDescriptor(descriptor, basePath, baseDescripto
         const contents = fs.readFileSync(fullPath, 'utf-8')
         descriptor[property] = JSON.parse(contents)
       } catch (error) {
-        throw new Error(`Not resolved Local URI "${value}" for resource.${property}`)
+        const message = `Not resolved Local URI "${value}" for resource.${property}`
+        throw new DataPackageError(message)
       }
 
     }
