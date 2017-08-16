@@ -165,8 +165,7 @@ Factory method to instantiate `Package` class. This method is async and it shoul
 - `descriptor (String/Object)` - data package descriptor as local path, url or object
 - `basePath (String)` - base path for all relative paths
 - `strict (Boolean)` - strict flag to alter validation behavior. Setting it to `true` leads to throwing errors on any operation with invalid descriptor
-- `(Error)` - raises error if resource can't be instantiated
-- `(Error[])` - raises list of validation errors if strict is true
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Package)` - returns data package class instance
 
 #### `package.valid`
@@ -205,8 +204,7 @@ Get data package resource by name.
 Add new resource to data package. The data package descriptor will be validated  with newly added resource descriptor.
 
 - `descriptor (Object)` - data resource descriptor
-- `(Error[])` - raises list of validation errors
-- `(Error)` - raises any resource creation error
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Resource/null)` - returns added `Resource` instance or null if not added
 
 #### `package.removeResource(name)`
@@ -214,7 +212,7 @@ Add new resource to data package. The data package descriptor will be validated 
 Remove data package resource by name. The data package descriptor will be validated after resource descriptor removal.
 
 - `name (String)` - data resource name
-- `(Error[])` - raises list of validation errors
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Resource/null)` - returns removed `Resource` instances or null if not found
 
 #### `async package.infer(pattern=false)`
@@ -229,8 +227,7 @@ Infer a data package metadata. If `pattern` is not provided only existent resour
 Update data package instance if there are in-place changes in the descriptor.
 
 - `strict (Boolean)` - alter `strict` mode for further work
-- `(Error[])` - raises list of validation errors
-- `(Error)` - raises any resource creation error
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Boolean)` - returns true on success and false if not modified
 
 ```javascript
@@ -253,7 +250,7 @@ datapackage.name // renamed-package
 Save data package to target destination.
 
 - `target (String)` - path where to save a data package
-- `(Error)` - raises an error if there is saving problem
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Boolean)` - returns true on success
 
 ### Resource
@@ -391,7 +388,7 @@ Factory method to instantiate `Resource` class. This method is async and it shou
 - `descriptor (String/Object)` - data resource descriptor as local path, url or object
 - `basePath (String)` - base path for all relative paths
 - `strict (Boolean)` - strict flag to alter validation behavior. Setting it to `true` leads to throwing errors on any operation with invalid descriptor
-- `(Error)` - raises error if resource can't be instantiated
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Resource)` - returns resource class instance
 
 #### `package.valid`
@@ -444,7 +441,7 @@ Combination of `resource.source` and `resource.inline/local/remote/multipart` pr
 
 For tabular resources it returns `Table` instance to interact with data table. Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
 
-- `(Error)` - raises on any table opening error
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(null/tableschema.Table)` - returns table instance if resource is tabular
 
 #### `await resource.iter({stream=false})`
@@ -471,8 +468,7 @@ Infer resource metadata like name, format, mediatype, encoding, schema and profi
 Update resource instance if there are in-place changes in the descriptor.
 
 - `strict (Boolean)` - alter `strict` mode for further work
-- `(Error[])` - raises list of validation errors
-- `(Error)` - raises any resource creation error
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Boolean)` - returns true on success and false if not modified
 
 #### `async resource.save(target)`
@@ -482,7 +478,7 @@ Update resource instance if there are in-place changes in the descriptor.
 Save resource to target destination.
 
 - `target (String)` - path where to save a resource
-- `(Error)` - raises an error if there is saving problem
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Boolean)` - returns true on success
 
 ### Profile
@@ -509,8 +505,7 @@ try {
 Factory method to instantiate `Profile` class. This method is async and it should be used with await keyword or as a `Promise`.
 
 - `profile (String)` - profile name in registry or URL to JSON Schema
-- `(Error)` - raises error if profile not found in registry
-- `(Error)` - raises error if JSON Schema can't be loaded
+- `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Profile)` - returns profile class instance
 
 #### `profile.name`
@@ -526,20 +521,16 @@ Factory method to instantiate `Profile` class. This method is async and it shoul
 Validate a data package `descriptor` against the profile.
 
 - `descriptor (Object)` - retrieved and dereferenced data package descriptor
-- `(Error[])` - raises with list of errors for invalid
-- `(Boolean)` - returns true for valid
+- `(Object)` - returns a `{valid, errors}` object
 
 ### Validate
 
-A standalone function to validate a data package descriptor.
+A standalone function to validate a data package descriptor:
 
 ```javascript
-try {
-  const valid = await validate({name: 'Invalid Datapackage'})
-} catch (errors) {
-  for (const error of errors) {
-    error // descriptor error
-  }
+const {valid, errors} = await validate({name: 'Invalid Datapackage'})
+for (const error of errors) {
+  // inspect Error objects
 }
 ```
 
@@ -548,8 +539,7 @@ try {
 This function is async so it has to be used with `await` keyword or as a `Promise`.
 
 - `descriptor (String/Object)` - data package descriptor (local/remote path or object)
-- `(Error[])` - raises list of validation errors for invalid
-- `(Boolean)` - returns true for valid
+- `(Object)` - returns a `{valid, errors}` object
 
 ### Infer
 
@@ -581,6 +571,25 @@ This function is async so it has to be used with `await` keyword or as a `Promis
 
 - `pattern (String)` - glob file pattern
 - `(Object)` - returns data package descriptor
+
+### Errors
+
+`errors.DataPackageError`
+
+Base class for the all library errors. If there are more than one error you could get an additional information from the error object:
+
+```javascript
+try {
+  // some lib action
+} catch (error) {
+  console.log(error) // you have N cast errors (see error.errors)
+  if (error.multiple) {
+    for (const error of error.errors) {
+        console.log(error) // cast error M is ...
+    }
+  }
+}
+```
 
 ## Changelog
 
