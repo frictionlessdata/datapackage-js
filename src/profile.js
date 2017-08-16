@@ -38,10 +38,8 @@ class Profile {
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   get name() {
-    if (this._jsonschema.title) {
-      return this._jsonschema.title.replace(' ', '-').toLowerCase()
-    }
-    return null
+    if (!this._jsonschema.title) return null
+    return this._jsonschema.title.replace(' ', '-').toLowerCase()
   }
 
   /**

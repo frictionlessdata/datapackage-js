@@ -459,6 +459,17 @@ describe('Resource', () => {
 
   })
 
+  describe('#read', () => {
+
+    it('it reads local file source', async function() {
+      if (process.env.USER_ENV === 'browser') this.skip()
+      const resource = await Resource.load({path: 'data/data.csv'}, {basePath: '.'})
+      const bytes = await resource.read()
+      assert.include(bytes.toString(), 'name,size')
+    })
+
+  })
+
   describe('#table', () => {
 
     it('general resource', async () => {
