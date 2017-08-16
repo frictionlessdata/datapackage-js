@@ -43,7 +43,7 @@
     "json-pointer": "^0.6.0",
     "lodash": "^4.13.1",
     "stream-to-async-iterator": "^0.2.0",
-    "tableschema": "^1.0.0-alpha.13",
+    "tableschema": "^1.0.0-alpha.15",
     "tv4": "^1.2.7",
     "url-join": "^2.0.1"
   },
@@ -79,7 +79,7 @@
     "karma-sinon-chai": "^1.2.4",
     "karma-spec-reporter": "0.0.26",
     "karma-webpack": "^2.0.2",
-    "mocha": "^2.4.5",
+    "mocha": "^3.5.0",
     "mocha-lcov-reporter": "^1.2.0",
     "nyc": "^11.1.0",
     "sinon": "^2.1.0",
