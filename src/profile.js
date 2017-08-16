@@ -54,19 +54,22 @@ class Profile {
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   validate(descriptor) {
+    const errors = []
+
+    // Basic validation
     const validation = tv4.validateMultiple(descriptor, this._jsonschema)
-    if (!validation.valid) {
-      const errors = []
-      for (const error of validation.errors) {
-        errors.push(new Error(
-          `Descriptor validation error:
-          ${error.message}
-          at "${error.dataPath}" in descriptor and
-          at "${error.schemaPath}" in profile`))
-      }
-      throw errors
+    for (const validationError of validation.errors) {
+      errors.push(new Error(
+        `Descriptor validation error:
+        ${validationError.message}
+        at "${validationError.dataPath}" in descriptor and
+        at "${validationError.schemaPath}" in profile`))
     }
-    return true
+
+    return {
+      valid: !errors.length,
+      errors,
+    }
   }
 
   // Private

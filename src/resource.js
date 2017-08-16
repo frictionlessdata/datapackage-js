@@ -278,12 +278,15 @@ class Resource {
     this._profile = new Profile(this._currentDescriptor.profile)
 
     // Validate descriptor
-    try {
-      this._profile.validate(this._currentDescriptor)
-      this._errors = []
-    } catch (errors) {
-      if (this._strict) throw errors
+    this._errors = []
+    const {valid, errors} = this._profile.validate(this._currentDescriptor)
+    if (!valid) {
       this._errors = errors
+      if (this._strict) {
+        // const message = `There are ${errors.length} validation errors (see 'error.errors')`
+        // throw new DataPackageError(message, errors)
+        throw errors
+      }
     }
 
     // Clear table
