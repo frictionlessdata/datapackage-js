@@ -2,6 +2,7 @@ const tv4 = require('tv4')
 const axios = require('axios')
 const lodash = require('lodash')
 const helpers = require('./helpers')
+const {DataPackageError} = require('./errors')
 
 
 // Module API
@@ -23,7 +24,7 @@ class Profile {
           const response = await axios.get(profile)
           jsonschema = response.data
         } catch (error) {
-          throw new Error(`Can not retrieve remote profile "${profile}"`)
+          throw new DataPackageError(`Can not retrieve remote profile "${profile}"`)
         }
         _cache[profile] = jsonschema
         profile = jsonschema
@@ -37,10 +38,8 @@ class Profile {
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   get name() {
-    if (this._jsonschema.title) {
-      return this._jsonschema.title.replace(' ', '-').toLowerCase()
-    }
-    return null
+    if (!this._jsonschema.title) return null
+    return this._jsonschema.title.replace(' ', '-').toLowerCase()
   }
 
   /**
@@ -54,19 +53,22 @@ class Profile {
    * https://github.com/frictionlessdata/datapackage-js#profile
    */
   validate(descriptor) {
+    const errors = []
+
+    // Basic validation
     const validation = tv4.validateMultiple(descriptor, this._jsonschema)
-    if (!validation.valid) {
-      const errors = []
-      for (const error of validation.errors) {
-        errors.push(new Error(
-          `Descriptor validation error:
-          ${error.message}
-          at "${error.dataPath}" in descriptor and
-          at "${error.schemaPath}" in profile`))
-      }
-      throw errors
+    for (const validationError of validation.errors) {
+      errors.push(new Error(
+        `Descriptor validation error:
+        ${validationError.message}
+        at "${validationError.dataPath}" in descriptor and
+        at "${validationError.schemaPath}" in profile`))
     }
-    return true
+
+    return {
+      valid: !errors.length,
+      errors,
+    }
   }
 
   // Private
@@ -78,7 +80,7 @@ class Profile {
       try {
         profile = require(`./profiles/${profile}.json`)
       } catch (error) {
-        throw new Error(`Profiles registry hasn't profile "${profile}"`)
+        throw new DataPackageError(`Profiles registry hasn't profile "${profile}"`)
       }
     }
 

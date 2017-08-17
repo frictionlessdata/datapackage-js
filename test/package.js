@@ -30,10 +30,10 @@ describe('Package', () => {
     })
 
     it('throws errors for invalid datapackage in strict mode', async () => {
-      const errors = await catchError(Package.load, {}, {strict: true})
-      assert.instanceOf(errors, Array)
-      assert.instanceOf(errors[0], Error)
-      assert.include(errors[0].message, 'required property')
+      const error = await catchError(Package.load, {}, {strict: true})
+      assert.instanceOf(error, Error)
+      assert.instanceOf(error.errors[0], Error)
+      assert.include(error.errors[0].message, 'required property')
     })
 
     it('stores errors for invalid datapackage', async () => {
@@ -393,14 +393,10 @@ describe('Package', () => {
       const datapackage = await Package.load(descriptor, {
         basePath: 'data/dp1', strict: true,
       })
-      try {
-        datapackage.addResource({})
-        assert.isOk(false)
-      } catch (errors) {
-        assert.instanceOf(errors, Array)
-        assert.instanceOf(errors[0], Error)
-        assert.include(errors[0].message, 'Data does not match any schemas')
-      }
+      const error = await catchError(datapackage.addResource.bind(datapackage), {})
+      assert.instanceOf(error, Error)
+      assert.instanceOf(error.errors[0], Error)
+      assert.include(error.errors[0].message, 'Data does not match any schemas')
     })
 
     it('add invalid - save errors in not a strict mode', async () => {
@@ -520,14 +516,10 @@ describe('Package', () => {
         basePath: 'data', strict: true,
       })
       datapackage.descriptor.resources = []
-      try {
-        datapackage.commit()
-        assert.isOk(false)
-      } catch (errors) {
-        assert.instanceOf(errors, Array)
-        assert.instanceOf(errors[0], Error)
-        assert.include(errors[0].message, 'Array is too short')
-      }
+      const error = await catchError(datapackage.commit.bind(datapackage), {})
+      assert.instanceOf(error, Error)
+      assert.instanceOf(error.errors[0], Error)
+      assert.include(error.errors[0].message, 'Array is too short')
     })
 
     it('not modified', async () => {

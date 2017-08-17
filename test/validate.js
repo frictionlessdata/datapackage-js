@@ -13,9 +13,9 @@ describe('validate', () => {
   })
 
   it('returns array of errors for invalid descriptor', async () => {
-    let errors
     const descriptor = {resource: [{name: 'name'}]}
-    try {await validate(descriptor)} catch (e) {errors = e}
+    const {valid, errors} = await validate(descriptor)
+    assert.deepEqual(valid, false)
     assert.deepEqual(errors.length, 1)
   })
 

@@ -4,6 +4,7 @@ const {Resource} = require('./resource')
 const {Profile} = require('./resource')
 const {validate} = require('./validate')
 const {infer} = require('./infer')
+const errors = require('./errors')
 
 
 // Module API
@@ -14,4 +15,5 @@ module.exports = {
   Profile,
   validate,
   infer,
+  errors,
 }

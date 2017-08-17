@@ -3,6 +3,7 @@ const glob = require('glob')
 const lodash = require('lodash')
 const {Profile} = require('./profile')
 const {Resource} = require('./resource')
+const {DataPackageError} = require('./errors')
 const helpers = require('./helpers')
 const config = require('./config')
 
@@ -124,12 +125,12 @@ class Package {
 
       // It's broswer
       if (config.IS_BROWSER) {
-        throw new Error('Browser is not supported for pattern infer')
+        throw new DataPackageError('Browser is not supported for pattern infer')
       }
 
       // No base path
       if (!this._basePath) {
-        throw new Error('Base path is required for pattern infer')
+        throw new DataPackageError('Base path is required for pattern infer')
       }
 
       // Add resources
@@ -150,7 +151,7 @@ class Package {
     // Profile
     if (this._nextDescriptor.profile === config.DEFAULT_DATA_PACKAGE_PROFILE) {
       if (this.resources.length && this.resources.every(resouce => resouce.tabular)) {
-        this._nextDescriptor.profile = 'tabular-data-resource'
+        this._nextDescriptor.profile = 'tabular-data-package'
         this.commit()
       }
     }
@@ -215,12 +216,14 @@ class Package {
     this._nextDescriptor = lodash.cloneDeep(this._currentDescriptor)
 
     // Validate descriptor
-    try {
-      this._profile.validate(this._currentDescriptor)
-      this._errors = []
-    } catch (errors) {
-      if (this._strict) throw errors
+    this._errors = []
+    const {valid, errors} = this._profile.validate(this._currentDescriptor)
+    if (!valid) {
       this._errors = errors
+      if (this._strict) {
+        const message = `There are ${errors.length} validation errors (see 'error.errors')`
+        throw new DataPackageError(message, errors)
+      }
     }
 
     // Update resources

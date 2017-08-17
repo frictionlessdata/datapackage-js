@@ -68,17 +68,13 @@ describe('Profile', () => {
       assert.isOk(profile.validate(descriptor))
     })
 
-    it('raises errors for invalid descriptor', async () => {
+    it('errors for invalid descriptor', async () => {
       const descriptor = {}
       const profile = await Profile.load('data-package')
-      try {
-        const valid = profile.validate(descriptor)
-        assert.isFalse(valid)
-      } catch (errors) {
-        assert.instanceOf(errors, Array)
-        assert.instanceOf(errors[0], Error)
-        assert.include(errors[0].message, 'Missing required property')
-      }
+      const {valid, errors} = profile.validate(descriptor)
+      assert.deepEqual(valid, false)
+      assert.instanceOf(errors[0], Error)
+      assert.include(errors[0].message, 'Missing required property')
     })
 
   })
