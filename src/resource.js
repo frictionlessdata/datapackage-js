@@ -305,7 +305,7 @@ class Resource {
 // Internal
 
 function inspectSource(data, path, basePath) {
-  const descriptor = {}
+  const inspection = {}
 
   // Normalize path
   if (path && !lodash.isArray(path)) {
@@ -314,25 +314,25 @@ function inspectSource(data, path, basePath) {
 
   // Blank
   if (!data && !path) {
-    descriptor.source = null
-    descriptor.blank = true
+    inspection.source = null
+    inspection.blank = true
 
   // Inline
   } else if (data) {
-    descriptor.source = data
-    descriptor.inline = true
-    descriptor.tabular = lodash.isArray(data) && data.every(lodash.isObject)
+    inspection.source = data
+    inspection.inline = true
+    inspection.tabular = lodash.isArray(data) && data.every(lodash.isObject)
 
   // Local/Remote
   } else if (path.length === 1) {
 
     // Remote
     if (helpers.isRemotePath(path[0])) {
-      descriptor.source = path[0]
-      descriptor.remote = true
+      inspection.source = path[0]
+      inspection.remote = true
     } else if (basePath && helpers.isRemotePath(basePath)) {
-      descriptor.source = helpers.joinUrl(basePath, path[0])
-      descriptor.remote = true
+      inspection.source = helpers.joinUrl(basePath, path[0])
+      inspection.remote = true
 
     // Local
     } else {
@@ -347,25 +347,25 @@ function inspectSource(data, path, basePath) {
         throw new DataPackageError(`Local path "${path[0]}" requires base path`)
       }
 
-      descriptor.source = [basePath, path[0]].join('/')
-      descriptor.local = true
+      inspection.source = [basePath, path[0]].join('/')
+      inspection.local = true
     }
 
     // Inspect
-    descriptor.format = pathModule.extname(path[0]).slice(1)
-    descriptor.name = pathModule.basename(path[0], `.${descriptor.format}`)
-    descriptor.mediatype = `text/${descriptor.format}`
-    descriptor.tabular = descriptor.format === 'csv'
+    inspection.format = pathModule.extname(path[0]).slice(1)
+    inspection.name = pathModule.basename(path[0], `.${inspection.format}`)
+    inspection.mediatype = `text/${inspection.format}`
+    inspection.tabular = inspection.format === 'csv'
 
   // Multipart Local/Remote
   } else if (path.length > 1) {
-    const descriptors = path.map(item => inspectSource(null, item, basePath))
-    lodash.assign(descriptor, descriptors[0])
-    descriptor.source = descriptors.map(item => item.source)
-    descriptor.multipart = true
+    const inspections = path.map(item => inspectSource(null, item, basePath))
+    lodash.assign(inspection, inspections[0])
+    inspection.source = inspections.map(item => item.source)
+    inspection.multipart = true
   }
 
-  return descriptor
+  return inspection
 }
 
 
