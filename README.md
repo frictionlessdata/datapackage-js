@@ -591,6 +591,16 @@ try {
 }
 ```
 
+## Contributing
+
+The project follows the [Open Knowledge International coding standards](https://github.com/okfn/coding-standards). There are common commands to work with the project:
+
+```
+$ npm install
+$ npm run test
+$ npm run build
+```
+
 ## Changelog
 
 Here described only breaking and the most important changes. The full changelog and documentation for all released versions could be found in nicely formatted [commit history](https://github.com/frictionlessdata/datapackage-js/commits/master).
@@ -602,13 +612,3 @@ This version includes various big changes. A migration guide is under developmen
 ### v0.8
 
 First stable version of the library.
-
-## Contributing
-
-The project follows the [Open Knowledge International coding standards](https://github.com/okfn/coding-standards). There are common commands to work with the project:
-
-```
-$ npm install
-$ npm run test
-$ npm run build
-```
