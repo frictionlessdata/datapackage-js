@@ -391,15 +391,15 @@ Factory method to instantiate `Resource` class. This method is async and it shou
 - `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Resource)` - returns resource class instance
 
-#### `package.valid`
+#### `resource.valid`
 
 - `(Boolean)` - returns validation status. It always true in strict mode.
 
-#### `package.errors`
+#### `resource.errors`
 
 - `(Error[])` - returns validation errors. It always empty in strict mode.
 
-#### `package.profile`
+#### `resource.profile`
 
 - `(Profile)` - returns an instance of `Profile` class (see below).
 
