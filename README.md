@@ -96,10 +96,10 @@ paris,2017,2240000
 rome,2017,2860000
 ```
 
-First we create a blank data package. We need to provide a base path because we're going to work with local files:
+First we create a blank data package::
 
 ```javascript
-const datapackage = await Package.load({}, {basePath: '.'})
+const datapackage = await Package.load()
 ```
 
 Now we're ready to infer a data package descriptor based on data files we have. Because we have two csv files we use glob pattern `**/*.csv`:
@@ -269,7 +269,7 @@ rome,N/A
 Let's create and read a resource. We use static `Resource.load` method instantiate a resource. Because resource is tabular we could use `resource.table.read` method with a `keyed` option to get an array of keyed rows:
 
 ```javascript
-const resource = await Resource.load({path: 'data.csv'}, {basePath: '.'})
+const resource = await Resource.load({path: 'data.csv'})
 resource.tabular // true
 resource.table.headers // ['city', 'location']
 await resource.table.read({keyed: true})
@@ -574,7 +574,7 @@ This function is async so it has to be used with `await` keyword or as a `Promis
 A standalone function to infer a data package descriptor.
 
 ```javascript
-const descriptor = await infer('**/*.csv', {basePath: '.'})
+const descriptor = await infer('**/*.csv')
 //{ profile: 'tabular-data-resource',
 //  resources:
 //   [ { path: 'data/cities.csv',

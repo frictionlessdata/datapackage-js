@@ -10,10 +10,18 @@ const config = require('./config')
 // Locate descriptor
 
 function locateDescriptor(descriptor) {
+  let basePath
+
+  // Infer from path/url
   if (lodash.isString(descriptor)) {
-    return descriptor.split('/').slice(0, -1).join('/') || '.'
+    basePath = descriptor.split('/').slice(0, -1).join('/') || '.'
+
+  // Current dir by default
+  } else {
+    basePath = '.'
   }
-  return null
+
+  return basePath
 }
 
 

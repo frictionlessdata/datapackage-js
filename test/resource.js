@@ -324,7 +324,7 @@ describe('Resource', () => {
         name: 'name',
         path: ['table.csv'],
       }
-      const error = await catchError(Resource.load, descriptor)
+      const error = await catchError(Resource.load, descriptor, {basePath: null})
       assert.instanceOf(error, Error)
       assert.include(error.message, 'requires base path')
     })
@@ -395,7 +395,7 @@ describe('Resource', () => {
         name: 'name',
         path: ['chunk1.csv', 'chunk2.csv'],
       }
-      const error = await catchError(Resource.load, descriptor)
+      const error = await catchError(Resource.load, descriptor, {basePath: null})
       assert.instanceOf(error, Error)
       assert.include(error.message, 'requires base path')
     })
