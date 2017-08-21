@@ -119,32 +119,6 @@ class Resource {
   /**
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  get table() {
-
-    // Resource -> Regular
-    if (!this.tabular) {
-      return null
-    }
-
-    // Resource -> Multipart
-    if (this.multipart) {
-      throw new DataPackageError('Resource.table does not support multipart resources')
-    }
-
-    // Resource -> Tabular
-    if (!this._table) {
-      const schemaDescriptor = this._currentDescriptor.schema
-      const schema = schemaDescriptor ? new Schema(this._currentDescriptor.schema) : null
-      this._table = new Table(this.source, {schema})
-    }
-
-    return this._table
-
-  }
-
-  /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
-   */
   async iter({stream=false}={}) {
 
     // Error for inline
@@ -167,6 +141,32 @@ class Resource {
         stream.on('end', () => resolve(bytes))
       })
     })
+  }
+
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  get table() {
+
+    // Resource -> Regular
+    if (!this.tabular) {
+      return null
+    }
+
+    // Resource -> Multipart
+    if (this.multipart) {
+      throw new DataPackageError('Resource.table does not support multipart resources')
+    }
+
+    // Resource -> Tabular
+    if (!this._table) {
+      const schemaDescriptor = this._currentDescriptor.schema
+      const schema = schemaDescriptor ? new Schema(this._currentDescriptor.schema) : null
+      this._table = new Table(this.source, {schema})
+    }
+
+    return this._table
+
   }
 
   /**
