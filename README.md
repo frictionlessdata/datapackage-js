@@ -522,12 +522,9 @@ await profile = Profile.load('data-package')
 profile.name // data-package
 profile.jsonschema // JSON Schema contents
 
-try {
-  const valid = profile.validate(descriptor)
-} catch (errors) {
-  for (const error of errors) {
-    error // descriptor error
-  }
+const {valid, errors} = profile.validate(descriptor)
+for (const error of errors) {
+  // inspect Error objects
 }
 ```
 
