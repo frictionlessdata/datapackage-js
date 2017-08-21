@@ -439,7 +439,9 @@ Combination of `resource.source` and `resource.inline/local/remote/multipart` pr
 
 #### `resource.table`
 
-For tabular resources it returns `Table` instance to interact with data table. Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
+> Only for tabular resources
+
+It returns `Table` instance to interact with data table. Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
 
 - `(errors.DataPackageError)` - raises error if something goes wrong
 - `(null/tableschema.Table)` - returns table instance if resource is tabular
@@ -456,6 +458,35 @@ Iterate over data chunks as bytes. If `stream` is true Node Stream will be retur
 Returns resource data as bytes.
 
 - (Buffer) - returns Buffer with resource data
+
+#### `async resource.table.iter({keyed, extended, cast=true, stream=false})`
+
+> Only for tabular resources
+
+Iter through the table data and emits rows cast based on table schema (async for loop). With a `stream` flag instead of async iterator a Node stream will be returned. Data casting could be disabled.
+
+- `keyed (Boolean)` - iter keyed rows
+- `extended (Boolean)` - iter extended rows
+- `cast (Boolean)` - disable data casting if false
+- `stream (Boolean)` - return Node Readable Stream of table rows
+- `(errors.TableSchemaError)` - raises any error occured in this process
+- `(AsyncIterator/Stream)` - async iterator/stream of rows:
+  - `[value1, value2]` - base
+  - `{header1: value1, header2: value2}` - keyed
+  - `[rowNumber, [header1, header2], [value1, value2]]` - extended
+
+#### `async resource.table.read({keyed, extended, cast=true, limit})`
+
+> Only for tabular resources
+
+Read the whole table and returns as array of rows. Count of rows could be limited.
+
+- `keyed (Boolean)` - flag to emit keyed rows
+- `extended (Boolean)` - flag to emit extended rows
+- `cast (Boolean)` - flag to disable data casting if false
+- `limit (Number)` - integer limit of rows to return
+- `(errors.TableSchemaError)` - raises any error occured in this process
+- `(Array[])` - returns array of rows (see `table.iter`)
 
 #### `async resource.infer()`
 
