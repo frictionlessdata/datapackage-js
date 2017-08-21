@@ -269,7 +269,7 @@ rome,N/A
 Let's create and read a resource. We use static `Resource.load` method instantiate a resource. Because resource is tabular we could use `resource.table.read` method with a `keyed` option to get an array of keyed rows:
 
 ```javascript
-const resource = await Resource.load({path: 'data.csv'})
+const resource = await Resource.load({path: 'data.csv'}, {basePath: '.'})
 resource.tabular // true
 resource.table.headers // ['city', 'location']
 await resource.table.read({keyed: true})
