@@ -23,7 +23,9 @@ let webpackConfig = {
     new webpack.DefinePlugin({
       'process.env.USER_ENV': JSON.stringify('browser')
     }),
-    new webpack.IgnorePlugin(/fs-readfile-promise/),
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    new webpack.IgnorePlugin(/^jschardet$/),
+    new webpack.IgnorePlugin(/^glob$/),
   ],
   node: {
     fs: 'empty',

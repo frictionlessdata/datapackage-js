@@ -1,10 +1,15 @@
 const fs = require('fs')
 const axios = require('axios')
-const lodash = require('lodash')
 const {Buffer} = require('buffer')
-const jschardet = require('jschardet')
 const pathModule = require('path')
 const {Readable} = require('stream')
+const assign = require('lodash/assign')
+const isEqual = require('lodash/isEqual')
+const isArray = require('lodash/isArray')
+const isObject = require('lodash/isObject')
+const isBoolean = require('lodash/isBoolean')
+const cloneDeep = require('lodash/cloneDeep')
+const isUndefined = require('lodash/isUndefined')
 const S2A = require('stream-to-async-iterator').default
 const {Table, Schema} = require('tableschema')
 const {DataPackageError} = require('./errors')
@@ -25,7 +30,7 @@ class Resource {
   static async load(descriptor={}, {basePath, strict=false}={}) {
 
     // Get base path
-    if (lodash.isUndefined(basePath)) {
+    if (isUndefined(basePath)) {
       basePath = helpers.locateDescriptor(descriptor)
     }
 
@@ -173,7 +178,7 @@ class Resource {
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   async infer() {
-    const descriptor = lodash.cloneDeep(this._currentDescriptor)
+    const descriptor = cloneDeep(this._currentDescriptor)
 
     // Blank -> Stop
     if (this._sourceInspection.blank) {
@@ -197,10 +202,13 @@ class Resource {
 
     // Encoding
     if (descriptor.encoding === config.DEFAULT_RESOURCE_ENCODING) {
-      const iterator = await this.iter()
-      const bytes = (await iterator.next()).value
-      const encoding = jschardet.detect(bytes).encoding.toLowerCase()
-      descriptor.encoding = (encoding === 'ascii') ? 'utf-8' : encoding
+      if (!config.IS_BROWSER) {
+        const jschardet = require('jschardet')
+        const iterator = await this.iter()
+        const bytes = (await iterator.next()).value
+        const encoding = jschardet.detect(bytes).encoding.toLowerCase()
+        descriptor.encoding = (encoding === 'ascii') ? 'utf-8' : encoding
+      }
     }
 
     // Schema
@@ -228,9 +236,9 @@ class Resource {
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   commit({strict}={}) {
-    if (lodash.isBoolean(strict)) this._strict = strict
-    else if (lodash.isEqual(this._currentDescriptor, this._nextDescriptor)) return false
-    this._currentDescriptor = lodash.cloneDeep(this._nextDescriptor)
+    if (isBoolean(strict)) this._strict = strict
+    else if (isEqual(this._currentDescriptor, this._nextDescriptor)) return false
+    this._currentDescriptor = cloneDeep(this._nextDescriptor)
     this._build()
     return true
   }
@@ -259,8 +267,8 @@ class Resource {
     }
 
     // Set attributes
-    this._currentDescriptor = lodash.cloneDeep(descriptor)
-    this._nextDescriptor = lodash.cloneDeep(descriptor)
+    this._currentDescriptor = cloneDeep(descriptor)
+    this._nextDescriptor = cloneDeep(descriptor)
     this._basePath = basePath
     this._strict = strict
     this._errors = []
@@ -274,7 +282,7 @@ class Resource {
 
     // Process descriptor
     this._currentDescriptor = helpers.expandResourceDescriptor(this._currentDescriptor)
-    this._nextDescriptor = lodash.cloneDeep(this._currentDescriptor)
+    this._nextDescriptor = cloneDeep(this._currentDescriptor)
 
     // Inspect source
     this._sourceInspection = inspectSource(
@@ -308,7 +316,7 @@ function inspectSource(data, path, basePath) {
   const inspection = {}
 
   // Normalize path
-  if (path && !lodash.isArray(path)) {
+  if (path && !isArray(path)) {
     path = [path]
   }
 
@@ -321,7 +329,7 @@ function inspectSource(data, path, basePath) {
   } else if (data) {
     inspection.source = data
     inspection.inline = true
-    inspection.tabular = lodash.isArray(data) && data.every(lodash.isObject)
+    inspection.tabular = isArray(data) && data.every(isObject)
 
   // Local/Remote
   } else if (path.length === 1) {
@@ -360,7 +368,7 @@ function inspectSource(data, path, basePath) {
   // Multipart Local/Remote
   } else if (path.length > 1) {
     const inspections = path.map(item => inspectSource(null, item, basePath))
-    lodash.assign(inspection, inspections[0])
+    assign(inspection, inspections[0])
     inspection.source = inspections.map(item => item.source)
     inspection.multipart = true
   }

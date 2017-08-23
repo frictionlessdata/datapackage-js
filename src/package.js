@@ -1,6 +1,8 @@
 const fs = require('fs')
-const glob = require('glob')
-const lodash = require('lodash')
+const isEqual = require('lodash/isEqual')
+const isBoolean = require('lodash/isBoolean')
+const cloneDeep = require('lodash/cloneDeep')
+const isUndefined = require('lodash/isUndefined')
 const {Profile} = require('./profile')
 const {Resource} = require('./resource')
 const {DataPackageError} = require('./errors')
@@ -20,7 +22,7 @@ class Package {
   static async load(descriptor={}, {basePath, strict=false}={}) {
 
     // Get base path
-    if (lodash.isUndefined(basePath)) {
+    if (isUndefined(basePath)) {
       basePath = helpers.locateDescriptor(descriptor)
     }
 
@@ -47,7 +49,7 @@ class Package {
    * https://github.com/frictionlessdata/datapackage-js#package
    */
   get errors() {
-    const errors = lodash.cloneDeep(this._errors)
+    const errors = cloneDeep(this._errors)
     for (const [index, resource] of this.resources.entries()) {
       if (!resource.valid) {
         errors.push(new Error(`Resource "${resource.name || index}" validation error(s)`))
@@ -163,9 +165,9 @@ class Package {
    * https://github.com/frictionlessdata/datapackage-js#package
    */
   commit({strict}={}) {
-    if (lodash.isBoolean(strict)) this._strict = strict
-    else if (lodash.isEqual(this._currentDescriptor, this._nextDescriptor)) return false
-    this._currentDescriptor = lodash.cloneDeep(this._nextDescriptor)
+    if (isBoolean(strict)) this._strict = strict
+    else if (isEqual(this._currentDescriptor, this._nextDescriptor)) return false
+    this._currentDescriptor = cloneDeep(this._nextDescriptor)
     this._build()
     return true
   }
@@ -196,8 +198,8 @@ class Package {
     }
 
     // Set attributes
-    this._currentDescriptor = lodash.cloneDeep(descriptor)
-    this._nextDescriptor = lodash.cloneDeep(descriptor)
+    this._currentDescriptor = cloneDeep(descriptor)
+    this._nextDescriptor = cloneDeep(descriptor)
     this._basePath = basePath
     this._strict = strict
     this._profile = profile
@@ -213,7 +215,7 @@ class Package {
 
     // Process descriptor
     this._currentDescriptor = helpers.expandPackageDescriptor(this._currentDescriptor)
-    this._nextDescriptor = lodash.cloneDeep(this._currentDescriptor)
+    this._nextDescriptor = cloneDeep(this._currentDescriptor)
 
     // Validate descriptor
     this._errors = []
@@ -230,7 +232,7 @@ class Package {
     this._resources.length = (this._currentDescriptor.resources || []).length
     for (const [index, descriptor] of (this._currentDescriptor.resources || []).entries()) {
       const resource = this._resources[index]
-      if (!resource || !lodash.isEqual(resource.descriptor, descriptor)) {
+      if (!resource || !isEqual(resource.descriptor, descriptor)) {
         this._resources[index] = new Resource(descriptor, {
           strict: this._strict, basePath: this._basePath,
         })
@@ -245,6 +247,7 @@ class Package {
 // Internal
 
 function findFiles(pattern, basePath) {
+  const glob = require('glob')
   return new Promise((resolve, reject) => {
     const options = {cwd: basePath, ignore: 'node_modules/**'}
     glob(pattern, options, (error, files) => {

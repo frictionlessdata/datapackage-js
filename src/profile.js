@@ -1,8 +1,8 @@
 const tv4 = require('tv4')
 const axios = require('axios')
-const lodash = require('lodash')
-const helpers = require('./helpers')
+const isString = require('lodash/isString')
 const {DataPackageError} = require('./errors')
+const helpers = require('./helpers')
 
 
 // Module API
@@ -17,7 +17,7 @@ class Profile {
   static async load(profile) {
 
     // Remote
-    if (lodash.isString(profile) && helpers.isRemotePath(profile)) {
+    if (isString(profile) && helpers.isRemotePath(profile)) {
       let jsonschema = _cache[profile]
       if (!jsonschema) {
         try {
@@ -76,7 +76,7 @@ class Profile {
   constructor(profile) {
 
     // Registry
-    if (lodash.isString(profile)) {
+    if (isString(profile)) {
       try {
         profile = require(`./profiles/${profile}.json`)
       } catch (error) {

@@ -1,6 +1,8 @@
 const fs = require('fs')
 const axios = require('axios')
-const lodash = require('lodash')
+const isString = require('lodash/isString')
+const cloneDeep = require('lodash/cloneDeep')
+const isPlainObject = require('lodash/isPlainObject')
 const urljoin = require('url-join')
 const jsonpointer = require('json-pointer')
 const {DataPackageError} = require('./errors')
@@ -13,7 +15,7 @@ function locateDescriptor(descriptor) {
   let basePath
 
   // Infer from path/url
-  if (lodash.isString(descriptor)) {
+  if (isString(descriptor)) {
     basePath = descriptor.split('/').slice(0, -1).join('/') || '.'
 
   // Current dir by default
@@ -28,10 +30,10 @@ function locateDescriptor(descriptor) {
 // Retrieve descriptor
 
 async function retrieveDescriptor(descriptor) {
-  if (lodash.isPlainObject(descriptor)) {
-    return lodash.cloneDeep(descriptor)
+  if (isPlainObject(descriptor)) {
+    return cloneDeep(descriptor)
   }
-  if (lodash.isString(descriptor)) {
+  if (isString(descriptor)) {
 
     // Remote
     if (isRemotePath(descriptor)) {
@@ -67,7 +69,7 @@ async function retrieveDescriptor(descriptor) {
 // Dereference descriptor
 
 async function dereferencePackageDescriptor(descriptor, basePath) {
-  descriptor = lodash.cloneDeep(descriptor)
+  descriptor = cloneDeep(descriptor)
   for (const [index, resource] of (descriptor.resources || []).entries()) {
     // TODO: May be we should use Promise.all here
     descriptor.resources[index] = await dereferenceResourceDescriptor(
@@ -78,14 +80,14 @@ async function dereferencePackageDescriptor(descriptor, basePath) {
 
 
 async function dereferenceResourceDescriptor(descriptor, basePath, baseDescriptor) {
-  descriptor = lodash.cloneDeep(descriptor)
+  descriptor = cloneDeep(descriptor)
   baseDescriptor = baseDescriptor || descriptor
   const PROPERTIES = ['schema', 'dialect']
   for (const property of PROPERTIES) {
     const value = descriptor[property]
 
     // URI -> No
-    if (!lodash.isString(value)) {
+    if (!isString(value)) {
       continue
 
     // URI -> Pointer
@@ -143,7 +145,7 @@ async function dereferenceResourceDescriptor(descriptor, basePath, baseDescripto
 // Expand descriptor
 
 function expandPackageDescriptor(descriptor) {
-  descriptor = lodash.cloneDeep(descriptor)
+  descriptor = cloneDeep(descriptor)
   descriptor.profile = descriptor.profile || config.DEFAULT_DATA_PACKAGE_PROFILE
   for (const [index, resource] of (descriptor.resources || []).entries()) {
     descriptor.resources[index] = expandResourceDescriptor(resource)
@@ -153,7 +155,7 @@ function expandPackageDescriptor(descriptor) {
 
 
 function expandResourceDescriptor(descriptor) {
-  descriptor = lodash.cloneDeep(descriptor)
+  descriptor = cloneDeep(descriptor)
   descriptor.profile = descriptor.profile || config.DEFAULT_RESOURCE_PROFILE
   descriptor.encoding = descriptor.encoding || config.DEFAULT_RESOURCE_ENCODING
   if (descriptor.profile === 'tabular-data-resource') {
