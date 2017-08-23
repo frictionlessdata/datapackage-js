@@ -1,3 +1,4 @@
+const tableschema = require('tableschema')
 const ExtendableError = require('es6-error')
 
 
@@ -32,8 +33,13 @@ class DataPackageError extends ExtendableError {
 }
 
 
+const TableSchemaError = tableschema.errors.TableSchemaError
+Object.setPrototypeOf(TableSchemaError.prototype, DataPackageError.prototype)
+
+
 // System
 
 module.exports = {
   DataPackageError,
+  TableSchemaError,
 }

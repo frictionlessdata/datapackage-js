@@ -595,7 +595,7 @@ describe('Package', () => {
       assert.include(error.message, 'violates foreign key')
     })
 
-    it.only('should throw on read if multi field foreign keys is invalid', async () => {
+    it('should throw on read if multi field foreign keys is invalid', async () => {
       const descriptor = cloneDeep(DESCRIPTOR)
       descriptor.resources[0].schema.foreignKeys[0].fields = ['name', 'surname']
       descriptor.resources[0].schema.foreignKeys[0].reference.fields = ['name', 'surname']

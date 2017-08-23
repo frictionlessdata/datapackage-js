@@ -602,7 +602,7 @@ This function is async so it has to be used with `await` keyword or as a `Promis
 
 ### Errors
 
-`errors.DataPackageError`
+#### `errors.DataPackageError`
 
 Base class for the all library errors. If there are more than one error you could get an additional information from the error object:
 
@@ -618,6 +618,10 @@ try {
   }
 }
 ```
+
+#### `errors.TableSchemaError`
+
+All Table Schema related errors.
 
 ## Contributing
 
