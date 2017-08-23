@@ -18,15 +18,15 @@ describe('Package', () => {
 
     it('initializes with Object descriptor', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
-      assert.deepEqual(datapackage.descriptor, expand(descriptor))
+      const dataPackage = await Package.load(descriptor, {basePath: 'data/dp1'})
+      assert.deepEqual(dataPackage.descriptor, expand(descriptor))
     })
 
     it('initializes with URL descriptor', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(
+      const dataPackage = await Package.load(
         'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json')
-      assert.deepEqual(datapackage.descriptor, expand(descriptor))
+      assert.deepEqual(dataPackage.descriptor, expand(descriptor))
     })
 
     it('throws errors for invalid datapackage in strict mode', async () => {
@@ -37,11 +37,11 @@ describe('Package', () => {
     })
 
     it('stores errors for invalid datapackage', async () => {
-      const datapackage = await Package.load()
-      assert.instanceOf(datapackage.errors, Array)
-      assert.instanceOf(datapackage.errors[0], Error)
-      assert.include(datapackage.errors[0].message, 'required property')
-      assert.isFalse(datapackage.valid)
+      const dataPackage = await Package.load()
+      assert.instanceOf(dataPackage.errors, Array)
+      assert.instanceOf(dataPackage.errors[0], Error)
+      assert.include(dataPackage.errors[0].message, 'required property')
+      assert.isFalse(dataPackage.valid)
     })
 
     it('loads relative resource', async function() {
@@ -50,9 +50,9 @@ describe('Package', () => {
         this.skip()
       }
       const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
-      const datapackage = await Package.load(descriptor)
-      datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
-      const data = await datapackage.resources[0].table.read()
+      const dataPackage = await Package.load(descriptor)
+      dataPackage.resources[0].descriptor.profile = 'tabular-data-resource'
+      const data = await dataPackage.resources[0].table.read()
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
 
@@ -62,9 +62,9 @@ describe('Package', () => {
         this.skip()
       }
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
-      const datapackage = await Package.load(descriptor)
-      datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
-      const table = await datapackage.resources[0].table
+      const dataPackage = await Package.load(descriptor)
+      dataPackage.resources[0].descriptor.profile = 'tabular-data-resource'
+      const table = await dataPackage.resources[0].table
       const data = await table.read()
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
@@ -75,9 +75,9 @@ describe('Package', () => {
         this.skip()
       }
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
-      const datapackage = await Package.load(descriptor, {basePath: 'local/basePath'})
-      datapackage.resources[0].descriptor.profile = 'tabular-data-resource'
-      const table = await datapackage.resources[0].table
+      const dataPackage = await Package.load(descriptor, {basePath: 'local/basePath'})
+      dataPackage.resources[0].descriptor.profile = 'tabular-data-resource'
+      const table = await dataPackage.resources[0].table
       const data = await table.read()
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
@@ -88,9 +88,9 @@ describe('Package', () => {
         this.skip()
       }
       const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
-      const datapackage = await Package.load(descriptor, {basePath: 'data'})
-      datapackage.resources[1].descriptor.profile = 'tabular-data-resource'
-      const table = await datapackage.resources[1].table
+      const dataPackage = await Package.load(descriptor, {basePath: 'data'})
+      dataPackage.resources[1].descriptor.profile = 'tabular-data-resource'
+      const table = await dataPackage.resources[1].table
       const data = await table.read()
       assert.deepEqual(data, [['gb', 105], ['us', 205], ['cn', 305]])
     })
@@ -109,16 +109,16 @@ describe('Package', () => {
           {name: 'name', data: ['data']},
         ],
       }
-      const datapackage = await Package.load(descriptor)
-      assert.deepEqual(datapackage.descriptor, expand(descriptor))
+      const dataPackage = await Package.load(descriptor)
+      assert.deepEqual(dataPackage.descriptor, expand(descriptor))
     })
 
     it('string remote path', async () => {
       const contents = require('../data/data-package.json')
       const descriptor = 'http://example.com/data-package.json'
       http.onGet(descriptor).reply(200, contents)
-      const datapackage = await Package.load(descriptor)
-      assert.deepEqual(datapackage.descriptor, expand(contents))
+      const dataPackage = await Package.load(descriptor)
+      assert.deepEqual(dataPackage.descriptor, expand(contents))
     })
 
     it('string remote path bad', async () => {
@@ -133,8 +133,8 @@ describe('Package', () => {
       const contents = require('../data/data-package.json')
       const descriptor = 'data/data-package.json'
       if (process.env.USER_ENV !== 'browser') {
-        const datapackage = await Package.load(descriptor)
-        assert.deepEqual(datapackage.descriptor, expand(contents))
+        const dataPackage = await Package.load(descriptor)
+        assert.deepEqual(dataPackage.descriptor, expand(contents))
       } else {
         const error = await catchError(Package.load, descriptor)
         assert.instanceOf(error, Error)
@@ -164,8 +164,8 @@ describe('Package', () => {
     it('mixed', async () => {
       const descriptor = 'data/data-package-dereference.json'
       if (process.env.USER_ENV !== 'browser') {
-        const datapackage = await Package.load(descriptor)
-        assert.deepEqual(datapackage.descriptor.resources, [
+        const dataPackage = await Package.load(descriptor)
+        assert.deepEqual(dataPackage.descriptor.resources, [
           {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
           {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
         ].map(expandResource))
@@ -185,8 +185,8 @@ describe('Package', () => {
         schemas: {main: {fields: [{name: 'name'}]}},
         dialects: [{delimiter: ','}],
       }
-      const datapackage = await Package.load(descriptor)
-      assert.deepEqual(datapackage.descriptor.resources, [
+      const dataPackage = await Package.load(descriptor)
+      assert.deepEqual(dataPackage.descriptor.resources, [
         {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
         {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
       ].map(expandResource))
@@ -212,8 +212,8 @@ describe('Package', () => {
       }
       http.onGet('http://example.com/schema').reply(200, {fields: [{name: 'name'}]})
       http.onGet('http://example.com/dialect').reply(200, {delimiter: ','})
-      const datapackage = await Package.load(descriptor)
-      assert.deepEqual(datapackage.descriptor.resources, [
+      const dataPackage = await Package.load(descriptor)
+      assert.deepEqual(dataPackage.descriptor.resources, [
         {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
         {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
       ].map(expandResource))
@@ -239,8 +239,8 @@ describe('Package', () => {
         ],
       }
       if (process.env.USER_ENV !== 'browser') {
-        const datapackage = await Package.load(descriptor, {basePath: 'data'})
-        assert.deepEqual(datapackage.descriptor.resources, [
+        const dataPackage = await Package.load(descriptor, {basePath: 'data'})
+        assert.deepEqual(dataPackage.descriptor.resources, [
           {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
           {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
         ].map(expandResource))
@@ -294,8 +294,8 @@ describe('Package', () => {
           },
         ],
       }
-      const datapackage = await Package.load(descriptor)
-      assert.deepEqual(datapackage.descriptor, {
+      const dataPackage = await Package.load(descriptor)
+      assert.deepEqual(dataPackage.descriptor, {
         profile: 'data-package',
         resources: [
           {
@@ -319,8 +319,8 @@ describe('Package', () => {
           },
         ],
       }
-      const datapackage = await Package.load(descriptor)
-      assert.deepEqual(datapackage.descriptor, {
+      const dataPackage = await Package.load(descriptor)
+      assert.deepEqual(dataPackage.descriptor, {
         profile: 'data-package',
         resources: [{
           name: 'name',
@@ -346,8 +346,8 @@ describe('Package', () => {
           },
         ],
       }
-      const datapackage = await Package.load(descriptor)
-      assert.deepEqual(datapackage.descriptor, {
+      const dataPackage = await Package.load(descriptor)
+      assert.deepEqual(dataPackage.descriptor, {
         profile: 'data-package',
         resources: [{
           name: 'name',
@@ -374,26 +374,26 @@ describe('Package', () => {
 
     it('names', async () => {
       const descriptor = require('../data/data-package-multiple-resources.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data'})
-      assert.lengthOf(datapackage.resources, 2)
-      assert.deepEqual(datapackage.resourceNames, ['name1', 'name2'])
+      const dataPackage = await Package.load(descriptor, {basePath: 'data'})
+      assert.lengthOf(dataPackage.resources, 2)
+      assert.deepEqual(dataPackage.resourceNames, ['name1', 'name2'])
     })
 
     it('add', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
-      const resource = datapackage.addResource({name: 'name', data: ['test']})
+      const dataPackage = await Package.load(descriptor, {basePath: 'data/dp1'})
+      const resource = dataPackage.addResource({name: 'name', data: ['test']})
       assert.isOk(resource)
-      assert.lengthOf(datapackage.resources, 2)
-      assert.deepEqual(datapackage.resources[1].source, ['test'])
+      assert.lengthOf(dataPackage.resources, 2)
+      assert.deepEqual(dataPackage.resources[1].source, ['test'])
     })
 
     it('add invalid - throws array of errors in strict mode', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(descriptor, {
+      const dataPackage = await Package.load(descriptor, {
         basePath: 'data/dp1', strict: true,
       })
-      const error = await catchError(datapackage.addResource.bind(datapackage), {})
+      const error = await catchError(dataPackage.addResource.bind(dataPackage), {})
       assert.instanceOf(error, Error)
       assert.instanceOf(error.errors[0], Error)
       assert.include(error.errors[0].message, 'Data does not match any schemas')
@@ -401,17 +401,17 @@ describe('Package', () => {
 
     it('add invalid - save errors in not a strict mode', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
-      datapackage.addResource({})
-      assert.instanceOf(datapackage.errors[0], Error)
-      assert.include(datapackage.errors[0].message, 'Data does not match any schemas')
-      assert.isFalse(datapackage.valid)
+      const dataPackage = await Package.load(descriptor, {basePath: 'data/dp1'})
+      dataPackage.addResource({})
+      assert.instanceOf(dataPackage.errors[0], Error)
+      assert.include(dataPackage.errors[0].message, 'Data does not match any schemas')
+      assert.isFalse(dataPackage.valid)
     })
 
     it('add tabular - can read data', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
-      datapackage.addResource({
+      const dataPackage = await Package.load(descriptor, {basePath: 'data/dp1'})
+      dataPackage.addResource({
         name: 'name',
         data: [['id', 'name'], ['1', 'alex'], ['2', 'john']],
         schema: {
@@ -421,15 +421,15 @@ describe('Package', () => {
           ],
         },
       })
-      const rows = await datapackage.resources[1].table.read()
+      const rows = await dataPackage.resources[1].table.read()
       assert.deepEqual(rows, [[1, 'alex'], [2, 'john']])
     })
 
     it('add with not a safe path - throw an error', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
+      const dataPackage = await Package.load(descriptor, {basePath: 'data/dp1'})
       try {
-        datapackage.addResource({
+        dataPackage.addResource({
           name: 'name',
           path: ['../dp1/data.csv'],
         })
@@ -442,39 +442,39 @@ describe('Package', () => {
 
     it('get existent', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
-      const resource = datapackage.getResource('random')
+      const dataPackage = await Package.load(descriptor, {basePath: 'data/dp1'})
+      const resource = dataPackage.getResource('random')
       assert.deepEqual(resource.name, 'random')
     })
 
     it('get non existent', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
-      const resource = datapackage.getResource('non-existent')
+      const dataPackage = await Package.load(descriptor, {basePath: 'data/dp1'})
+      const resource = dataPackage.getResource('non-existent')
       assert.isNull(resource)
     })
 
     it('remove existent', async () => {
       const descriptor = require('../data/data-package-multiple-resources.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data'})
-      assert.lengthOf(datapackage.resources, 2)
-      assert.lengthOf(datapackage.descriptor.resources, 2)
-      assert.deepEqual(datapackage.resources[0].name, 'name1')
-      assert.deepEqual(datapackage.resources[1].name, 'name2')
-      const resource = datapackage.removeResource('name2')
-      assert.lengthOf(datapackage.resources, 1)
-      assert.lengthOf(datapackage.descriptor.resources, 1)
-      assert.deepEqual(datapackage.resources[0].name, 'name1')
+      const dataPackage = await Package.load(descriptor, {basePath: 'data'})
+      assert.lengthOf(dataPackage.resources, 2)
+      assert.lengthOf(dataPackage.descriptor.resources, 2)
+      assert.deepEqual(dataPackage.resources[0].name, 'name1')
+      assert.deepEqual(dataPackage.resources[1].name, 'name2')
+      const resource = dataPackage.removeResource('name2')
+      assert.lengthOf(dataPackage.resources, 1)
+      assert.lengthOf(dataPackage.descriptor.resources, 1)
+      assert.deepEqual(dataPackage.resources[0].name, 'name1')
       assert.deepEqual(resource.name, 'name2')
     })
 
     it('remove non existent', async () => {
       const descriptor = require('../data/dp1/datapackage.json')
-      const datapackage = await Package.load(descriptor, {basePath: 'data/dp1'})
-      const resource = datapackage.removeResource('non-existent')
+      const dataPackage = await Package.load(descriptor, {basePath: 'data/dp1'})
+      const resource = dataPackage.removeResource('non-existent')
       assert.isNull(resource)
-      assert.lengthOf(datapackage.resources, 1)
-      assert.lengthOf(datapackage.descriptor.resources, 1)
+      assert.lengthOf(dataPackage.resources, 1)
+      assert.lengthOf(dataPackage.descriptor.resources, 1)
     })
 
   })
@@ -488,9 +488,9 @@ describe('Package', () => {
         this.skip()
       }
       const descriptor = {resources: [{name: 'name', data: ['data']}]}
-      const datapackage = await Package.load(descriptor)
+      const dataPackage = await Package.load(descriptor)
       const writeFile = sinon.stub(fs, 'writeFile')
-      await datapackage.save('target')
+      await dataPackage.save('target')
       writeFile.restore()
       sinon.assert.calledWith(writeFile,
         'target', JSON.stringify(expand(descriptor)))
@@ -502,21 +502,21 @@ describe('Package', () => {
 
     it('modified', async () => {
       const descriptor = {resources: [{name: 'name', data: ['data']}]}
-      const datapackage = await Package.load(descriptor)
-      datapackage.descriptor.resources[0].name = 'modified'
-      assert.deepEqual(datapackage.resources[0].name, 'name')
-      const result = datapackage.commit()
-      assert.deepEqual(datapackage.resources[0].name, 'modified')
+      const dataPackage = await Package.load(descriptor)
+      dataPackage.descriptor.resources[0].name = 'modified'
+      assert.deepEqual(dataPackage.resources[0].name, 'name')
+      const result = dataPackage.commit()
+      assert.deepEqual(dataPackage.resources[0].name, 'modified')
       assert.isTrue(result)
     })
 
     it('modified invalid in strict mode', async () => {
       const descriptor = {resources: [{name: 'name', path: 'data.csv'}]}
-      const datapackage = await Package.load(descriptor, {
+      const dataPackage = await Package.load(descriptor, {
         basePath: 'data', strict: true,
       })
-      datapackage.descriptor.resources = []
-      const error = await catchError(datapackage.commit.bind(datapackage), {})
+      dataPackage.descriptor.resources = []
+      const error = await catchError(dataPackage.commit.bind(dataPackage), {})
       assert.instanceOf(error, Error)
       assert.instanceOf(error.errors[0], Error)
       assert.include(error.errors[0].message, 'Array is too short')
@@ -524,9 +524,9 @@ describe('Package', () => {
 
     it('not modified', async () => {
       const descriptor = {resources: [{name: 'name', data: ['data']}]}
-      const datapackage = await Package.load(descriptor)
-      const result = datapackage.commit()
-      assert.deepEqual(datapackage.descriptor, expand(descriptor))
+      const dataPackage = await Package.load(descriptor)
+      const result = dataPackage.commit()
+      assert.deepEqual(dataPackage.descriptor, expand(descriptor))
       assert.isFalse(result)
     })
 

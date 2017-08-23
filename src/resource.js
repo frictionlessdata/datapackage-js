@@ -255,7 +255,7 @@ class Resource {
 
   // Private
 
-  constructor(descriptor={}, {basePath, strict=false}={}) {
+  constructor(descriptor={}, {basePath, strict=false, dataPackage}={}) {
 
     // Handle deprecated resource.path.url
     if (descriptor.url) {
@@ -269,6 +269,7 @@ class Resource {
     // Set attributes
     this._currentDescriptor = cloneDeep(descriptor)
     this._nextDescriptor = cloneDeep(descriptor)
+    this._dataPackage = dataPackage
     this._basePath = basePath
     this._strict = strict
     this._errors = []

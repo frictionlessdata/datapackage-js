@@ -65,8 +65,8 @@ const descriptor = {
   ]
 }
 
-const datapackage = await Package.load(descriptor)
-const resource = datapackage.getResource('example')
+const dataPackage = await Package.load(descriptor)
+const resource = dataPackage.getResource('example')
 await resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
 ```
 
@@ -99,14 +99,14 @@ rome,2017,2860000
 First we create a blank data package::
 
 ```javascript
-const datapackage = await Package.load()
+const dataPackage = await Package.load()
 ```
 
 Now we're ready to infer a data package descriptor based on data files we have. Because we have two csv files we use glob pattern `**/*.csv`:
 
 ```javascript
-await datapackage.infer('**/*.csv')
-datapackage.descriptor
+await dataPackage.infer('**/*.csv')
+dataPackage.descriptor
 //{ profile: 'tabular-data-package',
 //  resources:
 //   [ { path: 'data/cities.csv',
@@ -128,15 +128,15 @@ datapackage.descriptor
 An `infer` method has found all our files and inspected it to extract useful metadata like profile, encoding, format, Table Schema etc. Let's tweak it a little bit:
 
 ```javascript
-datapackage.descriptor.resources[1].schema.fields[1].type = 'year'
-datapackage.commit()
-datapackage.valid // true
+dataPackage.descriptor.resources[1].schema.fields[1].type = 'year'
+dataPackage.commit()
+dataPackage.valid // true
 ```
 
 Because our resources are tabular we could read it as a tabular data:
 
 ```javascript
-await datapackage.getResource('population').table.read({keyed: true})
+await dataPackage.getResource('population').table.read({keyed: true})
 
 //[ { city: 'london', year: 2017, population: 8780000 },
 //  { city: 'paris', year: 2017, population: 2240000 },
@@ -146,13 +146,13 @@ await datapackage.getResource('population').table.read({keyed: true})
 Let's save our descriptor on the disk. After it we could update our `datapackage.json` as we want, make some changes etc:
 
 ```javascript
-await datapackage.save('datapackage.json')
+await dataPackage.save('datapackage.json')
 ```
 
 To continue the work with the data package we just load it again but this time using local `datapackage.json`:
 
 ```javascript
-const datapackage = await Package.load('datapackage.json')
+const dataPackage = await Package.load('datapackage.json')
 // Continue the work
 ```
 
@@ -231,16 +231,16 @@ Update data package instance if there are in-place changes in the descriptor.
 - `(Boolean)` - returns true on success and false if not modified
 
 ```javascript
-const datapackage = await Package.load({
+const dataPackage = await Package.load({
     name: 'package',
     resources: [{name: 'resource', data: ['data']}]
 })
 
-datapackage.name // package
-datapackage.descriptor.name = 'renamed-package'
-datapackage.name // package
-datapackage.commit()
-datapackage.name // renamed-package
+dataPackage.name // package
+dataPackage.descriptor.name = 'renamed-package'
+dataPackage.name // package
+dataPackage.commit()
+dataPackage.name // renamed-package
 ```
 
 #### `async package.save(target)`

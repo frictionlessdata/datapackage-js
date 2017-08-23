@@ -234,7 +234,7 @@ class Package {
       const resource = this._resources[index]
       if (!resource || !isEqual(resource.descriptor, descriptor)) {
         this._resources[index] = new Resource(descriptor, {
-          strict: this._strict, basePath: this._basePath,
+          strict: this._strict, basePath: this._basePath, dataPackage: this,
         })
       }
     }
