@@ -3,6 +3,7 @@ const axios = require('axios')
 const sinon = require('sinon')
 const {assert} = require('chai')
 const {catchError} = require('./helpers')
+const cloneDeep = require('lodash/cloneDeep')
 const AxiosMock = require('axios-mock-adapter')
 const {Package} = require('../src')
 const helpers = require('../src/helpers')
@@ -528,6 +529,81 @@ describe('Package', () => {
       const result = dataPackage.commit()
       assert.deepEqual(dataPackage.descriptor, expand(descriptor))
       assert.isFalse(result)
+    })
+
+  })
+
+  describe('#foreignKeys', () => {
+    const DESCRIPTOR = {
+      resources: [
+        {
+          name: 'main',
+          data: [
+            ['id', 'name', 'surname'],
+            ['1', 'Alex', 'Martin'],
+            ['2', 'John', 'Dockins'],
+            ['3', 'Walter', 'White'],
+          ],
+          schema: {
+            fields: [
+              {name: 'id'},
+              {name: 'name'},
+              {name: 'surname'},
+            ],
+            foreignKeys: [
+              {
+                fields: ['name', 'surname'],
+                reference: {resource: 'people', fields: ['name', 'surname']},
+              },
+            ],
+          },
+        }, {
+          name: 'people',
+          data: [
+            ['name', 'surname'],
+            ['Alex', 'Martin'],
+            ['John', 'Dockins'],
+            ['Walter', 'White'],
+          ],
+        },
+      ],
+    }
+
+    it('should read rows if single field foreign keys is valid', async () => {
+      const dataPackage = await Package.load(DESCRIPTOR)
+      const table = dataPackage.getResource('main').table
+      const rows = await table.read()
+      assert.deepEqual(rows.length, 3)
+    })
+
+    it('should read rows if multi field foreign keys is valid', async () => {
+      const descriptor = cloneDeep(DESCRIPTOR)
+      descriptor.resources[0].schema.foreignKeys[0].fields = ['name', 'surname']
+      descriptor.resources[0].schema.foreignKeys[0].reference.fields = ['name', 'surname']
+      const dataPackage = await Package.load(DESCRIPTOR)
+      const table = dataPackage.getResource('main').table
+      const rows = await table.read()
+      assert.deepEqual(rows.length, 3)
+    })
+
+    it('should throw on read if single field foreign keys is invalid', async () => {
+      const descriptor = cloneDeep(DESCRIPTOR)
+      descriptor.resources[1].data[2][0] = 'Max'
+      const dataPackage = await Package.load(descriptor)
+      const table = dataPackage.getResource('main').table
+      const error = await catchError(table.read.bind(table))
+      assert.include(error.message, 'violates foreign key')
+    })
+
+    it.only('should throw on read if multi field foreign keys is invalid', async () => {
+      const descriptor = cloneDeep(DESCRIPTOR)
+      descriptor.resources[0].schema.foreignKeys[0].fields = ['name', 'surname']
+      descriptor.resources[0].schema.foreignKeys[0].reference.fields = ['name', 'surname']
+      descriptor.resources[1].data[2][0] = 'Max'
+      const dataPackage = await Package.load(descriptor)
+      const table = dataPackage.getResource('main').table
+      const error = await catchError(table.read.bind(table))
+      assert.include(error.message, 'violates foreign key')
     })
 
   })

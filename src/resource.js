@@ -3,6 +3,7 @@ const axios = require('axios')
 const {Buffer} = require('buffer')
 const pathModule = require('path')
 const {Readable} = require('stream')
+const pick = require('lodash/pick')
 const assign = require('lodash/assign')
 const isEqual = require('lodash/isEqual')
 const isArray = require('lodash/isArray')
@@ -167,7 +168,8 @@ class Resource {
     if (!this._table) {
       const schemaDescriptor = this._currentDescriptor.schema
       const schema = schemaDescriptor ? new Schema(this._currentDescriptor.schema) : null
-      this._table = new Table(this.source, {schema})
+      const references = schema ? getReferences(this._dataPackage, this, schema) : []
+      this._table = new Table(this.source, {schema, references})
     }
 
     return this._table
@@ -403,6 +405,36 @@ async function createByteStream(source, remote) {
   }
 
   return stream
+}
+
+
+async function getReferences(dataPackage, resource, schema) {
+  const references = []
+  for (const fk of schema.foreignKeys) {
+
+    // Resource
+    let refResource
+    if (fk.reference.resource === '') {
+      refResource = resource
+    } else if (fk.reference.resource && dataPackage) {
+      refResource = dataPackage.getResource(fk.reference.resource)
+    }
+
+    // Reference
+    let reference
+    if (refResource && refResource.tabular) {
+      reference = []
+      const keyedRows = await refResource.table.read({keyed: true})
+      for (const keyedRow of keyedRows) {
+        reference.push(pick(keyedRow, fk.reference.fields))
+      }
+    }
+
+    // Add to references
+    references.push(reference)
+
+  }
+  return references
 }
 
 
