@@ -3,8 +3,9 @@ const axios = require('axios')
 const {Buffer} = require('buffer')
 const pathModule = require('path')
 const {Readable} = require('stream')
-const pick = require('lodash/pick')
+const zip = require('lodash/zip')
 const assign = require('lodash/assign')
+const partial = require('lodash/partial')
 const isEqual = require('lodash/isEqual')
 const isArray = require('lodash/isArray')
 const isObject = require('lodash/isObject')
@@ -167,8 +168,8 @@ class Resource {
     // Resource -> Tabular
     if (!this._table) {
       const schemaDescriptor = this._currentDescriptor.schema
-      const schema = schemaDescriptor ? new Schema(this._currentDescriptor.schema) : null
-      const references = schema ? getReferences(this._dataPackage, this, schema) : []
+      const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
+      const references = partial(getReferences, this._dataPackage, this.source, schema)
       this._table = new Table(this.source, {schema, references})
     }
 
@@ -408,31 +409,36 @@ async function createByteStream(source, remote) {
 }
 
 
-async function getReferences(dataPackage, resource, schema) {
+async function getReferences(dataPackage, source, schema) {
   const references = []
+  if (!schema) return references
   for (const fk of schema.foreignKeys) {
 
-    // Resource
-    let refResource
+    // Table
+    let table
     if (fk.reference.resource === '') {
-      refResource = resource
+      table = new Table(source, {schema})
     } else if (fk.reference.resource && dataPackage) {
-      refResource = dataPackage.getResource(fk.reference.resource)
+      table = dataPackage.getResource(fk.reference.resource).table
     }
 
     // Reference
     let reference
-    if (refResource && refResource.tabular) {
+    if (table) {
       reference = []
-      const keyedRows = await refResource.table.read({keyed: true})
-      for (const keyedRow of keyedRows) {
-        reference.push(pick(keyedRow, fk.reference.fields))
+      const refRows = await table.read({keyed: true})
+      for (const refRow of refRows) {
+
+        // Reference values
+        const values = {}
+        for (const [field, refField] of zip(fk.fields, fk.reference.fields)) {
+          if (field && refField) values[field] = refRow[refField]
+        }
+
+        reference.push(values)
       }
     }
-
-    // Add to references
     references.push(reference)
-
   }
   return references
 }

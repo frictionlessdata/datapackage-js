@@ -533,27 +533,28 @@ describe('Package', () => {
 
   })
 
-  describe('#foreignKeys', () => {
+  describe.only('#foreignKeys', () => {
     const DESCRIPTOR = {
       resources: [
         {
           name: 'main',
           data: [
-            ['id', 'name', 'surname'],
-            ['1', 'Alex', 'Martin'],
-            ['2', 'John', 'Dockins'],
-            ['3', 'Walter', 'White'],
+            ['id', 'name', 'surname', 'parent_id'],
+            ['1', 'Alex', 'Martin', ''],
+            ['2', 'John', 'Dockins', '1'],
+            ['3', 'Walter', 'White', '2'],
           ],
           schema: {
             fields: [
               {name: 'id'},
               {name: 'name'},
               {name: 'surname'},
+              {name: 'parent_id'},
             ],
             foreignKeys: [
               {
-                fields: ['name', 'surname'],
-                reference: {resource: 'people', fields: ['name', 'surname']},
+                fields: 'name',
+                reference: {resource: 'people', fields: 'name'},
               },
             ],
           },
@@ -576,6 +577,38 @@ describe('Package', () => {
       assert.deepEqual(rows.length, 3)
     })
 
+    it('should throw on read if single field foreign keys is invalid', async () => {
+      const descriptor = cloneDeep(DESCRIPTOR)
+      descriptor.resources[1].data[2][0] = 'Max'
+      const dataPackage = await Package.load(descriptor)
+      const table = dataPackage.getResource('main').table
+      const error = await catchError(table.read.bind(table))
+      assert.include(error.message, 'Foreign key')
+    })
+
+    it('should read rows if single self field foreign keys is valid', async () => {
+      const descriptor = cloneDeep(DESCRIPTOR)
+      descriptor.resources[0].schema.foreignKeys[0].fields = 'parent_id'
+      descriptor.resources[0].schema.foreignKeys[0].reference.resource = ''
+      descriptor.resources[0].schema.foreignKeys[0].reference.fields = 'id'
+      const dataPackage = await Package.load(descriptor)
+      const table = dataPackage.getResource('main').table
+      const rows = await table.read()
+      assert.deepEqual(rows.length, 3)
+    })
+
+    it('should throw on read if single self field foreign keys is invalid', async () => {
+      const descriptor = cloneDeep(DESCRIPTOR)
+      descriptor.resources[0].schema.foreignKeys[0].fields = 'parent_id'
+      descriptor.resources[0].schema.foreignKeys[0].reference.resource = ''
+      descriptor.resources[0].schema.foreignKeys[0].reference.fields = 'id'
+      descriptor.resources[0].data[2][0] = '0'
+      const dataPackage = await Package.load(descriptor)
+      const table = dataPackage.getResource('main').table
+      const error = await catchError(table.read.bind(table))
+      assert.include(error.message, 'Foreign key')
+    })
+
     it('should read rows if multi field foreign keys is valid', async () => {
       const descriptor = cloneDeep(DESCRIPTOR)
       descriptor.resources[0].schema.foreignKeys[0].fields = ['name', 'surname']
@@ -586,15 +619,6 @@ describe('Package', () => {
       assert.deepEqual(rows.length, 3)
     })
 
-    it('should throw on read if single field foreign keys is invalid', async () => {
-      const descriptor = cloneDeep(DESCRIPTOR)
-      descriptor.resources[1].data[2][0] = 'Max'
-      const dataPackage = await Package.load(descriptor)
-      const table = dataPackage.getResource('main').table
-      const error = await catchError(table.read.bind(table))
-      assert.include(error.message, 'violates foreign key')
-    })
-
     it('should throw on read if multi field foreign keys is invalid', async () => {
       const descriptor = cloneDeep(DESCRIPTOR)
       descriptor.resources[0].schema.foreignKeys[0].fields = ['name', 'surname']
@@ -603,7 +627,7 @@ describe('Package', () => {
       const dataPackage = await Package.load(descriptor)
       const table = dataPackage.getResource('main').table
       const error = await catchError(table.read.bind(table))
-      assert.include(error.message, 'violates foreign key')
+      assert.include(error.message, 'Foreign key')
     })
 
   })
