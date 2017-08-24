@@ -3,10 +3,9 @@ const axios = require('axios')
 const {Buffer} = require('buffer')
 const pathModule = require('path')
 const {Readable} = require('stream')
-const zip = require('lodash/zip')
 const pick = require('lodash/pick')
+const bind = require('lodash/bind')
 const assign = require('lodash/assign')
-const partial = require('lodash/partial')
 const isEqual = require('lodash/isEqual')
 const isArray = require('lodash/isArray')
 const isObject = require('lodash/isObject')
@@ -14,8 +13,8 @@ const isBoolean = require('lodash/isBoolean')
 const cloneDeep = require('lodash/cloneDeep')
 const isUndefined = require('lodash/isUndefined')
 const S2A = require('stream-to-async-iterator').default
-const {Table, Schema} = require('tableschema')
-// const {Table, Schema} = require('../../tableschema-js/src')
+// const {Table, Schema} = require('tableschema')
+const {Table, Schema} = require('../../tableschema-js/src')
 const {DataPackageError} = require('./errors')
 const {Profile} = require('./profile')
 const helpers = require('./helpers')
@@ -172,8 +171,7 @@ class Resource {
       const options = {}
       const schemaDescriptor = this._currentDescriptor.schema
       const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
-      const references = partial(
-          getReferences, this._dataPackage, this.source, schema, options)
+      const references = schema ? bind(this._getReferences, this) : {}
       this._table = new Table(this.source, {schema, references, ...options})
     }
 
@@ -315,6 +313,37 @@ class Resource {
 
   }
 
+  async _getReferences() {
+    const references = {}
+
+    // Prepare resources
+    const resources = {}
+    if (this.table && this.table.schema) {
+      for (const fk of this.table.schema.foreignKeys) {
+        resources[fk.reference.resource] = resources[fk.reference.resource] || []
+        for (const field of fk.reference.fields) {
+          resources[fk.reference.resource].push(field)
+        }
+      }
+    }
+
+    // Fill references
+    for (const [resource, fields] of Object.entries(resources)) {
+      if (resource && !this._dataPackage) continue
+      references[resource] = references[resource] || []
+      const table = resource ? this._dataPackage.getResource(resource).table : this.table
+      if (table) {
+        const rows = await table.read({keyed: true, check: false})
+        for (const row of rows) {
+          references[resource].push(pick(row, fields))
+        }
+      }
+
+    }
+
+    return references
+  }
+
 }
 
 
@@ -410,44 +439,6 @@ async function createByteStream(source, remote) {
   }
 
   return stream
-}
-
-
-async function getReferences(dataPackage, source, schema, options) {
-  const references = {}
-  if (!schema) return references
-
-  // Prepare resources
-  const resources = {}
-  for (const fk of schema.foreignKeys) {
-    resources[fk.reference.resource] = resources[fk.reference.resource] || []
-    for (const field of fk.reference.fields) {
-      resources[fk.reference.resource].push(field)
-    }
-  }
-
-  // Fill references
-  for (const [resource, fields] of Object.entries(resources)) {
-    references[resource] = references[resource] || []
-
-    // Get table
-    let table
-    if (resource === '') {
-      table = new Table(source, {schema, ...options})
-    } else if (resource && dataPackage) {
-      table = dataPackage.getResource(resource).table
-    }
-
-    // Read table
-    if (table) {
-      const rows = await table.read({keyed: true})
-      for (const row of rows) {
-        references[resource].push(pick(row, fields))
-      }
-    }
-
-  }
-  return references
 }
 
 
