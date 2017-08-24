@@ -4,6 +4,7 @@ const {Buffer} = require('buffer')
 const pathModule = require('path')
 const {Readable} = require('stream')
 const zip = require('lodash/zip')
+const pick = require('lodash/pick')
 const assign = require('lodash/assign')
 const partial = require('lodash/partial')
 const isEqual = require('lodash/isEqual')
@@ -14,6 +15,7 @@ const cloneDeep = require('lodash/cloneDeep')
 const isUndefined = require('lodash/isUndefined')
 const S2A = require('stream-to-async-iterator').default
 const {Table, Schema} = require('tableschema')
+// const {Table, Schema} = require('../../tableschema-js/src')
 const {DataPackageError} = require('./errors')
 const {Profile} = require('./profile')
 const helpers = require('./helpers')
@@ -167,10 +169,12 @@ class Resource {
 
     // Resource -> Tabular
     if (!this._table) {
+      const options = {}
       const schemaDescriptor = this._currentDescriptor.schema
       const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
-      const references = partial(getReferences, this._dataPackage, this.source, schema)
-      this._table = new Table(this.source, {schema, references})
+      const references = partial(
+          getReferences, this._dataPackage, this.source, schema, options)
+      this._table = new Table(this.source, {schema, references, ...options})
     }
 
     return this._table
@@ -409,36 +413,39 @@ async function createByteStream(source, remote) {
 }
 
 
-async function getReferences(dataPackage, source, schema) {
-  const references = []
+async function getReferences(dataPackage, source, schema, options) {
+  const references = {}
   if (!schema) return references
-  for (const fk of schema.foreignKeys) {
 
-    // Table
+  // Prepare resources
+  const resources = {}
+  for (const fk of schema.foreignKeys) {
+    resources[fk.reference.resource] = resources[fk.reference.resource] || []
+    for (const field of fk.reference.fields) {
+      resources[fk.reference.resource].push(field)
+    }
+  }
+
+  // Fill references
+  for (const [resource, fields] of Object.entries(resources)) {
+    references[resource] = references[resource] || []
+
+    // Get table
     let table
-    if (fk.reference.resource === '') {
-      table = new Table(source, {schema})
-    } else if (fk.reference.resource && dataPackage) {
-      table = dataPackage.getResource(fk.reference.resource).table
+    if (resource === '') {
+      table = new Table(source, {schema, ...options})
+    } else if (resource && dataPackage) {
+      table = dataPackage.getResource(resource).table
     }
 
-    // Reference
-    let reference
+    // Read table
     if (table) {
-      reference = []
-      const refRows = await table.read({keyed: true})
-      for (const refRow of refRows) {
-
-        // Reference values
-        const values = {}
-        for (const [field, refField] of zip(fk.fields, fk.reference.fields)) {
-          if (field && refField) values[field] = refRow[refField]
-        }
-
-        reference.push(values)
+      const rows = await table.read({keyed: true})
+      for (const row of rows) {
+        references[resource].push(pick(row, fields))
       }
     }
-    references.push(reference)
+
   }
   return references
 }

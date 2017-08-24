@@ -533,7 +533,7 @@ describe('Package', () => {
 
   })
 
-  describe.only('#foreignKeys', () => {
+  describe('#foreignKeys', () => {
     const DESCRIPTOR = {
       resources: [
         {
@@ -554,14 +554,14 @@ describe('Package', () => {
             foreignKeys: [
               {
                 fields: 'name',
-                reference: {resource: 'people', fields: 'name'},
+                reference: {resource: 'people', fields: 'firstname'},
               },
             ],
           },
         }, {
           name: 'people',
           data: [
-            ['name', 'surname'],
+            ['firstname', 'surname'],
             ['Alex', 'Martin'],
             ['John', 'Dockins'],
             ['Walter', 'White'],
