@@ -4,7 +4,6 @@ const {Buffer} = require('buffer')
 const pathModule = require('path')
 const {Readable} = require('stream')
 const pick = require('lodash/pick')
-const bind = require('lodash/bind')
 const assign = require('lodash/assign')
 const isEqual = require('lodash/isEqual')
 const isArray = require('lodash/isArray')
@@ -170,7 +169,7 @@ class Resource {
       const options = {}
       const schemaDescriptor = this._currentDescriptor.schema
       const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
-      const references = schema ? bind(this._getReferences, this) : {}
+      const references = schema ? this._getReferences.bind(this) : {}
       this._table = new Table(this.source, {schema, references, ...options})
     }
 
