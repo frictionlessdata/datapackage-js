@@ -619,10 +619,6 @@ try {
 }
 ```
 
-#### `errors.TableSchemaError`
-
-All Table Schema related errors.
-
 ## Contributing
 
 The project follows the [Open Knowledge International coding standards](https://github.com/okfn/coding-standards). There are common commands to work with the project:
