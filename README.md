@@ -469,7 +469,7 @@ Iter through the table data and emits rows cast based on table schema (async for
 - `extended (Boolean)` - iter extended rows
 - `cast (Boolean)` - disable data casting if false
 - `stream (Boolean)` - return Node Readable Stream of table rows
-- `(errors.TableSchemaError)` - raises any error occured in this process
+- `(errors.DataPackageError)` - raises any error occured in this process
 - `(AsyncIterator/Stream)` - async iterator/stream of rows:
   - `[value1, value2]` - base
   - `{header1: value1, header2: value2}` - keyed
@@ -485,7 +485,7 @@ Read the whole table and returns as array of rows. Count of rows could be limite
 - `extended (Boolean)` - flag to emit extended rows
 - `cast (Boolean)` - flag to disable data casting if false
 - `limit (Number)` - integer limit of rows to return
-- `(errors.TableSchemaError)` - raises any error occured in this process
+- `(errors.DataPackageError)` - raises any error occured in this process
 - `(Array[])` - returns array of rows (see `table.iter`)
 
 #### `async resource.infer()`
