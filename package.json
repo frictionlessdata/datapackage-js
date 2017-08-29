@@ -35,14 +35,13 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
-    "es6-error": "^4.0.2",
     "glob": "^7.1.2",
     "jschardet": "^1.5.1",
     "json-pointer": "^0.6.0",
     "lodash": "^4.13.1",
     "regenerator-runtime": "^0.11.0",
     "stream-to-async-iterator": "^0.2.0",
-    "tableschema": "^1.0.0-alpha.20",
+    "tableschema": "^1.0.0-alpha.21",
     "tv4": "^1.2.7",
     "url-join": "^2.0.1"
   },

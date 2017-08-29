@@ -1,39 +1,15 @@
-const ExtendableError = require('es6-error')
+const tableschema = require('tableschema')
 
 
 // Module API
 
-class DataPackageError extends ExtendableError {
-
-  // Public
-
-  /**
-   * https://github.com/frictionlessdata/tableschema-js#errors
-   */
-  constructor(message, errors=[]) {
-    super(message)
-    this._errors = errors
-  }
-
-  /**
-   * https://github.com/frictionlessdata/tableschema-js#errors
-   */
-  get multiple() {
-    return !!this._errors.length
-  }
-
-  /**
-   * https://github.com/frictionlessdata/tableschema-js#errors
-   */
-  get errors() {
-    return this._errors
-  }
-
-}
+const DataPackageError = tableschema.errors.DataPackageError
+const TableSchemaError = tableschema.errors.TableSchemaError
 
 
 // System
 
 module.exports = {
   DataPackageError,
+  TableSchemaError,
 }

@@ -3,6 +3,7 @@ const axios = require('axios')
 const {Buffer} = require('buffer')
 const pathModule = require('path')
 const {Readable} = require('stream')
+const pick = require('lodash/pick')
 const assign = require('lodash/assign')
 const isEqual = require('lodash/isEqual')
 const isArray = require('lodash/isArray')
@@ -165,9 +166,11 @@ class Resource {
 
     // Resource -> Tabular
     if (!this._table) {
+      const options = {}
       const schemaDescriptor = this._currentDescriptor.schema
-      const schema = schemaDescriptor ? new Schema(this._currentDescriptor.schema) : null
-      this._table = new Table(this.source, {schema})
+      const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
+      const references = schema ? this._getReferences.bind(this) : {}
+      this._table = new Table(this.source, {schema, references, ...options})
     }
 
     return this._table
@@ -255,7 +258,7 @@ class Resource {
 
   // Private
 
-  constructor(descriptor={}, {basePath, strict=false}={}) {
+  constructor(descriptor={}, {basePath, strict=false, dataPackage}={}) {
 
     // Handle deprecated resource.path.url
     if (descriptor.url) {
@@ -269,6 +272,7 @@ class Resource {
     // Set attributes
     this._currentDescriptor = cloneDeep(descriptor)
     this._nextDescriptor = cloneDeep(descriptor)
+    this._dataPackage = dataPackage
     this._basePath = basePath
     this._strict = strict
     this._errors = []
@@ -305,6 +309,37 @@ class Resource {
     // Clear table
     this._table = null
 
+  }
+
+  async _getReferences() {
+    const references = {}
+
+    // Prepare resources
+    const resources = {}
+    if (this.table && this.table.schema) {
+      for (const fk of this.table.schema.foreignKeys) {
+        resources[fk.reference.resource] = resources[fk.reference.resource] || []
+        for (const field of fk.reference.fields) {
+          resources[fk.reference.resource].push(field)
+        }
+      }
+    }
+
+    // Fill references
+    for (const [resource, fields] of Object.entries(resources)) {
+      if (resource && !this._dataPackage) continue
+      references[resource] = references[resource] || []
+      const table = resource ? this._dataPackage.getResource(resource).table : this.table
+      if (table) {
+        const rows = await table.read({keyed: true, check: false})
+        for (const row of rows) {
+          references[resource].push(pick(row, fields))
+        }
+      }
+
+    }
+
+    return references
   }
 
 }

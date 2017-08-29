@@ -7,8 +7,8 @@ const {Package} = require('./package')
  * https://github.com/frictionlessdata/datapackage-js#infer
  */
 async function infer(pattern, {basePath}={}) {
-  const datapackage = await Package.load({}, {basePath})
-  const descriptor = await datapackage.infer(pattern)
+  const dataPackage = await Package.load({}, {basePath})
+  const descriptor = await dataPackage.infer(pattern)
   return descriptor
 }
 
