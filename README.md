@@ -437,6 +437,29 @@ Factory method to instantiate `Resource` class. This method is async and it shou
 
 Combination of `resource.source` and `resource.inline/local/remote/multipart` provides predictable interface to work with resource data.
 
+#### `resource.table`
+
+> Only for tabular resources
+
+It returns `Table` instance to interact with data table. Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
+
+- `(errors.DataPackageError)` - raises error if something goes wrong
+- `(null/tableschema.Table)` - returns table instance if resource is tabular
+
+#### `resource.table.headers`
+
+> Only for tabular resources
+
+- `(String[])` - returns data source headers
+
+#### `resource.table.schema`
+
+> Only for tabular resources
+
+It returns `Schema` instance to interact with data schema. Read API documentation - [tableschema.Schema](https://github.com/frictionlessdata/tableschema-js#schema).
+
+- `(tableschema.Schema)` - returns schema class instance
+
 #### `await resource.iter({stream=false})`
 
 Iterate over data chunks as bytes. If `stream` is true Node Stream will be returned.
@@ -449,15 +472,6 @@ Iterate over data chunks as bytes. If `stream` is true Node Stream will be retur
 Returns resource data as bytes.
 
 - (Buffer) - returns Buffer with resource data
-
-#### `resource.table`
-
-> Only for tabular resources
-
-It returns `Table` instance to interact with data table. Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
-
-- `(errors.DataPackageError)` - raises error if something goes wrong
-- `(null/tableschema.Table)` - returns table instance if resource is tabular
 
 #### `async resource.table.iter({keyed, extended, cast=true, stream=false})`
 
