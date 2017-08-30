@@ -67,7 +67,7 @@ const descriptor = {
 
 const dataPackage = await Package.load(descriptor)
 const resource = dataPackage.getResource('example')
-await resource.table.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
+await resource.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
 ```
 
 ## Documentation
@@ -136,7 +136,7 @@ dataPackage.valid // true
 Because our resources are tabular we could read it as a tabular data:
 
 ```javascript
-await dataPackage.getResource('population').table.read({keyed: true})
+await dataPackage.getResource('population').read({keyed: true})
 
 //[ { city: 'london', year: 2017, population: 8780000 },
 //  { city: 'paris', year: 2017, population: 2240000 },
@@ -255,7 +255,7 @@ Save data package to target destination.
 
 ### Resource
 
-A class for working with data resources. You can read or iterate tabular resources using the `table` property.
+A class for working with data resources. You can read or iterate tabular resources using the `iter/read` methods and all resource as bytes using `rowIter/rowRead` methods.
 
 Consider we have some local csv file. It could be inline data or remote link - all supported by `Resource` class (except local files for in-brower usage of course). But say it's `data.csv` for now:
 
@@ -266,13 +266,13 @@ paris,"48.85,2.30"
 rome,N/A
 ```
 
-Let's create and read a resource. We use static `Resource.load` method instantiate a resource. Because resource is tabular we could use `resource.table.read` method with a `keyed` option to get an array of keyed rows:
+Let's create and read a resource. We use static `Resource.load` method instantiate a resource. Because resource is tabular we could use `resource.read` method with a `keyed` option to get an array of keyed rows:
 
 ```javascript
 const resource = await Resource.load({path: 'data.csv'})
 resource.tabular // true
-resource.table.headers // ['city', 'location']
-await resource.table.read({keyed: true})
+resource.headers // ['city', 'location']
+await resource.read({keyed: true})
 // [
 //   {city: 'london', location: '51.50,-0.11'},
 //   {city: 'paris', location: '48.85,2.30'},
@@ -292,7 +292,7 @@ resource.descriptor
 //  format: 'csv',
 //  mediatype: 'text/csv',
 // schema: { fields: [ [Object], [Object] ], missingValues: [ '' ] } }
-await resource.table.read({keyed: true})
+await resource.read({keyed: true})
 // Fails with a data validation error
 ```
 
@@ -320,7 +320,7 @@ resource.valid // true
 All good. It looks like we're ready to read our data again:
 
 ```javascript
-await resource.table.read({keyed: true})
+await resource.read({keyed: true})
 // [
 //   {city: 'london', location: [51.50,-0.11]},
 //   {city: 'paris', location: [48.85,2.30]},
@@ -373,7 +373,7 @@ If we decide to improve it even more we could update the `dataresource.json` fil
 
 ```javascript
 const resource = await Resource.load('dataresource.json')
-const stream = await resource.iter({stream: true})
+const stream = await resource.rawIter({stream: true})
 stream.on('data', (data) => {
   // handle data chunk as a Buffer
 })
@@ -437,22 +437,13 @@ Factory method to instantiate `Resource` class. This method is async and it shou
 
 Combination of `resource.source` and `resource.inline/local/remote/multipart` provides predictable interface to work with resource data.
 
-#### `resource.table`
-
-> Only for tabular resources
-
-It returns `Table` instance to interact with data table. Read API documentation - [tableschema.Table](https://github.com/frictionlessdata/tableschema-js#table).
-
-- `(errors.DataPackageError)` - raises error if something goes wrong
-- `(null/tableschema.Table)` - returns table instance if resource is tabular
-
-#### `resource.table.headers`
+#### `resource.headers`
 
 > Only for tabular resources
 
 - `(String[])` - returns data source headers
 
-#### `resource.table.schema`
+#### `resource.schema`
 
 > Only for tabular resources
 
@@ -460,20 +451,7 @@ It returns `Schema` instance to interact with data schema. Read API documentatio
 
 - `(tableschema.Schema)` - returns schema class instance
 
-#### `await resource.iter({stream=false})`
-
-Iterate over data chunks as bytes. If `stream` is true Node Stream will be returned.
-
-- `stream (Boolean)` - Node Stream will be returned
-- `(Iterator/Stream)` - returns Iterator/Stream
-
-#### `await resource.read()`
-
-Returns resource data as bytes.
-
-- (Buffer) - returns Buffer with resource data
-
-#### `async resource.table.iter({keyed, extended, cast=true, stream=false})`
+#### `async resource.iter({keyed, extended, cast=true, stream=false})`
 
 > Only for tabular resources
 
@@ -489,7 +467,7 @@ Iter through the table data and emits rows cast based on table schema (async for
   - `{header1: value1, header2: value2}` - keyed
   - `[rowNumber, [header1, header2], [value1, value2]]` - extended
 
-#### `async resource.table.read({keyed, extended, cast=true, limit})`
+#### `async resource.read({keyed, extended, cast=true, limit})`
 
 > Only for tabular resources
 
@@ -501,6 +479,19 @@ Read the whole table and returns as array of rows. Count of rows could be limite
 - `limit (Number)` - integer limit of rows to return
 - `(errors.DataPackageError)` - raises any error occured in this process
 - `(Array[])` - returns array of rows (see `table.iter`)
+
+#### `await resource.rawIter({stream=false})`
+
+Iterate over data chunks as bytes. If `stream` is true Node Stream will be returned.
+
+- `stream (Boolean)` - Node Stream will be returned
+- `(Iterator/Stream)` - returns Iterator/Stream
+
+#### `await resource.rawRead()`
+
+Returns resource data as bytes.
+
+- (Buffer) - returns Buffer with resource data
 
 #### `async resource.infer()`
 

@@ -459,12 +459,12 @@ describe('Resource', () => {
 
   })
 
-  describe('#read', () => {
+  describe('#rawRead', () => {
 
-    it('it reads local file source', async function() {
+    it('it raw reads local file source', async function() {
       if (process.env.USER_ENV === 'browser') this.skip()
       const resource = await Resource.load({path: 'data/data.csv'}, {basePath: '.'})
-      const bytes = await resource.read()
+      const bytes = await resource.rawRead()
       assert.include(bytes.toString(), 'name,size')
     })
 

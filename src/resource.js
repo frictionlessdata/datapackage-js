@@ -125,35 +125,49 @@ class Resource {
   /**
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  get table() {
-
-    // Resource -> Regular
-    if (!this.tabular) {
-      return null
-    }
-
-    // Resource -> Multipart
-    if (this.multipart) {
-      throw new DataPackageError('Resource.table does not support multipart resources')
-    }
-
-    // Resource -> Tabular
-    if (!this._table) {
-      const options = {}
-      const schemaDescriptor = this._currentDescriptor.schema
-      const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
-      const references = schema ? this._getReferences.bind(this) : {}
-      this._table = new Table(this.source, {schema, references, ...options})
-    }
-
-    return this._table
-
+  get headers() {
+    if (!this.tabular) return null
+    return this._getTable().headers
   }
 
   /**
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  async iter({stream=false}={}) {
+  get schema() {
+    if (!this.tabular) return null
+    return this._getTable().schema
+  }
+
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  iter(options) {
+
+    // Error for non tabular
+    if (!this.tabular) {
+      throw new DataPackageError('Methods iter/read are not supported for non tabular data')
+    }
+
+    return this._getTable().iter(options)
+  }
+
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  read(options) {
+
+    // Error for non tabular
+    if (!this.tabular) {
+      throw new DataPackageError('Methods iter/read are not supported for non tabular data')
+    }
+
+    return this._getTable().read(options)
+  }
+
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  async rawIter({stream=false}={}) {
 
     // Error for inline
     if (this.inline) {
@@ -167,10 +181,10 @@ class Resource {
   /**
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  read() {
+  rawRead() {
     return new Promise(resolve => {
       let bytes
-      this.iter({stream: true}).then(stream => {
+      this.rawIter({stream: true}).then(stream => {
         stream.on('data', data => {bytes = (bytes) ? Buffer.concat([bytes, data]) : data})
         stream.on('end', () => resolve(bytes))
       })
@@ -207,7 +221,7 @@ class Resource {
     if (descriptor.encoding === config.DEFAULT_RESOURCE_ENCODING) {
       if (!config.IS_BROWSER) {
         const jschardet = require('jschardet')
-        const iterator = await this.iter()
+        const iterator = await this.rawIter()
         const bytes = (await iterator.next()).value
         const encoding = jschardet.detect(bytes).encoding.toLowerCase()
         descriptor.encoding = (encoding === 'ascii') ? 'utf-8' : encoding
@@ -217,7 +231,7 @@ class Resource {
     // Schema
     if (!descriptor.schema) {
       if (this.tabular) {
-        descriptor.schema = await this.table.infer()
+        descriptor.schema = await this._getTable().infer()
       }
     }
 
@@ -311,13 +325,38 @@ class Resource {
 
   }
 
+  _getTable() {
+
+    // Resource -> Regular
+    if (!this.tabular) {
+      return null
+    }
+
+    // Resource -> Multipart
+    if (this.multipart) {
+      throw new DataPackageError('Resource.table does not support multipart resources')
+    }
+
+    // Resource -> Tabular
+    if (!this._table) {
+      const options = {}
+      const schemaDescriptor = this._currentDescriptor.schema
+      const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
+      const references = schema ? this._getReferences.bind(this) : {}
+      this._table = new Table(this.source, {schema, references, ...options})
+    }
+
+    return this._table
+
+  }
+
   async _getReferences() {
     const references = {}
 
     // Prepare resources
     const resources = {}
-    if (this.table && this.table.schema) {
-      for (const fk of this.table.schema.foreignKeys) {
+    if (this._getTable() && this._getTable().schema) {
+      for (const fk of this._getTable().schema.foreignKeys) {
         resources[fk.reference.resource] = resources[fk.reference.resource] || []
         for (const field of fk.reference.fields) {
           resources[fk.reference.resource].push(field)
@@ -329,9 +368,9 @@ class Resource {
     for (const [resource, fields] of Object.entries(resources)) {
       if (resource && !this._dataPackage) continue
       references[resource] = references[resource] || []
-      const table = resource ? this._dataPackage.getResource(resource).table : this.table
-      if (table) {
-        const rows = await table.read({keyed: true, check: false})
+      const data = resource ? this._dataPackage.getResource(resource) : this
+      if (data.tabular) {
+        const rows = await data.read({keyed: true, check: false})
         for (const row of rows) {
           references[resource].push(pick(row, fields))
         }
@@ -340,6 +379,12 @@ class Resource {
     }
 
     return references
+  }
+
+  // Deprecated
+
+  get table() {
+    return this._getTable()
   }
 
 }
