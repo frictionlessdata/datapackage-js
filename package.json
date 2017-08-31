@@ -1,6 +1,6 @@
 {
   "name": "datapackage",
-  "version": "1.0.0-alpha.13",
+  "version": "1.0.0-alpha.14",
   "description": "Utilities to work with Data Packages as defined on specs.frictionlessdata.io",
   "license": "MIT",
   "main": "lib/index.js",
