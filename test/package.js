@@ -571,19 +571,23 @@ describe('Package', () => {
     }
 
     it('should read rows if single field foreign keys is valid', async () => {
-      const dataPackage = await Package.load(DESCRIPTOR)
-      const table = dataPackage.getResource('main').table
-      const rows = await table.read()
-      assert.deepEqual(rows.length, 3)
+      const resource = (await Package.load(DESCRIPTOR)).getResource('main')
+      const rows = await resource.read({relations: true})
+      assert.deepEqual(rows, [
+        ['1', {firstname: 'Alex', surname: 'Martin'}, 'Martin', null],
+        ['2', {firstname: 'John', surname: 'Dockins'}, 'Dockins', '1'],
+        ['3', {firstname: 'Walter', surname: 'White'}, 'White', '2'],
+      ])
     })
 
     it('should throw on read if single field foreign keys is invalid', async () => {
       const descriptor = cloneDeep(DESCRIPTOR)
       descriptor.resources[1].data[2][0] = 'Max'
-      const dataPackage = await Package.load(descriptor)
-      const table = dataPackage.getResource('main').table
-      const error = await catchError(table.read.bind(table))
-      assert.include(error.message, 'Foreign key')
+      const resource = (await Package.load(descriptor)).getResource('main')
+      const error1 = await catchError(resource.read.bind(resource), {relations: true})
+      const error2 = await catchError(resource.checkRelations.bind(resource))
+      assert.include(error1.message, 'Foreign key')
+      assert.include(error2.message, 'Foreign key')
     })
 
     it('should read rows if single self field foreign keys is valid', async () => {
@@ -591,10 +595,28 @@ describe('Package', () => {
       descriptor.resources[0].schema.foreignKeys[0].fields = 'parent_id'
       descriptor.resources[0].schema.foreignKeys[0].reference.resource = ''
       descriptor.resources[0].schema.foreignKeys[0].reference.fields = 'id'
-      const dataPackage = await Package.load(descriptor)
-      const table = dataPackage.getResource('main').table
-      const rows = await table.read()
-      assert.deepEqual(rows.length, 3)
+      const resource = (await Package.load(descriptor)).getResource('main')
+      const keyedRows = await resource.read({keyed: true, relations: true})
+      assert.deepEqual(keyedRows, [
+        {
+          id: '1',
+          name: 'Alex',
+          surname: 'Martin',
+          parent_id: null,
+        },
+        {
+          id: '2',
+          name: 'John',
+          surname: 'Dockins',
+          parent_id: {id: '1', name: 'Alex', surname: 'Martin', parent_id: null},
+        },
+        {
+          id: '3',
+          name: 'Walter',
+          surname: 'White',
+          parent_id: {id: '2', name: 'John', surname: 'Dockins', parent_id: '1'},
+        },
+      ])
     })
 
     it('should throw on read if single self field foreign keys is invalid', async () => {
@@ -603,20 +625,39 @@ describe('Package', () => {
       descriptor.resources[0].schema.foreignKeys[0].reference.resource = ''
       descriptor.resources[0].schema.foreignKeys[0].reference.fields = 'id'
       descriptor.resources[0].data[2][0] = '0'
-      const dataPackage = await Package.load(descriptor)
-      const table = dataPackage.getResource('main').table
-      const error = await catchError(table.read.bind(table))
-      assert.include(error.message, 'Foreign key')
+      const resource = (await Package.load(descriptor)).getResource('main')
+      const error1 = await catchError(resource.read.bind(resource), {relations: true})
+      const error2 = await catchError(resource.checkRelations.bind(resource))
+      assert.include(error1.message, 'Foreign key')
+      assert.include(error2.message, 'Foreign key')
     })
 
     it('should read rows if multi field foreign keys is valid', async () => {
       const descriptor = cloneDeep(DESCRIPTOR)
       descriptor.resources[0].schema.foreignKeys[0].fields = ['name', 'surname']
       descriptor.resources[0].schema.foreignKeys[0].reference.fields = ['firstname', 'surname']
-      const dataPackage = await Package.load(DESCRIPTOR)
-      const table = dataPackage.getResource('main').table
-      const rows = await table.read()
-      assert.deepEqual(rows.length, 3)
+      const resource = (await Package.load(descriptor)).getResource('main')
+      const keyedRows = await resource.read({keyed: true, relations: true})
+      assert.deepEqual(keyedRows, [
+        {
+          id: '1',
+          name: {firstname: 'Alex', surname: 'Martin'},
+          surname: {firstname: 'Alex', surname: 'Martin'},
+          parent_id: null,
+        },
+        {
+          id: '2',
+          name: {firstname: 'John', surname: 'Dockins'},
+          surname: {firstname: 'John', surname: 'Dockins'},
+          parent_id: '1',
+        },
+        {
+          id: '3',
+          name: {firstname: 'Walter', surname: 'White'},
+          surname: {firstname: 'Walter', surname: 'White'},
+          parent_id: '2',
+        },
+      ])
     })
 
     it('should throw on read if multi field foreign keys is invalid', async () => {
@@ -624,10 +665,11 @@ describe('Package', () => {
       descriptor.resources[0].schema.foreignKeys[0].fields = ['name', 'surname']
       descriptor.resources[0].schema.foreignKeys[0].reference.fields = ['firstname', 'surname']
       descriptor.resources[1].data[2][0] = 'Max'
-      const dataPackage = await Package.load(descriptor)
-      const table = dataPackage.getResource('main').table
-      const error = await catchError(table.read.bind(table))
-      assert.include(error.message, 'Foreign key')
+      const resource = (await Package.load(descriptor)).getResource('main')
+      const error1 = await catchError(resource.read.bind(resource), {relations: true})
+      const error2 = await catchError(resource.checkRelations.bind(resource))
+      assert.include(error1.message, 'Foreign key')
+      assert.include(error2.message, 'Foreign key')
     })
 
   })

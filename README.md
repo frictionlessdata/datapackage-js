@@ -451,7 +451,7 @@ It returns `Schema` instance to interact with data schema. Read API documentatio
 
 - `(tableschema.Schema)` - returns schema class instance
 
-#### `async resource.iter({keyed, extended, cast=true, stream=false})`
+#### `async resource.iter({keyed, extended, cast=true, relations=false, stream=false})`
 
 > Only for tabular resources
 
@@ -460,6 +460,7 @@ Iter through the table data and emits rows cast based on table schema (async for
 - `keyed (Boolean)` - iter keyed rows
 - `extended (Boolean)` - iter extended rows
 - `cast (Boolean)` - disable data casting if false
+- `relations (Boolean)` - if true foreign key fields will be checked and resolved to its references
 - `stream (Boolean)` - return Node Readable Stream of table rows
 - `(errors.DataPackageError)` - raises any error occured in this process
 - `(AsyncIterator/Stream)` - async iterator/stream of rows:
@@ -467,7 +468,7 @@ Iter through the table data and emits rows cast based on table schema (async for
   - `{header1: value1, header2: value2}` - keyed
   - `[rowNumber, [header1, header2], [value1, value2]]` - extended
 
-#### `async resource.read({keyed, extended, cast=true, limit})`
+#### `async resource.read({keyed, extended, cast=true, relations=false, limit})`
 
 > Only for tabular resources
 
@@ -476,9 +477,19 @@ Read the whole table and returns as array of rows. Count of rows could be limite
 - `keyed (Boolean)` - flag to emit keyed rows
 - `extended (Boolean)` - flag to emit extended rows
 - `cast (Boolean)` - flag to disable data casting if false
+- `relations (Boolean)` - if true foreign key fields will be checked and resolved to its references
 - `limit (Number)` - integer limit of rows to return
 - `(errors.DataPackageError)` - raises any error occured in this process
 - `(Array[])` - returns array of rows (see `table.iter`)
+
+#### `resource.checkRelations()`
+
+> Only for tabular resources
+
+It checks foreign keys and raises an exception if there are integrity issues.
+
+- `(errors.DataPackageError)` - raises if there are integrity issues
+- `(Boolean)` - returns True if no issues
 
 #### `await resource.rawIter({stream=false})`
 
@@ -604,6 +615,80 @@ This function is async so it has to be used with `await` keyword or as a `Promis
 
 - `pattern (String)` - glob file pattern
 - `(Object)` - returns data package descriptor
+
+### Foreign Keys
+
+The library supports foreign keys described in the [Table Schema](http://specs.frictionlessdata.io/table-schema/#foreign-keys) specification. It means if your data package descriptor use `resources[].schema.foreignKeys` property for some resources a data integrity will be checked on reading operations.
+
+Consider we have a data package:
+
+```javascript
+const DESCRIPTOR = {
+  'resources': [
+    {
+      'name': 'teams',
+      'data': [
+        ['id', 'name', 'city'],
+        ['1', 'Arsenal', 'London'],
+        ['2', 'Real', 'Madrid'],
+        ['3', 'Bayern', 'Munich'],
+      ],
+      'schema': {
+        'fields': [
+          {'name': 'id', 'type': 'integer'},
+          {'name': 'name', 'type': 'string'},
+          {'name': 'city', 'type': 'string'},
+        ],
+        'foreignKeys': [
+          {
+            'fields': 'city',
+            'reference': {'resource': 'cities', 'fields': 'name'},
+          },
+        ],
+      },
+    }, {
+      'name': 'cities',
+      'data': [
+        ['name', 'country'],
+        ['London', 'England'],
+        ['Madrid', 'Spain'],
+      ],
+    },
+  ],
+}
+```
+
+Let's check relations for a `teams` resource:
+
+```javascript
+const {Package} = require('datapackage')
+
+const package = await Package.load(DESCRIPTOR)
+teams = package.getResource('teams')
+await teams.checkRelations()
+// tableschema.exceptions.RelationError: Foreign key "['city']" violation in row "4"
+```
+
+As we could see there is a foreign key violation. That's because our lookup table `cities` doesn't have a city of `Munich` but we have a team from there. We need to fix it in `cities` resource:
+
+```javascript
+package.descriptor['resources'][1]['data'].push(['Munich', 'Germany'])
+package.commit()
+teams = package.getResource('teams')
+await teams.checkRelations()
+// True
+```
+
+Fixed! But not only a check operation is available. We could use `relations` argument for `resource.iter/read` methods to dereference a resource relations:
+
+```javascript
+await teams.read({keyed: true, relations: true})
+//[{'id': 1, 'name': 'Arsenal', 'city': {'name': 'London', 'country': 'England}},
+// {'id': 2, 'name': 'Real', 'city': {'name': 'Madrid', 'country': 'Spain}},
+// {'id': 3, 'name': 'Bayern', 'city': {'name': 'Munich', 'country': 'Germany}}]
+```
+
+Instead of plain city name we've got a dictionary containing a city data. These `resource.iter/read` methods will fail with the same as `resource.check_relations` error if there is an integrity issue. But only if `relations: true` flag is passed.
 
 ### Errors
 
