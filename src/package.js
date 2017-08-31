@@ -232,7 +232,8 @@ class Package {
     this._resources.length = (this._currentDescriptor.resources || []).length
     for (const [index, descriptor] of (this._currentDescriptor.resources || []).entries()) {
       const resource = this._resources[index]
-      if (!resource || !isEqual(resource.descriptor, descriptor)) {
+      if (!resource || !isEqual(resource.descriptor, descriptor) ||
+          (resource.schema && resource.schema.foreignKeys.length)) {
         this._resources[index] = new Resource(descriptor, {
           strict: this._strict, basePath: this._basePath, dataPackage: this,
         })

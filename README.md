@@ -451,7 +451,7 @@ It returns `Schema` instance to interact with data schema. Read API documentatio
 
 - `(tableschema.Schema)` - returns schema class instance
 
-#### `async resource.iter({keyed, extended, cast=true, stream=false})`
+#### `async resource.iter({keyed, extended, cast=true, relations=false, stream=false})`
 
 > Only for tabular resources
 
@@ -460,6 +460,7 @@ Iter through the table data and emits rows cast based on table schema (async for
 - `keyed (Boolean)` - iter keyed rows
 - `extended (Boolean)` - iter extended rows
 - `cast (Boolean)` - disable data casting if false
+- `relations (Boolean)` - if true foreign key fields will be checked and resolved to its references
 - `stream (Boolean)` - return Node Readable Stream of table rows
 - `(errors.DataPackageError)` - raises any error occured in this process
 - `(AsyncIterator/Stream)` - async iterator/stream of rows:
@@ -467,7 +468,7 @@ Iter through the table data and emits rows cast based on table schema (async for
   - `{header1: value1, header2: value2}` - keyed
   - `[rowNumber, [header1, header2], [value1, value2]]` - extended
 
-#### `async resource.read({keyed, extended, cast=true, limit})`
+#### `async resource.read({keyed, extended, cast=true, relations=false, limit})`
 
 > Only for tabular resources
 
@@ -476,6 +477,7 @@ Read the whole table and returns as array of rows. Count of rows could be limite
 - `keyed (Boolean)` - flag to emit keyed rows
 - `extended (Boolean)` - flag to emit extended rows
 - `cast (Boolean)` - flag to disable data casting if false
+- `relations (Boolean)` - if true foreign key fields will be checked and resolved to its references
 - `limit (Number)` - integer limit of rows to return
 - `(errors.DataPackageError)` - raises any error occured in this process
 - `(Array[])` - returns array of rows (see `table.iter`)

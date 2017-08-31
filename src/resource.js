@@ -141,27 +141,45 @@ class Resource {
   /**
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  iter(options) {
+  async iter({relations=false, ...options}={}) {
 
     // Error for non tabular
     if (!this.tabular) {
       throw new DataPackageError('Methods iter/read are not supported for non tabular data')
     }
 
-    return this._getTable().iter(options)
+    // Get relations
+    if (relations) {
+      relations = await this._getRelations()
+    }
+
+    return await this._getTable().iter({relations, ...options})
   }
 
   /**
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
-  read(options) {
+  async read({relations=false, ...options}={}) {
 
     // Error for non tabular
     if (!this.tabular) {
       throw new DataPackageError('Methods iter/read are not supported for non tabular data')
     }
 
-    return this._getTable().read(options)
+    // Get relations
+    if (relations) {
+      relations = await this._getRelations()
+    }
+
+    return await this._getTable().read({relations, ...options})
+  }
+
+  /**
+   * https://github.com/frictionlessdata/datapackage-js#resource
+   */
+  async checkRelations() {
+    await this.read({relations: true})
+    return true
   }
 
   /**
@@ -288,6 +306,7 @@ class Resource {
     this._nextDescriptor = cloneDeep(descriptor)
     this._dataPackage = dataPackage
     this._basePath = basePath
+    this._relations = null
     this._strict = strict
     this._errors = []
 
@@ -326,59 +345,56 @@ class Resource {
   }
 
   _getTable() {
-
-    // Resource -> Regular
-    if (!this.tabular) {
-      return null
-    }
-
-    // Resource -> Multipart
-    if (this.multipart) {
-      throw new DataPackageError('Resource.table does not support multipart resources')
-    }
-
-    // Resource -> Tabular
     if (!this._table) {
+
+      // Resource -> Regular
+      if (!this.tabular) {
+        return null
+      }
+
+      // Resource -> Multipart
+      if (this.multipart) {
+        throw new DataPackageError('Resource.table does not support multipart resources')
+      }
+
+      // Resource -> Tabular
       const options = {}
       const schemaDescriptor = this._currentDescriptor.schema
       const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
-      const references = schema ? this._getReferences.bind(this) : {}
-      this._table = new Table(this.source, {schema, references, ...options})
+      this._table = new Table(this.source, {schema, ...options})
+
     }
-
     return this._table
-
   }
 
-  async _getReferences() {
-    const references = {}
 
-    // Prepare resources
-    const resources = {}
-    if (this._getTable() && this._getTable().schema) {
-      for (const fk of this._getTable().schema.foreignKeys) {
-        resources[fk.reference.resource] = resources[fk.reference.resource] || []
-        for (const field of fk.reference.fields) {
-          resources[fk.reference.resource].push(field)
-        }
-      }
-    }
+  async _getRelations() {
+    if (!this._relations) {
 
-    // Fill references
-    for (const [resource, fields] of Object.entries(resources)) {
-      if (resource && !this._dataPackage) continue
-      references[resource] = references[resource] || []
-      const data = resource ? this._dataPackage.getResource(resource) : this
-      if (data.tabular) {
-        const rows = await data.read({keyed: true, check: false})
-        for (const row of rows) {
-          references[resource].push(pick(row, fields))
+      // Prepare resources
+      const resources = {}
+      if (this._getTable() && this._getTable().schema) {
+        for (const fk of this._getTable().schema.foreignKeys) {
+          resources[fk.reference.resource] = resources[fk.reference.resource] || []
+          for (const field of fk.reference.fields) {
+            resources[fk.reference.resource].push(field)
+          }
         }
       }
 
-    }
+      // Fill relations
+      this._relations = {}
+      for (const [resource, fields] of Object.entries(resources)) {
+        if (resource && !this._dataPackage) continue
+        this._relations[resource] = this._relations[resource] || []
+        const data = resource ? this._dataPackage.getResource(resource) : this
+        if (data.tabular) {
+          this._relations[resource] = await data.read({keyed: true})
+        }
+      }
 
-    return references
+    }
+    return this._relations
   }
 
   // Deprecated
