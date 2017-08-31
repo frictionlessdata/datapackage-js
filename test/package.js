@@ -572,7 +572,7 @@ describe('Package', () => {
 
     it('should read rows if single field foreign keys is valid', async () => {
       const resource = (await Package.load(DESCRIPTOR)).getResource('main')
-      const rows = await resource.read({relations:true})
+      const rows = await resource.read({relations: true})
       assert.deepEqual(rows, [
         ['1', {firstname: 'Alex', surname: 'Martin'}, 'Martin', null],
         ['2', {firstname: 'John', surname: 'Dockins'}, 'Dockins', '1'],
@@ -584,7 +584,7 @@ describe('Package', () => {
       const descriptor = cloneDeep(DESCRIPTOR)
       descriptor.resources[1].data[2][0] = 'Max'
       const resource = (await Package.load(descriptor)).getResource('main')
-      const error1 = await catchError(resource.read.bind(resource), {relations:true})
+      const error1 = await catchError(resource.read.bind(resource), {relations: true})
       const error2 = await catchError(resource.checkRelations.bind(resource))
       assert.include(error1.message, 'Foreign key')
       assert.include(error2.message, 'Foreign key')
@@ -626,7 +626,7 @@ describe('Package', () => {
       descriptor.resources[0].schema.foreignKeys[0].reference.fields = 'id'
       descriptor.resources[0].data[2][0] = '0'
       const resource = (await Package.load(descriptor)).getResource('main')
-      const error1 = await catchError(resource.read.bind(resource), {relations:true})
+      const error1 = await catchError(resource.read.bind(resource), {relations: true})
       const error2 = await catchError(resource.checkRelations.bind(resource))
       assert.include(error1.message, 'Foreign key')
       assert.include(error2.message, 'Foreign key')
@@ -640,22 +640,22 @@ describe('Package', () => {
       const keyedRows = await resource.read({keyed: true, relations: true})
       assert.deepEqual(keyedRows, [
         {
-            id: '1',
-            name: {firstname: 'Alex', surname: 'Martin'},
-            surname: {firstname: 'Alex', surname: 'Martin'},
-            parent_id: null,
+          id: '1',
+          name: {firstname: 'Alex', surname: 'Martin'},
+          surname: {firstname: 'Alex', surname: 'Martin'},
+          parent_id: null,
         },
         {
-            id: '2',
-            name: {firstname: 'John', surname: 'Dockins'},
-            surname: {firstname: 'John', surname: 'Dockins'},
-            parent_id: '1',
+          id: '2',
+          name: {firstname: 'John', surname: 'Dockins'},
+          surname: {firstname: 'John', surname: 'Dockins'},
+          parent_id: '1',
         },
         {
-            id: '3',
-            name: {firstname: 'Walter', surname: 'White'},
-            surname: {firstname: 'Walter', surname: 'White'},
-            parent_id: '2',
+          id: '3',
+          name: {firstname: 'Walter', surname: 'White'},
+          surname: {firstname: 'Walter', surname: 'White'},
+          parent_id: '2',
         },
       ])
     })
@@ -666,7 +666,7 @@ describe('Package', () => {
       descriptor.resources[0].schema.foreignKeys[0].reference.fields = ['firstname', 'surname']
       descriptor.resources[1].data[2][0] = 'Max'
       const resource = (await Package.load(descriptor)).getResource('main')
-      const error1 = await catchError(resource.read.bind(resource), {relations:true})
+      const error1 = await catchError(resource.read.bind(resource), {relations: true})
       const error2 = await catchError(resource.checkRelations.bind(resource))
       assert.include(error1.message, 'Foreign key')
       assert.include(error2.message, 'Foreign key')

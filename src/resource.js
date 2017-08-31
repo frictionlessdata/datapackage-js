@@ -3,7 +3,6 @@ const axios = require('axios')
 const {Buffer} = require('buffer')
 const pathModule = require('path')
 const {Readable} = require('stream')
-const pick = require('lodash/pick')
 const assign = require('lodash/assign')
 const isEqual = require('lodash/isEqual')
 const isArray = require('lodash/isArray')
@@ -384,7 +383,7 @@ class Resource {
 
       // Fill relations
       this._relations = {}
-      for (const [resource, fields] of Object.entries(resources)) {
+      for (const [resource] of Object.entries(resources)) {
         if (resource && !this._dataPackage) continue
         this._relations[resource] = this._relations[resource] || []
         const data = resource ? this._dataPackage.getResource(resource) : this
