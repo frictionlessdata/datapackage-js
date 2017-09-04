@@ -41,7 +41,7 @@
     "lodash": "^4.13.1",
     "regenerator-runtime": "^0.11.0",
     "stream-to-async-iterator": "^0.2.0",
-    "tableschema": "^1.0.0-alpha.22",
+    "tableschema": "^1.0.0",
     "tv4": "^1.2.7",
     "url-join": "^2.0.1"
   },
