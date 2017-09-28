@@ -2,6 +2,7 @@ const fs = require('fs')
 const axios = require('axios')
 const {Buffer} = require('buffer')
 const pathModule = require('path')
+const urljoin = require('url-join')
 const {Readable} = require('stream')
 const assign = require('lodash/assign')
 const isEqual = require('lodash/isEqual')
@@ -434,7 +435,7 @@ function inspectSource(data, path, basePath) {
       inspection.source = path[0]
       inspection.remote = true
     } else if (basePath && helpers.isRemotePath(basePath)) {
-      inspection.source = helpers.joinUrl(basePath, path[0])
+      inspection.source = urljoin(basePath, path[0])
       inspection.remote = true
 
     // Local
