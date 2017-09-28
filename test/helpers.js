@@ -4,7 +4,7 @@ const helpers = require('../src/helpers')
 
 // Tests
 
-describe.only('helpers', () => {
+describe('helpers', () => {
 
   [ // path, isSafe
     ['data.csv', true],

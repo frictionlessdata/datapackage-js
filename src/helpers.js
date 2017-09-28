@@ -1,9 +1,9 @@
 const fs = require('fs')
 const axios = require('axios')
+const pathModule = require('path')
 const isString = require('lodash/isString')
 const cloneDeep = require('lodash/cloneDeep')
 const isPlainObject = require('lodash/isPlainObject')
-const urljoin = require('url-join')
 const jsonpointer = require('json-pointer')
 const {DataPackageError} = require('./errors')
 const config = require('./config')
@@ -47,7 +47,7 @@ async function retrieveDescriptor(descriptor) {
 
     // Local
     } else {
-      if (process.env.USER_ENV === 'browser') {
+      if (config.IS_BROWSER) {
         const message = `Local descriptor "${descriptor}" in browser is not supported`
         throw new DataPackageError(message)
       }
@@ -112,7 +112,7 @@ async function dereferenceResourceDescriptor(descriptor, basePath, baseDescripto
 
     // URI -> Local
     } else {
-      if (process.env.USER_ENV === 'browser') {
+      if (config.IS_BROWSER) {
         const message = 'Local URI dereferencing in browser is not supported'
         throw new DataPackageError(message)
       }
@@ -193,20 +193,19 @@ function isRemotePath(path) {
 
 
 function isSafePath(path) {
-  // TODO: support not only Unix
-  // Even for safe path always join with basePath!
-  if (path.startsWith('/')) {
-    return false
-  }
-  if (path.includes('../') || path.includes('..\\')) {
-    return false
-  }
-  return true
-}
+  const containsWindowsVar = path => path.match(/%.+%/)
+  const containsPosixVar = path => path.match(/\$.+/)
 
+  // Safity checks
+  const unsafenessConditions = [
+    pathModule.isAbsolute(path),
+    path.includes(`..${pathModule.sep}`),
+    path.startsWith('~'),
+    containsWindowsVar(path),
+    containsPosixVar(path),
+  ]
 
-function joinUrl(...parts) {
-  return urljoin(...parts)
+  return !unsafenessConditions.some(Boolean)
 }
 
 
@@ -221,5 +220,4 @@ module.exports = {
   expandResourceDescriptor,
   isRemotePath,
   isSafePath,
-  joinUrl,
 }
