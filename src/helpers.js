@@ -196,7 +196,7 @@ function isSafePath(path) {
   const containsWindowsVar = path => path.match(/%.+%/)
   const containsPosixVar = path => path.match(/\$.+/)
 
-  // Safity checks
+  // Safety checks
   const unsafenessConditions = [
     pathModule.isAbsolute(path),
     path.includes(`..${pathModule.sep}`),
