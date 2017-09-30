@@ -260,9 +260,9 @@ class Resource {
       }
     }
 
-    // Commit descriptor
-    this._nextDescriptor = descriptor
-    this.commit()
+    // Save descriptor
+    this._currentDescriptor = descriptor
+    this._build()
 
     return descriptor
   }
@@ -274,6 +274,7 @@ class Resource {
     if (isBoolean(strict)) this._strict = strict
     else if (isEqual(this._currentDescriptor, this._nextDescriptor)) return false
     this._currentDescriptor = cloneDeep(this._nextDescriptor)
+    this._table = null
     this._build()
     return true
   }
@@ -338,9 +339,6 @@ class Resource {
         throw new DataPackageError(message, errors)
       }
     }
-
-    // Clear table
-    this._table = null
 
   }
 

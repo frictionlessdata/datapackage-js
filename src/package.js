@@ -98,9 +98,9 @@ class Package {
    * https://github.com/frictionlessdata/datapackage-js#package
    */
   addResource(descriptor) {
-    if (!this._nextDescriptor.resources) this._nextDescriptor.resources = []
-    this._nextDescriptor.resources.push(descriptor)
-    this.commit()
+    if (!this._currentDescriptor.resources) this._currentDescriptor.resources = []
+    this._currentDescriptor.resources.push(descriptor)
+    this._build()
     return this._resources[this._resources.length - 1]
   }
 
@@ -111,8 +111,8 @@ class Package {
     const resource = this.getResource(name)
     if (resource) {
       const predicat = resource => resource.name !== name
-      this._nextDescriptor.resources = this._nextDescriptor.resources.filter(predicat)
-      this.commit()
+      this._currentDescriptor.resources = this._currentDescriptor.resources.filter(predicat)
+      this._build()
     }
     return resource
   }
@@ -146,15 +146,15 @@ class Package {
     // Resources
     for (const [index, resource] of this.resources.entries()) {
       const descriptor = await resource.infer()
-      this._nextDescriptor.resources[index] = descriptor
-      this.commit()
+      this._currentDescriptor.resources[index] = descriptor
+      this._build()
     }
 
     // Profile
     if (this._nextDescriptor.profile === config.DEFAULT_DATA_PACKAGE_PROFILE) {
       if (this.resources.length && this.resources.every(resouce => resouce.tabular)) {
-        this._nextDescriptor.profile = 'tabular-data-package'
-        this.commit()
+        this._currentDescriptor.profile = 'tabular-data-package'
+        this._build()
       }
     }
 
