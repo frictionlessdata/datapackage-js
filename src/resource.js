@@ -225,25 +225,30 @@ class Resource {
       descriptor.name = this._sourceInspection.name
     }
 
-    // Format
-    if (!descriptor.format) {
-      descriptor.format = this._sourceInspection.format
-    }
+    // Only for non inline
+    if (!this.inline) {
 
-    // Mediatype
-    if (!descriptor.mediatype) {
-      descriptor.mediatype = this._sourceInspection.mediatype
-    }
-
-    // Encoding
-    if (descriptor.encoding === config.DEFAULT_RESOURCE_ENCODING) {
-      if (!config.IS_BROWSER) {
-        const jschardet = require('jschardet')
-        const iterator = await this.rawIter()
-        const bytes = (await iterator.next()).value
-        const encoding = jschardet.detect(bytes).encoding.toLowerCase()
-        descriptor.encoding = (encoding === 'ascii') ? 'utf-8' : encoding
+      // Format
+      if (!descriptor.format) {
+        descriptor.format = this._sourceInspection.format
       }
+
+      // Mediatype
+      if (!descriptor.mediatype) {
+        descriptor.mediatype = this._sourceInspection.mediatype
+      }
+
+      // Encoding
+      if (descriptor.encoding === config.DEFAULT_RESOURCE_ENCODING) {
+        if (!config.IS_BROWSER) {
+          const jschardet = require('jschardet')
+          const iterator = await this.rawIter()
+          const bytes = (await iterator.next()).value
+          const encoding = jschardet.detect(bytes).encoding.toLowerCase()
+          descriptor.encoding = (encoding === 'ascii') ? 'utf-8' : encoding
+        }
+      }
+
     }
 
     // Schema
