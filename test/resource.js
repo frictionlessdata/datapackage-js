@@ -535,4 +535,26 @@ describe('Resource', () => {
 
   })
 
+  describe('#infer', () => {
+
+    it('preserve resource format from descriptor ', async function() {
+      if (process.env.USER_ENV === 'browser') this.skip()
+      const resource = await Resource.load({path: 'data/data.csvformat', format: 'csv'})
+      assert.deepEqual(await resource.infer(), {
+        encoding: 'utf-8',
+        format: 'csv',
+        mediatype: 'text/csv',
+        name: 'data',
+        path: 'data/data.csvformat',
+        profile: 'tabular-data-resource',
+        schema: {fields: [
+          {format: 'default', name: 'city', type: 'string'},
+          {format: 'default', name: 'population', type: 'integer'}],
+          missingValues: [''],
+        },
+      })
+    })
+
+  })
+
 })

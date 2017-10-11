@@ -110,9 +110,12 @@ class Resource {
    * https://github.com/frictionlessdata/datapackage-js#resource
    */
   get tabular() {
-    let tabular = this._currentDescriptor.profile === 'tabular-data-resource'
-    if (!this._strict) tabular = tabular || this._sourceInspection.tabular
-    return tabular
+    if (this._currentDescriptor.profile === 'tabular-data-resource') return true
+    if (!this._strict) {
+      if (config.TABULAR_FORMATS.includes(this._currentDescriptor.format)) return true
+      if (this._sourceInspection.tabular) return true
+    }
+    return false
   }
 
   /**
@@ -235,7 +238,7 @@ class Resource {
 
       // Mediatype
       if (!descriptor.mediatype) {
-        descriptor.mediatype = this._sourceInspection.mediatype
+        descriptor.mediatype = `text/${descriptor.format}`
       }
 
       // Encoding
@@ -461,8 +464,7 @@ function inspectSource(data, path, basePath) {
     // Inspect
     inspection.format = pathModule.extname(path[0]).slice(1)
     inspection.name = pathModule.basename(path[0], `.${inspection.format}`)
-    inspection.mediatype = `text/${inspection.format}`
-    inspection.tabular = inspection.format === 'csv'
+    inspection.tabular = config.TABULAR_FORMATS.includes(inspection.format)
 
   // Multipart Local/Remote
   } else if (path.length > 1) {

@@ -1,6 +1,7 @@
 // Module API
 
 const IS_BROWSER = (typeof window !== 'undefined')
+const TABULAR_FORMATS = ['csv', 'tsv', 'xls', 'xlsx']
 const DEFAULT_DATA_PACKAGE_PROFILE = 'data-package'
 const DEFAULT_RESOURCE_PROFILE = 'data-resource'
 const DEFAULT_RESOURCE_ENCODING = 'utf-8'
@@ -23,6 +24,7 @@ const DEFAULT_DIALECT = {
 
 module.exports = {
   IS_BROWSER,
+  TABULAR_FORMATS,
   DEFAULT_DATA_PACKAGE_PROFILE,
   DEFAULT_RESOURCE_PROFILE,
   DEFAULT_RESOURCE_ENCODING,
