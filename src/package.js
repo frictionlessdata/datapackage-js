@@ -1,4 +1,5 @@
 const fs = require('fs')
+const JSZip = require('jszip')
 const isEqual = require('lodash/isEqual')
 const isBoolean = require('lodash/isBoolean')
 const cloneDeep = require('lodash/cloneDeep')
@@ -177,8 +178,38 @@ class Package {
    */
   save(target) {
     return new Promise((resolve, reject) => {
-      const contents = JSON.stringify(this._currentDescriptor, null, 4)
-      fs.writeFile(target, contents, error => (!error) ? resolve() : reject(error))
+
+      // Save descriptor to json
+      if (target.endsWith('.json')) {
+        const contents = JSON.stringify(this._currentDescriptor, null, 4)
+        fs.writeFile(target, contents, error => (!error) ? resolve() : reject(error))
+
+      // Save package to zip
+      } else {
+
+        // Prepare zip
+        const zip = new JSZip()
+        const descriptor = cloneDeep(this._currentDescriptor)
+        for (const [index, resource] of this.resources.entries()) {
+          if (!resource.name) continue
+          if (!resource.local) continue
+          let path = `data/${resource.name}`
+          const format = resource.descriptor.format
+          if (format) path = `${path}.${format.toLowerCase()}`
+          descriptor.resources[index].path = path
+          zip.file(path, resource.rawRead())
+        }
+        zip.file('datapackage.json', JSON.stringify(descriptor, null, 4))
+
+        // Write zip
+        zip
+          .generateNodeStream({type: 'nodebuffer', streamFiles: true})
+          .pipe(fs.createWriteStream(target).on('error', error => reject(error)))
+          .on('error', error => reject(error))
+          .on('finish', () => resolve(true))
+
+      }
+
     })
   }
 

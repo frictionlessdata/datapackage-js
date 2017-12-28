@@ -1,7 +1,9 @@
 const fs = require('fs')
+const JSZip = require('jszip')
 const axios = require('axios')
 const sinon = require('sinon')
 const {assert} = require('chai')
+const {promisify} = require('util')
 const {catchError} = require('./helpers')
 const cloneDeep = require('lodash/cloneDeep')
 const AxiosMock = require('axios-mock-adapter')
@@ -670,6 +672,41 @@ describe('Package', () => {
       const error2 = await catchError(resource.checkRelations.bind(resource))
       assert.include(error1.message, 'Foreign key')
       assert.include(error2.message, 'Foreign key')
+    })
+
+  })
+
+  describe('#zip', () => {
+
+    it('should save package as a zip', async function() {
+      if (process.env.USER_ENV === 'browser') this.skip()
+
+      // Save as a zip
+      const dp = await Package.load('data/dp3-zip/datapackage.json')
+      const target = require('tempy').file({extension: 'zip'})
+      const result = await dp.save(target)
+      assert.ok(result)
+
+      // Assert file names
+      const zip = JSZip()
+      await zip.loadAsync(promisify(fs.readFile)(target))
+      assert.deepEqual(zip.file('datapackage.json').name, 'datapackage.json')
+      assert.deepEqual(zip.file('data/countries.csv').name, 'data/countries.csv')
+
+      // Assert contents
+      const descContents = await zip.file('datapackage.json').async('string')
+      const dataContents = await zip.file('data/countries.csv').async('string')
+      assert.deepEqual(JSON.parse(descContents), dp.descriptor)
+      assert.deepEqual(dataContents, 'name,size\ngb,100\nus,200\ncn,300\n')
+
+    })
+
+    it('should raise saving package as a zip to the bad path', async function() {
+      if (process.env.USER_ENV === 'browser') this.skip()
+      const dp = await Package.load('data/dp3-zip/datapackage.json')
+      const error = await catchError(dp.save.bind(dp), 'non-existent/datapackage.zip')
+      assert.include(error.message, 'no such file or directory')
+      assert.include(error.message, 'non-existent/datapackage.zip')
     })
 
   })
