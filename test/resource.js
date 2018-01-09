@@ -557,4 +557,72 @@ describe('Resource', () => {
 
   })
 
+  describe('#encoding', () => {
+
+    it('it supports encoding property', async function () {
+      if (process.env.USER_ENV === 'browser') this.skip()
+      const descriptor = {
+        path: 'data/latin1.csv',
+        encoding: 'latin1',
+        schema: {fields: [{name: 'id'}, {name: 'name'}]},
+      }
+      const resource = await Resource.load(descriptor)
+      const rows = await resource.read({keyed: true})
+      assert.deepEqual(rows, [
+        {id: '1', name: 'english'},
+        {id: '2', name: '©'},
+      ])
+    })
+
+    it('it reads incorreclty if proper encoding is not set', async function () {
+      if (process.env.USER_ENV === 'browser') this.skip()
+      const descriptor = {
+        path: 'data/latin1.csv',
+        schema: {fields: [{name: 'id'}, {name: 'name'}]},
+      }
+      const resource = await Resource.load(descriptor)
+      const rows = await resource.read({keyed: true})
+      assert.notDeepEqual(rows, [
+        {id: '1', name: 'english'},
+        {id: '2', name: '©'},
+      ])
+    })
+
+  })
+
+  describe('#dialect', () => {
+
+    it('it supports dialect.delimiter', async function () {
+      if (process.env.USER_ENV === 'browser') this.skip()
+      const descriptor = {
+        path: 'data/data.dialect.csv',
+        schema: {fields: [{name: 'name'}, {name: 'size'}]},
+        dialect: {delimiter: ';'},
+      }
+      const resource = await Resource.load(descriptor)
+      const rows = await resource.read({keyed: true})
+      assert.deepEqual(rows, [
+        {name: 'gb', size: '105'},
+        {name: 'us', size: '205'},
+        {name: 'cn', size: '305'},
+      ])
+    })
+
+    it('it supports dialect.header=false', async () => {
+      const descriptor = {
+        data: [['a'], ['b'], ['c']],
+        schema: {fields: [{name: 'letter'}]},
+        dialect: {header: false}
+      }
+      const resource = await Resource.load(descriptor)
+      const rows = await resource.read({keyed: true})
+      assert.deepEqual(rows, [
+          {'letter': 'a'},
+          {'letter': 'b'},
+          {'letter': 'c'},
+      ])
+    })
+
+  })
+
 })
