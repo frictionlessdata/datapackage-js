@@ -612,14 +612,14 @@ describe('Resource', () => {
       const descriptor = {
         data: [['a'], ['b'], ['c']],
         schema: {fields: [{name: 'letter'}]},
-        dialect: {header: false}
+        dialect: {header: false},
       }
       const resource = await Resource.load(descriptor)
       const rows = await resource.read({keyed: true})
       assert.deepEqual(rows, [
-          {'letter': 'a'},
-          {'letter': 'b'},
-          {'letter': 'c'},
+          {letter: 'a'},
+          {letter: 'b'},
+          {letter: 'c'},
       ])
     })
 

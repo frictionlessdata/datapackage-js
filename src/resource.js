@@ -428,12 +428,12 @@ class Resource {
 // Internal
 
 const DIALECT_KEYS = [
-    'delimiter',
-    'doubleQuote',
-    'lineTerminator',
-    'quoteChar',
-    'escapeChar',
-    'skipInitialSpace',
+  'delimiter',
+  'doubleQuote',
+  'lineTerminator',
+  'quoteChar',
+  'escapeChar',
+  'skipInitialSpace',
 ]
 
 
