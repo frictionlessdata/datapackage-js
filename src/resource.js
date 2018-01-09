@@ -365,6 +365,19 @@ class Resource {
 
       // Resource -> Tabular
       const options = {}
+      const descriptor = this._currentDescriptor
+      options.format = descriptor.format || 'csv'
+      options.encoding = descriptor.encoding
+      const dialect = descriptor.dialect
+      if (dialect) {
+        if (dialect.header === false || config.DEFAULT_DIALECT.header === false) {
+          const fields = (descriptor.schema || {}).fields || []
+          options.headers = fields.length ? fields.map(field => field.name) : null
+        }
+        for (const key of DIALECT_KEYS) {
+          if (dialect[key]) options[key.toLowerCase()] = dialect[key]
+        }
+      }
       const schemaDescriptor = this._currentDescriptor.schema
       const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
       this._table = new Table(this.source, {schema, ...options})
@@ -413,6 +426,16 @@ class Resource {
 
 
 // Internal
+
+const DIALECT_KEYS = [
+  'delimiter',
+  'doubleQuote',
+  'lineTerminator',
+  'quoteChar',
+  'escapeChar',
+  'skipInitialSpace',
+]
+
 
 function inspectSource(data, path, basePath) {
   const inspection = {}
