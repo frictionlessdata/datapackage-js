@@ -1,9 +1,11 @@
 const fs = require('fs')
 const JSZip = require('jszip')
 const isEqual = require('lodash/isEqual')
+const isString = require('lodash/isString')
 const isBoolean = require('lodash/isBoolean')
 const cloneDeep = require('lodash/cloneDeep')
 const isUndefined = require('lodash/isUndefined')
+const {promisify} = require('util')
 const {Profile} = require('./profile')
 const {Resource} = require('./resource')
 const {DataPackageError} = require('./errors')
@@ -21,6 +23,14 @@ class Package {
    * https://github.com/frictionlessdata/datapackage-js#package
    */
   static async load(descriptor={}, {basePath, strict=false}={}) {
+
+    // Extract zip
+    // TODO:
+    // it's first iteration of the zip loading implementation
+    // for now browser support and tempdir cleanup (not needed?) is not covered
+    if (isString(descriptor) && descriptor.endsWith('.zip')) {
+      descriptor = await extractZip(descriptor)
+    }
 
     // Get base path
     if (isUndefined(basePath)) {
@@ -187,6 +197,11 @@ class Package {
       // Save package to zip
       } else {
 
+        // Not supported in browser
+        if (config.IS_BROWSER) {
+          throw new DataPackageError('Zip is not supported in browser')
+        }
+
         // Prepare zip
         const zip = new JSZip()
         const descriptor = cloneDeep(this._currentDescriptor)
@@ -277,6 +292,49 @@ class Package {
 
 
 // Internal
+
+async function extractZip(descriptor) {
+
+  // Not supported in browser
+  if (config.IS_BROWSER) {
+    throw new DataPackageError('Zip is not supported in browser')
+  }
+
+  // Load zip
+  const zip = JSZip()
+  const tempdir = await promisify(require('tmp').dir)()
+  await zip.loadAsync(promisify(fs.readFile)(descriptor))
+
+  // Validate zip
+  if (!zip.files['datapackage.json']) {
+    throw new DataPackageError('Invalid zip with data package')
+  }
+
+  // Save zip to tempdir
+  for (const [name, item] of Object.entries(zip.files)) {
+
+    // Get path/descriptor
+    const path = `${tempdir}/${name}`
+    if (path.endsWith('datapackage.json')) {
+      descriptor = path
+    }
+
+    // Directory
+    if (item.dir) {
+      await promisify(fs.mkdir)(path)
+
+    // File
+    } else {
+      const contents = await item.async('nodebuffer')
+      await promisify(fs.writeFile)(path, contents)
+    }
+
+  }
+
+  return descriptor
+
+}
+
 
 function findFiles(pattern, basePath) {
   const glob = require('glob')

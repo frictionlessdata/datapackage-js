@@ -678,12 +678,24 @@ describe('Package', () => {
 
   describe('#zip', () => {
 
+    it('should load package from a zip', async function() {
+      if (process.env.USER_ENV === 'browser') this.skip()
+      const dp = await Package.load('data/dp3-zip.zip')
+      const countries = await dp.getResource('countries').read({keyed: true})
+      assert.deepEqual(dp.descriptor.name, 'abc')
+      assert.deepEqual(countries, [
+        {name: 'gb', size: 100},
+        {name: 'us', size: 200},
+        {name: 'cn', size: 300},
+      ])
+    })
+
     it('should save package as a zip', async function() {
       if (process.env.USER_ENV === 'browser') this.skip()
 
       // Save as a zip
       const dp = await Package.load('data/dp3-zip/datapackage.json')
-      const target = require('tempy').file({extension: 'zip'})
+      const target = await promisify(require('tmp').file)({postfix: '.zip'})
       const result = await dp.save(target)
       assert.ok(result)
 

@@ -162,7 +162,7 @@ It was onle basic introduction to the `Package` class. To learn more let's take 
 
 Factory method to instantiate `Package` class. This method is async and it should be used with await keyword or as a `Promise`.
 
-- `descriptor (String/Object)` - data package descriptor as local path, url or object
+- `descriptor (String/Object)` - data package descriptor as local path, url or object. If ththe path has a `zip` file extension it will be unzipped to the temp directory first.
 - `basePath (String)` - base path for all relative paths
 - `strict (Boolean)` - strict flag to alter validation behavior. Setting it to `true` leads to throwing errors on any operation with invalid descriptor
 - `(errors.DataPackageError)` - raises error if something goes wrong
@@ -245,9 +245,7 @@ dataPackage.name // renamed-package
 
 #### `async package.save(target)`
 
-> For now only descriptor will be saved.
-
-Save data package to target destination.
+Save data package to target destination. If target path has a  zip file extension the package will be zipped and saved entirely. If it has a json file extension only the descriptor will be saved.
 
 - `target (String)` - path where to save a data package
 - `(errors.DataPackageError)` - raises error if something goes wrong
