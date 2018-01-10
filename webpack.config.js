@@ -31,6 +31,7 @@ let webpackConfig = {
     fs: 'empty',
     http: 'empty',
     https: 'empty',
+    crypto: 'empty',
   }
 }
 

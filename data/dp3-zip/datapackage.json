@@ -1,0 +1,22 @@
+{
+  "name": "abc",
+  "resources": [
+    {
+      "name": "countries",
+      "format": "csv",
+      "path": "data/countries.csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "size",
+            "type": "number"
+          }
+        ]
+      }
+    }
+  ]
+}
