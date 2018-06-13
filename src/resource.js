@@ -374,6 +374,7 @@ class Resource {
           const fields = (descriptor.schema || {}).fields || []
           options.headers = fields.length ? fields.map(field => field.name) : null
         }
+        helpers.validateDialect(dialect)
         for (const key of DIALECT_KEYS) {
           if (dialect[key]) options[key.toLowerCase()] = dialect[key]
         }
