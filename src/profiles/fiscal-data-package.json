@@ -111,6 +111,7 @@
                 "title": "Path",
                 "description": "A fully qualified URL, or a POSIX file path..",
                 "type": "string",
+                "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                 "examples": [
                   "{\n  \"path\": \"file.csv\"\n}\n",
                   "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -197,6 +198,7 @@
                 "title": "Path",
                 "description": "A fully qualified URL, or a POSIX file path..",
                 "type": "string",
+                "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                 "examples": [
                   "{\n  \"path\": \"file.csv\"\n}\n",
                   "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -216,7 +218,7 @@
           },
           "context": "This property is not legally binding and does not guarantee that the package is licensed under the terms defined herein.",
           "examples": [
-            "{\n  \"licenses\": [\n    {\n      \"name\": \"odc-pddl-1.0\",\n      \"uri\": \"http://opendatacommons.org/licenses/pddl/\"\n    }\n  ]\n}\n"
+            "{\n  \"licenses\": [\n    {\n      \"name\": \"odc-pddl-1.0\",\n      \"path\": \"http://opendatacommons.org/licenses/pddl/\",\n      \"title\": \"Open Data Commons Public Domain Dedication and License v1.0\"\n    }\n  ]\n}\n"
           ]
         },
         "resources": {
@@ -282,6 +284,7 @@
                     "title": "Path",
                     "description": "A fully qualified URL, or a POSIX file path..",
                     "type": "string",
+                    "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                     "examples": [
                       "{\n  \"path\": \"file.csv\"\n}\n",
                       "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -295,6 +298,7 @@
                       "title": "Path",
                       "description": "A fully qualified URL, or a POSIX file path..",
                       "type": "string",
+                      "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                       "examples": [
                         "{\n  \"path\": \"file.csv\"\n}\n",
                         "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -1861,7 +1865,6 @@
                   },
                   "missingValues": {
                     "type": "array",
-                    "minItems": 1,
                     "items": {
                       "type": "string"
                     },
@@ -1871,7 +1874,8 @@
                     "description": "Values that when encountered in the source, should be considered as `null`, 'not present', or 'blank' values.",
                     "context": "Many datasets arrive with missing data values, either because a value was not collected or it never existed.\nMissing values may be indicated simply by the value being empty in other cases a special value may have been used e.g. `-`, `NaN`, `0`, `-9999` etc.\nThe `missingValues` property provides a way to indicate that these values should be interpreted as equivalent to null.\n\n`missingValues` are strings rather than being the data type of the particular field. This allows for comparison prior to casting and for fields to have missing value which are not of their type, for example a `number` field to have missing values indicated by `-`.\n\nThe default value of `missingValue` for a non-string type field is the empty string `''`. For string type fields there is no default for `missingValue` (for string fields the empty string `''` is a valid value and need not indicate null).",
                     "examples": [
-                      "{\n  \"missingValues\": [\n    \"-\",\n    \"NaN\",\n    \"\"\n  ]\n}\n"
+                      "{\n  \"missingValues\": [\n    \"-\",\n    \"NaN\",\n    \"\"\n  ]\n}\n",
+                      "{\n  \"missingValues\": []\n}\n"
                     ]
                   }
                 },
@@ -1916,7 +1920,7 @@
                 "title": "Sources",
                 "description": "The raw sources for this resource.",
                 "type": "array",
-                "minItems": 1,
+                "minItems": 0,
                 "items": {
                   "title": "Source",
                   "description": "A source file.",
@@ -1937,6 +1941,7 @@
                       "title": "Path",
                       "description": "A fully qualified URL, or a POSIX file path..",
                       "type": "string",
+                      "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                       "examples": [
                         "{\n  \"path\": \"file.csv\"\n}\n",
                         "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -1955,7 +1960,7 @@
                   }
                 },
                 "examples": [
-                  "{\n  \"sources\": [\n    {\n      \"name\": \"World Bank and OECD\",\n      \"uri\": \"http://data.worldbank.org/indicator/NY.GDP.MKTP.CD\"\n    }\n  ]\n}\n"
+                  "{\n  \"sources\": [\n    {\n      \"title\": \"World Bank and OECD\",\n      \"path\": \"http://data.worldbank.org/indicator/NY.GDP.MKTP.CD\"\n    }\n  ]\n}\n"
                 ]
               },
               "licenses": {
@@ -1982,6 +1987,7 @@
                       "title": "Path",
                       "description": "A fully qualified URL, or a POSIX file path..",
                       "type": "string",
+                      "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                       "examples": [
                         "{\n  \"path\": \"file.csv\"\n}\n",
                         "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -2001,7 +2007,7 @@
                 },
                 "context": "This property is not legally binding and does not guarantee that the package is licensed under the terms defined herein.",
                 "examples": [
-                  "{\n  \"licenses\": [\n    {\n      \"name\": \"odc-pddl-1.0\",\n      \"uri\": \"http://opendatacommons.org/licenses/pddl/\"\n    }\n  ]\n}\n"
+                  "{\n  \"licenses\": [\n    {\n      \"name\": \"odc-pddl-1.0\",\n      \"path\": \"http://opendatacommons.org/licenses/pddl/\",\n      \"title\": \"Open Data Commons Public Domain Dedication and License v1.0\"\n    }\n  ]\n}\n"
                 ]
               },
               "dialect": {
@@ -2010,92 +2016,108 @@
                 "description": "The CSV dialect descriptor.",
                 "type": "object",
                 "required": [
-                  "delimiter",
-                  "doubleQuote"
+                  "description"
                 ],
                 "properties": {
-                  "delimiter": {
-                    "title": "Delimiter",
-                    "description": "A character sequence to use as the field separator.",
-                    "type": "string",
-                    "default": ",",
-                    "examples": [
-                      "{\n  \"delimiter\": \",\"\n}\n",
-                      "{\n  \"delimiter\": \";\"\n}\n"
-                    ]
-                  },
-                  "doubleQuote": {
-                    "title": "Double Quote",
-                    "description": "Specifies the handling of quotes inside fields.",
-                    "context": "If Double Quote is set to true, two consecutive quotes must be interpreted as one.",
-                    "type": "boolean",
-                    "default": true,
-                    "examples": [
-                      "{\n  \"doubleQuote\": true\n}\n"
-                    ]
-                  },
-                  "lineTerminator": {
-                    "title": "Line Terminator",
-                    "description": "Specifies the character sequence that must be used to terminate rows.",
-                    "type": "string",
-                    "default": "\r\n",
-                    "examples": [
-                      "{\n  \"lineTerminator\": \"\\r\\n\"\n}\n",
-                      "{\n  \"lineTerminator\": \"\\n\"\n}\n"
-                    ]
-                  },
-                  "nullSequence": {
-                    "title": "Null Sequence",
-                    "description": "Specifies the null sequence, for example, `\\N`.",
-                    "type": "string",
-                    "examples": [
-                      "{\n  \"nullSequence\": \"\\N\"\n}\n"
-                    ]
-                  },
-                  "quoteChar": {
-                    "title": "Quote Character",
-                    "description": "Specifies a one-character string to use as the quoting character.",
-                    "type": "string",
-                    "default": "\"",
-                    "examples": [
-                      "{\n  \"quoteChar\": \"'\"\n}\n"
-                    ]
-                  },
-                  "escapeChar": {
-                    "title": "Escape Character",
-                    "description": "Specifies a one-character string to use as the escape character.",
-                    "type": "string",
-                    "examples": [
-                      "{\n  \"escapeChar\": \"\\\\\"\n}\n"
-                    ]
-                  },
-                  "skipInitialSpace": {
-                    "title": "Skip Initial Space",
-                    "description": "Specifies the interpretation of whitespace immediately following a delimiter. If false, whitespace immediately after a delimiter should be treated as part of the subsequent field.",
-                    "type": "boolean",
-                    "default": true,
-                    "examples": [
-                      "{\n  \"skipInitialSpace\": true\n}\n"
-                    ]
-                  },
-                  "header": {
-                    "title": "Header",
-                    "description": "Specifies if the file includes a header row, always as the first row in the file.",
-                    "type": "boolean",
-                    "default": true,
-                    "examples": [
-                      "{\n  \"header\": true\n}\n"
-                    ]
-                  },
-                  "caseSensitiveHeader": {
-                    "title": "Case Sensitive Header",
-                    "description": "Specifies if the case of headers is meaningful.",
-                    "context": "Use of case in source CSV files is not always an intentional decision. For example, should \"CAT\" and \"Cat\" be considered to have the same meaning.",
-                    "type": "boolean",
-                    "default": false,
-                    "examples": [
-                      "{\n  \"caseSensitiveHeader\": true\n}\n"
-                    ]
+                  "description": {
+                    "required": [
+                      "delimiter",
+                      "doubleQuote"
+                    ],
+                    "properties": {
+                      "csvddfVersion": {
+                        "title": "CSV Dialect schema version",
+                        "description": "A number to indicate the schema version of CSV Dialect. Version 1.0 was named CSV Dialect Description Format and used different field names.",
+                        "type": "number",
+                        "default": 1.2,
+                        "examples:": [
+                          "{\n  \"csvddfVersion\": \"1.2\"\n}  \n"
+                        ]
+                      },
+                      "delimiter": {
+                        "title": "Delimiter",
+                        "description": "A character sequence to use as the field separator.",
+                        "type": "string",
+                        "default": ",",
+                        "examples": [
+                          "{\n  \"delimiter\": \",\"\n}\n",
+                          "{\n  \"delimiter\": \";\"\n}\n"
+                        ]
+                      },
+                      "doubleQuote": {
+                        "title": "Double Quote",
+                        "description": "Specifies the handling of quotes inside fields.",
+                        "context": "If Double Quote is set to true, two consecutive quotes must be interpreted as one.",
+                        "type": "boolean",
+                        "default": true,
+                        "examples": [
+                          "{\n  \"doubleQuote\": true\n}\n"
+                        ]
+                      },
+                      "lineTerminator": {
+                        "title": "Line Terminator",
+                        "description": "Specifies the character sequence that must be used to terminate rows.",
+                        "type": "string",
+                        "default": "\r\n",
+                        "examples": [
+                          "{\n  \"lineTerminator\": \"\\r\\n\"\n}\n",
+                          "{\n  \"lineTerminator\": \"\\n\"\n}\n"
+                        ]
+                      },
+                      "nullSequence": {
+                        "title": "Null Sequence",
+                        "description": "Specifies the null sequence, for example, `\\N`.",
+                        "type": "string",
+                        "examples": [
+                          "{\n  \"nullSequence\": \"\\N\"\n}\n"
+                        ]
+                      },
+                      "quoteChar": {
+                        "title": "Quote Character",
+                        "description": "Specifies a one-character string to use as the quoting character.",
+                        "type": "string",
+                        "default": "\"",
+                        "examples": [
+                          "{\n  \"quoteChar\": \"'\"\n}\n"
+                        ]
+                      },
+                      "escapeChar": {
+                        "title": "Escape Character",
+                        "description": "Specifies a one-character string to use as the escape character.",
+                        "type": "string",
+                        "examples": [
+                          "{\n  \"escapeChar\": \"\\\\\"\n}\n"
+                        ]
+                      },
+                      "skipInitialSpace": {
+                        "title": "Skip Initial Space",
+                        "description": "Specifies the interpretation of whitespace immediately following a delimiter. If false, whitespace immediately after a delimiter should be treated as part of the subsequent field.",
+                        "type": "boolean",
+                        "default": true,
+                        "examples": [
+                          "{\n  \"skipInitialSpace\": true\n}\n"
+                        ]
+                      },
+                      "header": {
+                        "title": "Header",
+                        "description": "Specifies if the file includes a header row, always as the first row in the file.",
+                        "type": "boolean",
+                        "default": true,
+                        "examples": [
+                          "{\n  \"header\": true\n}\n"
+                        ]
+                      },
+                      "caseSensitiveHeader": {
+                        "title": "Case Sensitive Header",
+                        "description": "Specifies if the case of headers is meaningful.",
+                        "context": "Use of case in source CSV files is not always an intentional decision. For example, should \"CAT\" and \"Cat\" be considered to have the same meaning.",
+                        "type": "boolean",
+                        "default": false,
+                        "examples": [
+                          "{\n  \"caseSensitiveHeader\": true\n}\n"
+                        ]
+                      }
+                    }
                   }
                 },
                 "examples": [
@@ -2173,7 +2195,7 @@
           "title": "Sources",
           "description": "The raw sources for this resource.",
           "type": "array",
-          "minItems": 1,
+          "minItems": 0,
           "items": {
             "title": "Source",
             "description": "A source file.",
@@ -2194,6 +2216,7 @@
                 "title": "Path",
                 "description": "A fully qualified URL, or a POSIX file path..",
                 "type": "string",
+                "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                 "examples": [
                   "{\n  \"path\": \"file.csv\"\n}\n",
                   "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -2212,7 +2235,7 @@
             }
           },
           "examples": [
-            "{\n  \"sources\": [\n    {\n      \"name\": \"World Bank and OECD\",\n      \"uri\": \"http://data.worldbank.org/indicator/NY.GDP.MKTP.CD\"\n    }\n  ]\n}\n"
+            "{\n  \"sources\": [\n    {\n      \"title\": \"World Bank and OECD\",\n      \"path\": \"http://data.worldbank.org/indicator/NY.GDP.MKTP.CD\"\n    }\n  ]\n}\n"
           ]
         }
       }
@@ -2286,6 +2309,7 @@
                     "title": "Path",
                     "description": "A fully qualified URL, or a POSIX file path..",
                     "type": "string",
+                    "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                     "examples": [
                       "{\n  \"path\": \"file.csv\"\n}\n",
                       "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -2299,6 +2323,7 @@
                       "title": "Path",
                       "description": "A fully qualified URL, or a POSIX file path..",
                       "type": "string",
+                      "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                       "examples": [
                         "{\n  \"path\": \"file.csv\"\n}\n",
                         "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -3865,7 +3890,6 @@
                   },
                   "missingValues": {
                     "type": "array",
-                    "minItems": 1,
                     "items": {
                       "type": "string"
                     },
@@ -3875,7 +3899,8 @@
                     "description": "Values that when encountered in the source, should be considered as `null`, 'not present', or 'blank' values.",
                     "context": "Many datasets arrive with missing data values, either because a value was not collected or it never existed.\nMissing values may be indicated simply by the value being empty in other cases a special value may have been used e.g. `-`, `NaN`, `0`, `-9999` etc.\nThe `missingValues` property provides a way to indicate that these values should be interpreted as equivalent to null.\n\n`missingValues` are strings rather than being the data type of the particular field. This allows for comparison prior to casting and for fields to have missing value which are not of their type, for example a `number` field to have missing values indicated by `-`.\n\nThe default value of `missingValue` for a non-string type field is the empty string `''`. For string type fields there is no default for `missingValue` (for string fields the empty string `''` is a valid value and need not indicate null).",
                     "examples": [
-                      "{\n  \"missingValues\": [\n    \"-\",\n    \"NaN\",\n    \"\"\n  ]\n}\n"
+                      "{\n  \"missingValues\": [\n    \"-\",\n    \"NaN\",\n    \"\"\n  ]\n}\n",
+                      "{\n  \"missingValues\": []\n}\n"
                     ]
                   }
                 },
@@ -3920,7 +3945,7 @@
                 "title": "Sources",
                 "description": "The raw sources for this resource.",
                 "type": "array",
-                "minItems": 1,
+                "minItems": 0,
                 "items": {
                   "title": "Source",
                   "description": "A source file.",
@@ -3941,6 +3966,7 @@
                       "title": "Path",
                       "description": "A fully qualified URL, or a POSIX file path..",
                       "type": "string",
+                      "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                       "examples": [
                         "{\n  \"path\": \"file.csv\"\n}\n",
                         "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -3959,7 +3985,7 @@
                   }
                 },
                 "examples": [
-                  "{\n  \"sources\": [\n    {\n      \"name\": \"World Bank and OECD\",\n      \"uri\": \"http://data.worldbank.org/indicator/NY.GDP.MKTP.CD\"\n    }\n  ]\n}\n"
+                  "{\n  \"sources\": [\n    {\n      \"title\": \"World Bank and OECD\",\n      \"path\": \"http://data.worldbank.org/indicator/NY.GDP.MKTP.CD\"\n    }\n  ]\n}\n"
                 ]
               },
               "licenses": {
@@ -3986,6 +4012,7 @@
                       "title": "Path",
                       "description": "A fully qualified URL, or a POSIX file path..",
                       "type": "string",
+                      "pattern": "^(?=^[^./~])(^((?!\\.{2}).)*$).*$",
                       "examples": [
                         "{\n  \"path\": \"file.csv\"\n}\n",
                         "{\n  \"path\": \"http://example.com/file.csv\"\n}\n"
@@ -4005,7 +4032,7 @@
                 },
                 "context": "This property is not legally binding and does not guarantee that the package is licensed under the terms defined herein.",
                 "examples": [
-                  "{\n  \"licenses\": [\n    {\n      \"name\": \"odc-pddl-1.0\",\n      \"uri\": \"http://opendatacommons.org/licenses/pddl/\"\n    }\n  ]\n}\n"
+                  "{\n  \"licenses\": [\n    {\n      \"name\": \"odc-pddl-1.0\",\n      \"path\": \"http://opendatacommons.org/licenses/pddl/\",\n      \"title\": \"Open Data Commons Public Domain Dedication and License v1.0\"\n    }\n  ]\n}\n"
                 ]
               },
               "dialect": {
@@ -4014,92 +4041,108 @@
                 "description": "The CSV dialect descriptor.",
                 "type": "object",
                 "required": [
-                  "delimiter",
-                  "doubleQuote"
+                  "description"
                 ],
                 "properties": {
-                  "delimiter": {
-                    "title": "Delimiter",
-                    "description": "A character sequence to use as the field separator.",
-                    "type": "string",
-                    "default": ",",
-                    "examples": [
-                      "{\n  \"delimiter\": \",\"\n}\n",
-                      "{\n  \"delimiter\": \";\"\n}\n"
-                    ]
-                  },
-                  "doubleQuote": {
-                    "title": "Double Quote",
-                    "description": "Specifies the handling of quotes inside fields.",
-                    "context": "If Double Quote is set to true, two consecutive quotes must be interpreted as one.",
-                    "type": "boolean",
-                    "default": true,
-                    "examples": [
-                      "{\n  \"doubleQuote\": true\n}\n"
-                    ]
-                  },
-                  "lineTerminator": {
-                    "title": "Line Terminator",
-                    "description": "Specifies the character sequence that must be used to terminate rows.",
-                    "type": "string",
-                    "default": "\r\n",
-                    "examples": [
-                      "{\n  \"lineTerminator\": \"\\r\\n\"\n}\n",
-                      "{\n  \"lineTerminator\": \"\\n\"\n}\n"
-                    ]
-                  },
-                  "nullSequence": {
-                    "title": "Null Sequence",
-                    "description": "Specifies the null sequence, for example, `\\N`.",
-                    "type": "string",
-                    "examples": [
-                      "{\n  \"nullSequence\": \"\\N\"\n}\n"
-                    ]
-                  },
-                  "quoteChar": {
-                    "title": "Quote Character",
-                    "description": "Specifies a one-character string to use as the quoting character.",
-                    "type": "string",
-                    "default": "\"",
-                    "examples": [
-                      "{\n  \"quoteChar\": \"'\"\n}\n"
-                    ]
-                  },
-                  "escapeChar": {
-                    "title": "Escape Character",
-                    "description": "Specifies a one-character string to use as the escape character.",
-                    "type": "string",
-                    "examples": [
-                      "{\n  \"escapeChar\": \"\\\\\"\n}\n"
-                    ]
-                  },
-                  "skipInitialSpace": {
-                    "title": "Skip Initial Space",
-                    "description": "Specifies the interpretation of whitespace immediately following a delimiter. If false, whitespace immediately after a delimiter should be treated as part of the subsequent field.",
-                    "type": "boolean",
-                    "default": true,
-                    "examples": [
-                      "{\n  \"skipInitialSpace\": true\n}\n"
-                    ]
-                  },
-                  "header": {
-                    "title": "Header",
-                    "description": "Specifies if the file includes a header row, always as the first row in the file.",
-                    "type": "boolean",
-                    "default": true,
-                    "examples": [
-                      "{\n  \"header\": true\n}\n"
-                    ]
-                  },
-                  "caseSensitiveHeader": {
-                    "title": "Case Sensitive Header",
-                    "description": "Specifies if the case of headers is meaningful.",
-                    "context": "Use of case in source CSV files is not always an intentional decision. For example, should \"CAT\" and \"Cat\" be considered to have the same meaning.",
-                    "type": "boolean",
-                    "default": false,
-                    "examples": [
-                      "{\n  \"caseSensitiveHeader\": true\n}\n"
-                    ]
+                  "description": {
+                    "required": [
+                      "delimiter",
+                      "doubleQuote"
+                    ],
+                    "properties": {
+                      "csvddfVersion": {
+                        "title": "CSV Dialect schema version",
+                        "description": "A number to indicate the schema version of CSV Dialect. Version 1.0 was named CSV Dialect Description Format and used different field names.",
+                        "type": "number",
+                        "default": 1.2,
+                        "examples:": [
+                          "{\n  \"csvddfVersion\": \"1.2\"\n}  \n"
+                        ]
+                      },
+                      "delimiter": {
+                        "title": "Delimiter",
+                        "description": "A character sequence to use as the field separator.",
+                        "type": "string",
+                        "default": ",",
+                        "examples": [
+                          "{\n  \"delimiter\": \",\"\n}\n",
+                          "{\n  \"delimiter\": \";\"\n}\n"
+                        ]
+                      },
+                      "doubleQuote": {
+                        "title": "Double Quote",
+                        "description": "Specifies the handling of quotes inside fields.",
+                        "context": "If Double Quote is set to true, two consecutive quotes must be interpreted as one.",
+                        "type": "boolean",
+                        "default": true,
+                        "examples": [
+                          "{\n  \"doubleQuote\": true\n}\n"
+                        ]
+                      },
+                      "lineTerminator": {
+                        "title": "Line Terminator",
+                        "description": "Specifies the character sequence that must be used to terminate rows.",
+                        "type": "string",
+                        "default": "\r\n",
+                        "examples": [
+                          "{\n  \"lineTerminator\": \"\\r\\n\"\n}\n",
+                          "{\n  \"lineTerminator\": \"\\n\"\n}\n"
+                        ]
+                      },
+                      "nullSequence": {
+                        "title": "Null Sequence",
+                        "description": "Specifies the null sequence, for example, `\\N`.",
+                        "type": "string",
+                        "examples": [
+                          "{\n  \"nullSequence\": \"\\N\"\n}\n"
+                        ]
+                      },
+                      "quoteChar": {
+                        "title": "Quote Character",
+                        "description": "Specifies a one-character string to use as the quoting character.",
+                        "type": "string",
+                        "default": "\"",
+                        "examples": [
+                          "{\n  \"quoteChar\": \"'\"\n}\n"
+                        ]
+                      },
+                      "escapeChar": {
+                        "title": "Escape Character",
+                        "description": "Specifies a one-character string to use as the escape character.",
+                        "type": "string",
+                        "examples": [
+                          "{\n  \"escapeChar\": \"\\\\\"\n}\n"
+                        ]
+                      },
+                      "skipInitialSpace": {
+                        "title": "Skip Initial Space",
+                        "description": "Specifies the interpretation of whitespace immediately following a delimiter. If false, whitespace immediately after a delimiter should be treated as part of the subsequent field.",
+                        "type": "boolean",
+                        "default": true,
+                        "examples": [
+                          "{\n  \"skipInitialSpace\": true\n}\n"
+                        ]
+                      },
+                      "header": {
+                        "title": "Header",
+                        "description": "Specifies if the file includes a header row, always as the first row in the file.",
+                        "type": "boolean",
+                        "default": true,
+                        "examples": [
+                          "{\n  \"header\": true\n}\n"
+                        ]
+                      },
+                      "caseSensitiveHeader": {
+                        "title": "Case Sensitive Header",
+                        "description": "Specifies if the case of headers is meaningful.",
+                        "context": "Use of case in source CSV files is not always an intentional decision. For example, should \"CAT\" and \"Cat\" be considered to have the same meaning.",
+                        "type": "boolean",
+                        "default": false,
+                        "examples": [
+                          "{\n  \"caseSensitiveHeader\": true\n}\n"
+                        ]
+                      }
+                    }
                   }
                 },
                 "examples": [
