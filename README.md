@@ -7,8 +7,6 @@
 
 A library for working with [Data Packages](http://specs.frictionlessdata.io/data-package/).
 
-> Version v1.0 includes various important changes. Please read a [migration guide](#v10).
-
 ## Features
 
  - `Package` class for working with data packages
@@ -720,6 +718,17 @@ $ npm run build
 ## Changelog
 
 Here described only breaking and the most important changes. The full changelog and documentation for all released versions could be found in nicely formatted [commit history](https://github.com/frictionlessdata/datapackage-js/commits/master).
+
+### v1.1
+
+Updated behaviour:
+
+- Resource's `escapeChar` and `quoteChar` are mutually exclusive now
+
+New API added:
+
+- Added support of `zip` files for data packages
+- Added support of `format/encoding/dialect` for resources
 
 ### v1.0
 
