@@ -286,12 +286,83 @@ describe('Resource', () => {
           doubleQuote: true,
           lineTerminator: '\r\n',
           quoteChar: '"',
-          escapeChar: '\\',
           skipInitialSpace: true,
           header: true,
           caseSensitiveHeader: false,
         },
       })
+    })
+
+    it('tabular resource dialect updates quoteChar when given', async () => {
+      const descriptor = {
+        name: 'name',
+        data: 'data',
+        profile: 'tabular-data-resource',
+        dialect: {
+          delimiter: 'custom',
+          quoteChar: '+',
+        },
+      }
+      const resource = await Resource.load(descriptor)
+      assert.deepEqual(resource.descriptor, {
+        name: 'name',
+        data: 'data',
+        profile: 'tabular-data-resource',
+        encoding: 'utf-8',
+        dialect: {
+          delimiter: 'custom',
+          doubleQuote: true,
+          lineTerminator: '\r\n',
+          quoteChar: '+',
+          skipInitialSpace: true,
+          header: true,
+          caseSensitiveHeader: false,
+        },
+      })
+    })
+
+    it('tabular resource dialect does not include quoteChar, given escapeChar', async () => {
+      const descriptor = {
+        name: 'name',
+        data: 'data',
+        profile: 'tabular-data-resource',
+        dialect: {
+          delimiter: 'custom',
+          escapeChar: '\\+',
+        },
+      }
+      const resource = await Resource.load(descriptor)
+      assert.deepEqual(resource.descriptor, {
+        name: 'name',
+        data: 'data',
+        profile: 'tabular-data-resource',
+        encoding: 'utf-8',
+        dialect: {
+          delimiter: 'custom',
+          doubleQuote: true,
+          lineTerminator: '\r\n',
+          escapeChar: '\\+',
+          skipInitialSpace: true,
+          header: true,
+          caseSensitiveHeader: false,
+        },
+      })
+    })
+
+    it('tabular resource dialect throws error given escapeChar and quoteChar', async () => {
+      const descriptor = {
+        name: 'name',
+        data: 'data',
+        profile: 'tabular-data-resource',
+        dialect: {
+          delimiter: 'custom',
+          escapeChar: '\\',
+          quoteChar: '"',
+        },
+      }
+      const error = await catchError(Resource.load, descriptor)
+      assert.instanceOf(error, Error)
+      assert.include(error.message, 'quoteChar and escapeChar are mutually exclusive')
     })
 
   })

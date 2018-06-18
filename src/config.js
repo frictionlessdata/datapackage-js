@@ -13,7 +13,6 @@ const DEFAULT_DIALECT = {
   doubleQuote: true,
   lineTerminator: '\r\n',
   quoteChar: '"',
-  escapeChar: '\\',
   skipInitialSpace: true,
   header: true,
   caseSensitiveHeader: false,

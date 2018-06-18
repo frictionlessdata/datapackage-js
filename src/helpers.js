@@ -7,6 +7,7 @@ const isPlainObject = require('lodash/isPlainObject')
 const jsonpointer = require('json-pointer')
 const {DataPackageError} = require('./errors')
 const config = require('./config')
+const omit = require('lodash/omit')
 
 
 // Locate descriptor
@@ -173,7 +174,7 @@ function expandResourceDescriptor(descriptor) {
     // Dialect
     const dialect = descriptor.dialect
     if (dialect !== undefined) {
-      for (const [key, value] of Object.entries(config.DEFAULT_DIALECT)) {
+      for (const [key, value] of Object.entries(filterDefaultDialect(validateDialect(dialect)))) {
         if (!dialect.hasOwnProperty(key)) {
           dialect[key] = value
         }
@@ -183,8 +184,21 @@ function expandResourceDescriptor(descriptor) {
   return descriptor
 }
 
-
 // Miscellaneous
+
+// quoteChar and escapeChar are mutually exclusive: https://frictionlessdata.io/specs/csv-dialect/#specification
+function filterDefaultDialect(dialect = {}) {
+  const defaultDialects = dialect.hasOwnProperty('escapeChar') ? omit(config.DEFAULT_DIALECT, 'quoteChar') : config.DEFAULT_DIALECT
+  return defaultDialects
+}
+
+// quoteChar and escapeChar are mutually exclusive: https://frictionlessdata.io/specs/csv-dialect/#specification
+function validateDialect(dialect = {}) {
+  if (dialect.hasOwnProperty('escapeChar') && dialect.hasOwnProperty('quoteChar')) {
+    throw new DataPackageError('Resource.table dialect options quoteChar and escapeChar are mutually exclusive.')
+  }
+  return dialect
+}
 
 function isRemotePath(path) {
   // TODO: improve implementation
@@ -218,6 +232,7 @@ module.exports = {
   dereferenceResourceDescriptor,
   expandPackageDescriptor,
   expandResourceDescriptor,
+  validateDialect,
   isRemotePath,
   isSafePath,
 }
