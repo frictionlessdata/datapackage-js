@@ -79,7 +79,8 @@ describe('Profile', () => {
 
   })
 
-  describe('#up-to-date', () => {
+  // TODO: recover https://github.com/frictionlessdata/specs/issues/616
+  describe.skip('#up-to-date', () => {
 
     PROFILES.forEach(name => {
       it(`profile ${name} should be up-to-date`, async function() {
