@@ -64,7 +64,7 @@ describe('Package', () => {
       if (process.env.USER_ENV === 'browser') {
         this.skip()
       }
-      const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
+      const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
       const dataPackage = await Package.load(descriptor)
       dataPackage.resources[0].descriptor.profile = 'tabular-data-resource'
       const table = await dataPackage.resources[0].table
@@ -72,12 +72,12 @@ describe('Package', () => {
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
 
-    it('loads resource from absolute URL disregarding basePath', async function() {
+    it.skip('loads resource from absolute URL disregarding basePath', async function() {
       // TODO: For now tableschema doesn't support in-browser table.read
       if (process.env.USER_ENV === 'browser') {
         this.skip()
       }
-      const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
+      const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
       const dataPackage = await Package.load(descriptor, {basePath: 'local/basePath'})
       dataPackage.resources[0].descriptor.profile = 'tabular-data-resource'
       const table = await dataPackage.resources[0].table
@@ -85,12 +85,12 @@ describe('Package', () => {
       assert.deepEqual(data, [['gb', 100], ['us', 200], ['cn', 300]])
     })
 
-    it('loads remote resource with basePath', async function() {
+    it.skip('loads remote resource with basePath', async function() {
       // TODO: For now tableschema doesn't support in-browser table.read
       if (process.env.USER_ENV === 'browser') {
         this.skip()
       }
-      const descriptor = 'https://dev.keitaro.info/dpkjs/datapackage.json'
+      const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/dp1/datapackage.json'
       const dataPackage = await Package.load(descriptor, {basePath: 'data'})
       dataPackage.resources[1].descriptor.profile = 'tabular-data-resource'
       const table = await dataPackage.resources[1].table
