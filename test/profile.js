@@ -43,6 +43,18 @@ describe('Profile', () => {
       assert.deepEqual(profile.jsonschema, jsonschema)
     })
 
+    it('load remote profile from cache', async () => {
+      const url = 'http://example.com/data-package.json'
+      const jsonschema = require('../src/profiles/data-package.json')
+      http.onGet(url).reply(200, jsonschema)
+      await Profile.load(url)
+
+      http.onGet(url).reply(400)
+      const profile = await Profile.load(url)
+      assert.deepEqual(profile.name, 'data-package')
+      assert.deepEqual(profile.jsonschema, jsonschema)
+    })
+
     it('throw loading bad registry profile', async () => {
       const name = 'bad-data-package'
       const error = await catchError(Profile.load, name)
