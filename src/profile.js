@@ -27,8 +27,8 @@ class Profile {
           throw new DataPackageError(`Can not retrieve remote profile "${profile}"`)
         }
         _cache[profile] = jsonschema
-        profile = jsonschema
       }
+      profile = jsonschema
     }
 
     return new Profile(profile)
