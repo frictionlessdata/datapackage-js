@@ -499,7 +499,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor)
       assert.deepEqual(resource.source,
-          ['http://example.com/chunk1.csv', 'http://example.com/chunk2.csv'])
+        ['http://example.com/chunk1.csv', 'http://example.com/chunk2.csv'])
       assert.deepEqual(resource.remote, true)
       assert.deepEqual(resource.multipart, true)
     })
@@ -511,7 +511,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'http://example.com'})
       assert.deepEqual(resource.source,
-          ['http://example.com/chunk1.csv', 'http://example.com/chunk2.csv'])
+        ['http://example.com/chunk1.csv', 'http://example.com/chunk2.csv'])
       assert.deepEqual(resource.remote, true)
       assert.deepEqual(resource.multipart, true)
     })
@@ -523,7 +523,7 @@ describe('Resource', () => {
       }
       const resource = await Resource.load(descriptor, {basePath: 'http://example1.com'})
       assert.deepEqual(resource.source,
-          ['http://example1.com/chunk1.csv', 'http://example2.com/chunk2.csv'])
+        ['http://example1.com/chunk1.csv', 'http://example2.com/chunk2.csv'])
       assert.deepEqual(resource.remote, true)
       assert.deepEqual(resource.multipart, true)
     })
@@ -572,8 +572,8 @@ describe('Resource', () => {
       const resource = await Resource.load(descriptor)
       assert.instanceOf(resource.table, Table)
       assert.deepEqual(await resource.table.read(), [
-          [180, 18, 'Tony'],
-          [192, 32, 'Jacob'],
+        [180, 18, 'Tony'],
+        [192, 32, 'Jacob'],
       ])
     })
 
@@ -598,9 +598,9 @@ describe('Resource', () => {
       // Assert
       assert.instanceOf(resource.table, Table)
       assert.deepEqual(await resource.table.read(), [
-          ['gb', 100],
-          ['us', 200],
-          ['cn', 300],
+        ['gb', 100],
+        ['us', 200],
+        ['cn', 300],
       ])
     })
 
@@ -621,7 +621,7 @@ describe('Resource', () => {
         schema: {fields: [
           {format: 'default', name: 'city', type: 'string'},
           {format: 'default', name: 'population', type: 'integer'}],
-          missingValues: [''],
+        missingValues: [''],
         },
       })
     })
@@ -688,9 +688,9 @@ describe('Resource', () => {
       const resource = await Resource.load(descriptor)
       const rows = await resource.read({keyed: true})
       assert.deepEqual(rows, [
-          {letter: 'a'},
-          {letter: 'b'},
-          {letter: 'c'},
+        {letter: 'a'},
+        {letter: 'b'},
+        {letter: 'c'},
       ])
     })
 

@@ -74,7 +74,7 @@ async function dereferencePackageDescriptor(descriptor, basePath) {
   for (const [index, resource] of (descriptor.resources || []).entries()) {
     // TODO: May be we should use Promise.all here
     descriptor.resources[index] = await dereferenceResourceDescriptor(
-        resource, basePath, descriptor)
+      resource, basePath, descriptor)
   }
   return descriptor
 }
