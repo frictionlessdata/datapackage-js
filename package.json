@@ -71,7 +71,7 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "2.2.3",
     "eslint-plugin-react": "^6.8.0",
-    "husky": "^0.13.3",
+    "husky": "^3.0.8",
     "jsdom": "^9.9.1",
     "json-loader": "^0.5.4",
     "karma": "^1.6.0",
