@@ -87,7 +87,7 @@
     "sinon-chai": "^2.9.0",
     "webpack": "^2.2.0",
     "webpack-bundle-size-analyzer": "^2.7.0",
-    "webpack-dev-server": "^2.2.0",
+    "webpack-dev-server": "^3.8.2",
     "webpack-merge": "^2.4.0"
   },
   "author": {
