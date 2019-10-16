@@ -98,6 +98,15 @@ describe('Package', () => {
       assert.deepEqual(data, [['gb', 105], ['us', 205], ['cn', 305]])
     })
 
+    it('remote_dereference', async () => {
+      const descriptor = 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/data-package-dereference.json'
+      const dataPackage = await Package.load(descriptor)
+      assert.deepEqual(dataPackage.descriptor.resources, [
+        {name: 'name1', data: ['data'], schema: {fields: [{name: 'name'}]}},
+        {name: 'name2', data: ['data'], dialect: {delimiter: ','}},
+      ].map(expandResource))
+    })
+
   })
 
   describe('#descriptor (retrieve)', () => {
