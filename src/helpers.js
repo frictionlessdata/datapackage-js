@@ -85,7 +85,7 @@ async function dereferenceResourceDescriptor(descriptor, basePath, baseDescripto
   baseDescriptor = baseDescriptor || descriptor
   const PROPERTIES = ['schema', 'dialect']
   for (const property of PROPERTIES) {
-    const value = descriptor[property]
+    let value = descriptor[property]
 
     // URI -> No
     if (!isString(value)) {
@@ -101,41 +101,45 @@ async function dereferenceResourceDescriptor(descriptor, basePath, baseDescripto
       }
 
     // URI -> Remote
-    // TODO: remote base path also will lead to remote case!
-    } else if (isRemotePath(value)) {
-      try {
-        const response = await axios.get(value)
-        descriptor[property] = response.data
-      } catch (error) {
-        const message = `Not resolved Remote URI "${value}" for resource.${property}`
-        throw new DataPackageError(message)
-      }
-
-    // URI -> Local
     } else {
-      if (config.IS_BROWSER) {
-        const message = 'Local URI dereferencing in browser is not supported'
-        throw new DataPackageError(message)
-      }
-      if (!isSafePath(value)) {
-        const message = `Not safe path in Local URI "${value}" for resource.${property}`
-        throw new DataPackageError(message)
-      }
-      if (!basePath) {
-        const message = `Local URI "${value}" requires base path for resource.${property}`
-        throw new DataPackageError(message)
-      }
-      try {
+      if (basePath && isRemotePath(basePath)) {
         // TODO: support other that Unix OS
-        const fullPath = [basePath, value].join('/')
-        // TODO: rebase on promisified fs.readFile (async)
-        const contents = fs.readFileSync(fullPath, 'utf-8')
-        descriptor[property] = JSON.parse(contents)
-      } catch (error) {
-        const message = `Not resolved Local URI "${value}" for resource.${property}`
-        throw new DataPackageError(message)
+        value = [basePath, value].join('/')
       }
+      if (isRemotePath(value)) {
+        try {
+          const response = await axios.get(value)
+          descriptor[property] = response.data
+        } catch (error) {
+          const message = `Not resolved Remote URI "${value}" for resource.${property}`
+          throw new DataPackageError(message)
+        }
 
+      // URI -> Local
+      } else {
+        if (config.IS_BROWSER) {
+          const message = 'Local URI dereferencing in browser is not supported'
+          throw new DataPackageError(message)
+        }
+        if (!isSafePath(value)) {
+          const message = `Not safe path in Local URI "${value}" for resource.${property}`
+          throw new DataPackageError(message)
+        }
+        if (!basePath) {
+          const message = `Local URI "${value}" requires base path for resource.${property}`
+          throw new DataPackageError(message)
+        }
+        try {
+          // TODO: support other that Unix OS
+          const fullPath = [basePath, value].join('/')
+          // TODO: rebase on promisified fs.readFile (async)
+          const contents = fs.readFileSync(fullPath, 'utf-8')
+          descriptor[property] = JSON.parse(contents)
+        } catch (error) {
+          const message = `Not resolved Local URI "${value}" for resource.${property}`
+          throw new DataPackageError(message)
+        }
+      }
     }
   }
 
