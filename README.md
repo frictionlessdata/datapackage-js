@@ -59,6 +59,7 @@ $ npm install datapackage # v0.8
 
 ### Examples
 
+#### Node
 
 Code examples in this readme requires Node v8.3+ or proper modern browser . Also you have to wrap code into async function if there is await keyword used. You could see even more example in [examples](https://github.com/frictionlessdata/datapackage-js/tree/master/examples) directory.
 
@@ -89,6 +90,35 @@ const descriptor = {
 const dataPackage = await Package.load(descriptor)
 const resource = dataPackage.getResource('example')
 await resource.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
+```
+#### Browser
+
+> https://jsfiddle.net/rollninja/hs985buj/3/
+
+After the script registration the library will be available as a global variable `datapackage`:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>datapackage-js</title>
+  </head>
+  <body>
+    <script src="//unpkg.com/datapackage/dist/datapackage.min.js"></script>
+    <script>
+      const main = async () => {
+        const resource = await datapackage.Resource.load({path: 'https://raw.githubusercontent.com/frictionlessdata/datapackage-js/master/data/data.csv'})
+        const rows = await resource.read()
+        document.body.innerHTML += `<div>${resource.headers}</div>`
+        for (const row of rows) {
+          document.body.innerHTML += `<div>${row}</div>`
+        }
+      }
+      main()
+    </script>
+  </body>
+</html>
 ```
 
 ## Documentation
