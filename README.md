@@ -93,7 +93,7 @@ await resource.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
 ```
 #### Browser
 
-> https://jsfiddle.net/rollninja/hs985buj/3/
+> https://jsfiddle.net/rollninja/jp60q3zd/
 
 After the script registration the library will be available as a global variable `datapackage`:
 
