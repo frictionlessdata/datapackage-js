@@ -57,11 +57,11 @@ $ npm install datapackage # v0.8
 <script src="//unpkg.com/datapackage/dist/datapackage.min.js"></script>
 ```
 
-### Examples
+## Documentation
 
-#### Node
+### Introduction
 
-Code examples in this readme requires Node v8.3+ or proper modern browser . Also you have to wrap code into async function if there is await keyword used. You could see even more example in [examples](https://github.com/frictionlessdata/datapackage-js/tree/master/examples) directory.
+Let's start with a simple example for Node.js:
 
 ```javascript
 const {Package} = require('datapackage')
@@ -91,7 +91,8 @@ const dataPackage = await Package.load(descriptor)
 const resource = dataPackage.getResource('example')
 await resource.read() // [[180, 18, 'Tony'], [192, 32, 'Jacob']]
 ```
-#### Browser
+
+And for browser:
 
 > https://jsfiddle.net/rollninja/jp60q3zd/
 
@@ -121,9 +122,7 @@ After the script registration the library will be available as a global variable
 </html>
 ```
 
-## Documentation
-
-### Package
+### Working with Package
 
 A class for working with data packages. It provides various capabilities like loading local or remote data package, inferring a data package descriptor, saving a data package descriptor and many more.
 
@@ -209,100 +208,7 @@ const dataPackage = await Package.load('datapackage.json')
 
 It was onle basic introduction to the `Package` class. To learn more let's take a look on `Package` class API reference.
 
-#### `async Package.load(descriptor, {basePath, strict=false})`
-
-Factory method to instantiate `Package` class. This method is async and it should be used with await keyword or as a `Promise`.
-
-- `descriptor (String/Object)` - data package descriptor as local path, url or object. If ththe path has a `zip` file extension it will be unzipped to the temp directory first.
-- `basePath (String)` - base path for all relative paths
-- `strict (Boolean)` - strict flag to alter validation behavior. Setting it to `true` leads to throwing errors on any operation with invalid descriptor
-- `(errors.DataPackageError)` - raises error if something goes wrong
-- `(Package)` - returns data package class instance
-
-#### `package.valid`
-
-- `(Boolean)` - returns validation status. It always true in strict mode.
-
-#### `package.errors`
-
-- `(Error[])` - returns validation errors. It always empty in strict mode.
-
-#### `package.profile`
-
-- `(Profile)` - returns an instance of `Profile` class (see below).
-
-#### `package.descriptor`
-
-- `(Object)` - returns data package descriptor
-
-#### `package.resources`
-
-- `(Resource[])` - returns an array of `Resource` instances (see below).
-
-#### `package.resourceNames`
-
-- `(String[])` - returns an array of resource names.
-
-#### `package.getResource(name)`
-
-Get data package resource by name.
-
-- `name (String)` - data resource name
-- `(Resource/null)` - returns `Resource` instances or null if not found
-
-#### `package.addResource(descriptor)`
-
-Add new resource to data package. The data package descriptor will be validated  with newly added resource descriptor.
-
-- `descriptor (Object)` - data resource descriptor
-- `(errors.DataPackageError)` - raises error if something goes wrong
-- `(Resource/null)` - returns added `Resource` instance or null if not added
-
-#### `package.removeResource(name)`
-
-Remove data package resource by name. The data package descriptor will be validated after resource descriptor removal.
-
-- `name (String)` - data resource name
-- `(errors.DataPackageError)` - raises error if something goes wrong
-- `(Resource/null)` - returns removed `Resource` instances or null if not found
-
-#### `async package.infer(pattern=false)`
-
-Infer a data package metadata. If `pattern` is not provided only existent resources will be inferred (added metadata like encoding, profile etc). If `pattern` is provided new resoures with file names mathing the pattern will be added and inferred. It commits changes to data package instance.
-
-- `pattern (String)` - glob pattern for new resources
-- `(Object)` - returns data package descriptor
-
-#### `package.commit({strict})`
-
-Update data package instance if there are in-place changes in the descriptor.
-
-- `strict (Boolean)` - alter `strict` mode for further work
-- `(errors.DataPackageError)` - raises error if something goes wrong
-- `(Boolean)` - returns true on success and false if not modified
-
-```javascript
-const dataPackage = await Package.load({
-    name: 'package',
-    resources: [{name: 'resource', data: ['data']}]
-})
-
-dataPackage.name // package
-dataPackage.descriptor.name = 'renamed-package'
-dataPackage.name // package
-dataPackage.commit()
-dataPackage.name // renamed-package
-```
-
-#### `async package.save(target)`
-
-Save data package to target destination. If target path has a  zip file extension the package will be zipped and saved entirely. If it has a json file extension only the descriptor will be saved.
-
-- `target (String)` - path where to save a data package
-- `(errors.DataPackageError)` - raises error if something goes wrong
-- `(Boolean)` - returns true on success
-
-### Resource
+### Working with Resource
 
 A class for working with data resources. You can read or iterate tabular resources using the `iter/read` methods and all resource as bytes using `rowIter/rowRead` methods.
 
@@ -429,6 +335,226 @@ stream.on('data', (data) => {
 ```
 
 It was onle basic introduction to the `Resource` class. To learn more let's take a look on `Resource` class API reference.
+
+### Working with Profile
+
+A component to represent JSON Schema profile from [Profiles Registry]( https://specs.frictionlessdata.io/schemas/registry.json):
+
+```javascript
+await profile = Profile.load('data-package')
+
+profile.name // data-package
+profile.jsonschema // JSON Schema contents
+
+const {valid, errors} = profile.validate(descriptor)
+for (const error of errors) {
+  // inspect Error objects
+}
+```
+
+### Working with validate/infer
+
+A standalone function to validate a data package descriptor:
+
+```javascript
+const {valid, errors} = await validate({name: 'Invalid Datapackage'})
+for (const error of errors) {
+  // inspect Error objects
+}
+```
+
+### Working with Foreign Keys
+
+The library supports foreign keys described in the [Table Schema](http://specs.frictionlessdata.io/table-schema/#foreign-keys) specification. It means if your data package descriptor use `resources[].schema.foreignKeys` property for some resources a data integrity will be checked on reading operations.
+
+Consider we have a data package:
+
+```javascript
+const DESCRIPTOR = {
+  'resources': [
+    {
+      'name': 'teams',
+      'data': [
+        ['id', 'name', 'city'],
+        ['1', 'Arsenal', 'London'],
+        ['2', 'Real', 'Madrid'],
+        ['3', 'Bayern', 'Munich'],
+      ],
+      'schema': {
+        'fields': [
+          {'name': 'id', 'type': 'integer'},
+          {'name': 'name', 'type': 'string'},
+          {'name': 'city', 'type': 'string'},
+        ],
+        'foreignKeys': [
+          {
+            'fields': 'city',
+            'reference': {'resource': 'cities', 'fields': 'name'},
+          },
+        ],
+      },
+    }, {
+      'name': 'cities',
+      'data': [
+        ['name', 'country'],
+        ['London', 'England'],
+        ['Madrid', 'Spain'],
+      ],
+    },
+  ],
+}
+```
+
+Let's check relations for a `teams` resource:
+
+```javascript
+const {Package} = require('datapackage')
+
+const package = await Package.load(DESCRIPTOR)
+teams = package.getResource('teams')
+await teams.checkRelations()
+// tableschema.exceptions.RelationError: Foreign key "['city']" violation in row "4"
+```
+
+As we could see there is a foreign key violation. That's because our lookup table `cities` doesn't have a city of `Munich` but we have a team from there. We need to fix it in `cities` resource:
+
+```javascript
+package.descriptor['resources'][1]['data'].push(['Munich', 'Germany'])
+package.commit()
+teams = package.getResource('teams')
+await teams.checkRelations()
+// True
+```
+
+Fixed! But not only a check operation is available. We could use `relations` argument for `resource.iter/read` methods to dereference a resource relations:
+
+```javascript
+await teams.read({keyed: true, relations: true})
+//[{'id': 1, 'name': 'Arsenal', 'city': {'name': 'London', 'country': 'England}},
+// {'id': 2, 'name': 'Real', 'city': {'name': 'Madrid', 'country': 'Spain}},
+// {'id': 3, 'name': 'Bayern', 'city': {'name': 'Munich', 'country': 'Germany}}]
+```
+
+Instead of plain city name we've got a dictionary containing a city data. These `resource.iter/read` methods will fail with the same as `resource.check_relations` error if there is an integrity issue. But only if `relations: true` flag is passed.
+A standalone function to infer a data package descriptor.
+
+```javascript
+const descriptor = await infer('**/*.csv')
+//{ profile: 'tabular-data-resource',
+//  resources:
+//   [ { path: 'data/cities.csv',
+//       profile: 'tabular-data-resource',
+//       encoding: 'utf-8',
+//       name: 'cities',
+//       format: 'csv',
+//       mediatype: 'text/csv',
+//       schema: [Object] },
+//     { path: 'data/population.csv',
+//       profile: 'tabular-data-resource',
+//       encoding: 'utf-8',
+//       name: 'population',
+//       format: 'csv',
+//       mediatype: 'text/csv',
+//       schema: [Object] } ] }
+```
+
+## API Referencer
+
+## Legacy API Referencer
+
+#### `async Package.load(descriptor, {basePath, strict=false})`
+
+Factory method to instantiate `Package` class. This method is async and it should be used with await keyword or as a `Promise`.
+
+- `descriptor (String/Object)` - data package descriptor as local path, url or object. If ththe path has a `zip` file extension it will be unzipped to the temp directory first.
+- `basePath (String)` - base path for all relative paths
+- `strict (Boolean)` - strict flag to alter validation behavior. Setting it to `true` leads to throwing errors on any operation with invalid descriptor
+- `(errors.DataPackageError)` - raises error if something goes wrong
+- `(Package)` - returns data package class instance
+
+#### `package.valid`
+
+- `(Boolean)` - returns validation status. It always true in strict mode.
+
+#### `package.errors`
+
+- `(Error[])` - returns validation errors. It always empty in strict mode.
+
+#### `package.profile`
+
+- `(Profile)` - returns an instance of `Profile` class (see below).
+
+#### `package.descriptor`
+
+- `(Object)` - returns data package descriptor
+
+#### `package.resources`
+
+- `(Resource[])` - returns an array of `Resource` instances (see below).
+
+#### `package.resourceNames`
+
+- `(String[])` - returns an array of resource names.
+
+#### `package.getResource(name)`
+
+Get data package resource by name.
+
+- `name (String)` - data resource name
+- `(Resource/null)` - returns `Resource` instances or null if not found
+
+#### `package.addResource(descriptor)`
+
+Add new resource to data package. The data package descriptor will be validated  with newly added resource descriptor.
+
+- `descriptor (Object)` - data resource descriptor
+- `(errors.DataPackageError)` - raises error if something goes wrong
+- `(Resource/null)` - returns added `Resource` instance or null if not added
+
+#### `package.removeResource(name)`
+
+Remove data package resource by name. The data package descriptor will be validated after resource descriptor removal.
+
+- `name (String)` - data resource name
+- `(errors.DataPackageError)` - raises error if something goes wrong
+- `(Resource/null)` - returns removed `Resource` instances or null if not found
+
+#### `async package.infer(pattern=false)`
+
+Infer a data package metadata. If `pattern` is not provided only existent resources will be inferred (added metadata like encoding, profile etc). If `pattern` is provided new resoures with file names mathing the pattern will be added and inferred. It commits changes to data package instance.
+
+- `pattern (String)` - glob pattern for new resources
+- `(Object)` - returns data package descriptor
+
+#### `package.commit({strict})`
+
+Update data package instance if there are in-place changes in the descriptor.
+
+- `strict (Boolean)` - alter `strict` mode for further work
+- `(errors.DataPackageError)` - raises error if something goes wrong
+- `(Boolean)` - returns true on success and false if not modified
+
+```javascript
+const dataPackage = await Package.load({
+    name: 'package',
+    resources: [{name: 'resource', data: ['data']}]
+})
+
+dataPackage.name // package
+dataPackage.descriptor.name = 'renamed-package'
+dataPackage.name // package
+dataPackage.commit()
+dataPackage.name // renamed-package
+```
+
+#### `async package.save(target)`
+
+Save data package to target destination. If target path has a  zip file extension the package will be zipped and saved entirely. If it has a json file extension only the descriptor will be saved.
+
+- `target (String)` - path where to save a data package
+- `(errors.DataPackageError)` - raises error if something goes wrong
+- `(Boolean)` - returns true on success
+
 
 #### `async Resource.load(descriptor, {basePath, strict=false})`
 
@@ -577,22 +703,6 @@ Save resource to target destination.
 - `(errors.DataPackageError)` - raises error if something goes wrong
 - `(Boolean)` - returns true on success
 
-### Profile
-
-A component to represent JSON Schema profile from [Profiles Registry]( https://specs.frictionlessdata.io/schemas/registry.json):
-
-```javascript
-await profile = Profile.load('data-package')
-
-profile.name // data-package
-profile.jsonschema // JSON Schema contents
-
-const {valid, errors} = profile.validate(descriptor)
-for (const error of errors) {
-  // inspect Error objects
-}
-```
-
 #### `async Profile.load(profile)`
 
 Factory method to instantiate `Profile` class. This method is async and it should be used with await keyword or as a `Promise`.
@@ -616,17 +726,6 @@ Validate a data package `descriptor` against the profile.
 - `descriptor (Object)` - retrieved and dereferenced data package descriptor
 - `(Object)` - returns a `{valid, errors}` object
 
-### validate
-
-A standalone function to validate a data package descriptor:
-
-```javascript
-const {valid, errors} = await validate({name: 'Invalid Datapackage'})
-for (const error of errors) {
-  // inspect Error objects
-}
-```
-
 #### `async validate(descriptor)`
 
 This function is async so it has to be used with `await` keyword or as a `Promise`.
@@ -634,29 +733,6 @@ This function is async so it has to be used with `await` keyword or as a `Promis
 - `descriptor (String/Object)` - data package descriptor (local/remote path or object)
 - `(Object)` - returns a `{valid, errors}` object
 
-### infer
-
-A standalone function to infer a data package descriptor.
-
-```javascript
-const descriptor = await infer('**/*.csv')
-//{ profile: 'tabular-data-resource',
-//  resources:
-//   [ { path: 'data/cities.csv',
-//       profile: 'tabular-data-resource',
-//       encoding: 'utf-8',
-//       name: 'cities',
-//       format: 'csv',
-//       mediatype: 'text/csv',
-//       schema: [Object] },
-//     { path: 'data/population.csv',
-//       profile: 'tabular-data-resource',
-//       encoding: 'utf-8',
-//       name: 'population',
-//       format: 'csv',
-//       mediatype: 'text/csv',
-//       schema: [Object] } ] }
-```
 
 #### `async infer(pattern, {basePath})`
 
@@ -664,82 +740,6 @@ This function is async so it has to be used with `await` keyword or as a `Promis
 
 - `pattern (String)` - glob file pattern
 - `(Object)` - returns data package descriptor
-
-### Foreign Keys
-
-The library supports foreign keys described in the [Table Schema](http://specs.frictionlessdata.io/table-schema/#foreign-keys) specification. It means if your data package descriptor use `resources[].schema.foreignKeys` property for some resources a data integrity will be checked on reading operations.
-
-Consider we have a data package:
-
-```javascript
-const DESCRIPTOR = {
-  'resources': [
-    {
-      'name': 'teams',
-      'data': [
-        ['id', 'name', 'city'],
-        ['1', 'Arsenal', 'London'],
-        ['2', 'Real', 'Madrid'],
-        ['3', 'Bayern', 'Munich'],
-      ],
-      'schema': {
-        'fields': [
-          {'name': 'id', 'type': 'integer'},
-          {'name': 'name', 'type': 'string'},
-          {'name': 'city', 'type': 'string'},
-        ],
-        'foreignKeys': [
-          {
-            'fields': 'city',
-            'reference': {'resource': 'cities', 'fields': 'name'},
-          },
-        ],
-      },
-    }, {
-      'name': 'cities',
-      'data': [
-        ['name', 'country'],
-        ['London', 'England'],
-        ['Madrid', 'Spain'],
-      ],
-    },
-  ],
-}
-```
-
-Let's check relations for a `teams` resource:
-
-```javascript
-const {Package} = require('datapackage')
-
-const package = await Package.load(DESCRIPTOR)
-teams = package.getResource('teams')
-await teams.checkRelations()
-// tableschema.exceptions.RelationError: Foreign key "['city']" violation in row "4"
-```
-
-As we could see there is a foreign key violation. That's because our lookup table `cities` doesn't have a city of `Munich` but we have a team from there. We need to fix it in `cities` resource:
-
-```javascript
-package.descriptor['resources'][1]['data'].push(['Munich', 'Germany'])
-package.commit()
-teams = package.getResource('teams')
-await teams.checkRelations()
-// True
-```
-
-Fixed! But not only a check operation is available. We could use `relations` argument for `resource.iter/read` methods to dereference a resource relations:
-
-```javascript
-await teams.read({keyed: true, relations: true})
-//[{'id': 1, 'name': 'Arsenal', 'city': {'name': 'London', 'country': 'England}},
-// {'id': 2, 'name': 'Real', 'city': {'name': 'Madrid', 'country': 'Spain}},
-// {'id': 3, 'name': 'Bayern', 'city': {'name': 'Munich', 'country': 'Germany}}]
-```
-
-Instead of plain city name we've got a dictionary containing a city data. These `resource.iter/read` methods will fail with the same as `resource.check_relations` error if there is an integrity issue. But only if `relations: true` flag is passed.
-
-### Errors
 
 #### `errors.DataPackageError`
 
@@ -760,7 +760,7 @@ try {
 
 ## Contributing
 
-The project follows the [Open Knowledge International coding standards](https://github.com/okfn/coding-standards). There are common commands to work with the project:
+> The project follows the [Open Knowledge International coding standards](https://github.com/okfn/coding-standards). There are common commands to work with the project:
 
 ```
 $ npm install
