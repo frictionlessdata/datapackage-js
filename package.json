@@ -29,7 +29,6 @@
     "profiles:fiscal-data-package": "wget -O src/profiles/fiscal-data-package.json https://specs.frictionlessdata.io/schemas/fiscal-data-package.json",
     "profiles:data-resource": "wget -O src/profiles/data-resource.json https://specs.frictionlessdata.io/schemas/data-resource.json",
     "profiles:tabular-data-resource": "wget -O src/profiles/tabular-data-resource.json https://specs.frictionlessdata.io/schemas/tabular-data-resource.json",
-    "readme": "doctoc --maxlevel 3 README.md",
     "test": "npm run test:node && npm run test:browser",
     "test:node": "NODE_ENV=testing nyc mocha",
     "test:browser": "NODE_ENV=testing karma start"
@@ -83,6 +82,7 @@
     "mocha": "^6.2.1",
     "mocha-lcov-reporter": "^1.2.0",
     "nyc": "^14.1.1",
+    "referencer": "^0.2.5",
     "sinon": "^2.1.0",
     "sinon-chai": "^2.9.0",
     "webpack": "^2.2.0",
