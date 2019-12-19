@@ -21,12 +21,25 @@ const config = require('./config')
 
 // Module API
 
+/**
+ * Resource representation
+ */
 class Resource {
 
   // Public
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Factory method to instantiate `Resource` class.
+   *
+   * This method is async and it should be used with await keyword or as a `Promise`.
+   *
+   * @param {string|Object} descriptor - resource descriptor as local path, url or object
+   * @param {string} basePath - base path for all relative paths
+   * @param {boolean} strict - strict flag to alter validation behavior.
+   *   Setting it to `true` leads to throwing errors on
+   *   any operation with invalid descriptor
+   * @throws {DataPackageError} raises error if something goes wrong
+   * @returns {Resource} returns resource class instance
    */
   static async load(descriptor={}, {basePath, strict=false}={}) {
 
@@ -43,28 +56,40 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Validation status
+   *
+   * It always `true` in strict mode.
+   *
+   * @returns {Boolean} returns validation status
    */
   get valid() {
     return this._errors.length === 0
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Validation errors
+   *
+   * It always empty in strict mode.
+   *
+   * @returns {Error[]} returns validation errors
    */
   get errors() {
     return this._errors
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Profile
+   *
+   * @returns {Profile}
    */
   get profile() {
     return this._profile
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Descriptor
+   *
+   * @returns {Object} schema descriptor
    */
   get descriptor() {
     // Never use this.descriptor inside this class (!!!)
@@ -72,42 +97,54 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Name
+   *
+   * @returns {string}
    */
   get name() {
     return this._currentDescriptor.name
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Whether resource is inline
+   *
+   * @returns {boolean}
    */
   get inline() {
     return !!this._sourceInspection.inline
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Whether resource is local
+   *
+   * @returns {boolean}
    */
   get local() {
     return !!this._sourceInspection.local
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Whether resource is remote
+   *
+   * @returns {boolean}
    */
   get remote() {
     return !!this._sourceInspection.remote
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Whether resource is multipart
+   *
+   * @returns {boolean}
    */
   get multipart() {
     return !!this._sourceInspection.multipart
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Whether resource is tabular
+   *
+   * @returns {boolean}
    */
   get tabular() {
     if (this._currentDescriptor.profile === 'tabular-data-resource') return true
@@ -119,14 +156,23 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Source
+   *
+   * Combination of `resource.source` and `resource.inline/local/remote/multipart`
+   * provides predictable interface to work with resource data.
+   *
+   * @returns {Array|string}
    */
   get source() {
     return this._sourceInspection.source
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Headers
+   *
+   * > Only for tabular resources
+   *
+   * @returns {string[]} data source headers
    */
   get headers() {
     if (!this.tabular) return null
@@ -134,7 +180,11 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Schema
+   *
+   * > Only for tabular resources
+   *
+   * @returns {tableschema.Schema}
    */
   get schema() {
     if (!this.tabular) return null
@@ -142,7 +192,30 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Iterate through the table data
+   *
+   * > Only for tabular resources
+   *
+   * And emits rows cast based on table schema (async for loop).
+   * With a `stream` flag instead of async iterator a Node stream will be returned.
+   * Data casting can be disabled.
+   *
+   * @param {boolean} keyed - iter keyed rows
+   * @param {boolean} extended - iter extended rows
+   * @param {boolean} cast - disable data casting if false
+   * @param {boolean} forceCast - instead of raising on the first row with cast error
+   *   return an error object to replace failed row. It will allow
+   *   to iterate over the whole data file even if it's not compliant to the schema.
+   *   Example of output stream:
+   *     `[['val1', 'val2'], TableSchemaError, ['val3', 'val4'], ...]`
+   * @param {boolean} relations - if true foreign key fields will be
+   *   checked and resolved to its references
+   * @param {boolean} stream - return Node Readable Stream of table rows
+   * @throws {TableSchemaError} raises any error occurred in this process
+   * @returns {(AsyncIterator|Stream)} async iterator/stream of rows:
+   *  - `[value1, value2]` - base
+   *  - `{header1: value1, header2: value2}` - keyed
+   *  - `[rowNumber, [header1, header2], [value1, value2]]` - extended
    */
   async iter({relations=false, ...options}={}) {
 
@@ -160,7 +233,15 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Read the table data into memory
+   *
+   * > Only for tabular resources; the API is the same as `resource.iter` has except for:
+   *
+   * @param {integer} limit - limit of rows to read
+   * @returns {(Array[]|Object[])} list of rows:
+   *  - `[value1, value2]` - base
+   *  - `{header1: value1, header2: value2}` - keyed
+   *  - `[rowNumber, [header1, header2], [value1, value2]]` - extended
    */
   async read({relations=false, ...options}={}) {
 
@@ -178,7 +259,12 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * It checks foreign keys and raises an exception if there are integrity issues.
+   *
+   * > Only for tabular resources
+   *
+   * @throws {DataPackageError} raises if there are integrity issues
+   * @returns {boolean} returns True if no issues
    */
   async checkRelations() {
     await this.read({relations: true})
@@ -186,7 +272,10 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Iterate over data chunks as bytes. If `stream` is true Node Stream will be returned.
+   *
+   * @param {boolean} stream - Node Stream will be returned
+   * @returns {Iterator|Stream} returns Iterator/Stream
    */
   async rawIter({stream=false}={}) {
 
@@ -200,7 +289,9 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Returns resource data as bytes.
+   *
+   * @returns {Buffer} returns Buffer with resource data
    */
   rawRead() {
     return new Promise(resolve => {
@@ -213,7 +304,11 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Infer resource metadata like name, format, mediatype, encoding, schema and profile.
+   *
+   * It commits this changes into resource instance.
+   *
+   * @returns {Object} returns resource descriptor
    */
   async infer() {
     const descriptor = cloneDeep(this._currentDescriptor)
@@ -276,7 +371,11 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Update resource instance if there are in-place changes in the descriptor.
+   *
+   * @param {boolean} strict - alter `strict` mode for further work
+   * @throws DataPackageError raises error if something goes wrong
+   * @returns {boolean} returns true on success and false if not modified
    */
   commit({strict}={}) {
     if (isBoolean(strict)) this._strict = strict
@@ -288,7 +387,13 @@ class Resource {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#resource
+   * Save resource to target destination.
+   *
+   * > For now only descriptor will be saved.
+   *
+   * @param {string} target - path where to save a resource
+   * @throws {DataPackageError} raises error if something goes wrong
+   * @returns {boolean} returns true on success
    */
   save(target) {
     return new Promise((resolve, reject) => {

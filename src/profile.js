@@ -7,12 +7,21 @@ const helpers = require('./helpers')
 
 // Module API
 
+/**
+ * Profile representation
+ */
 class Profile {
 
   // Public
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#profile
+   * Factory method to instantiate `Profile` class.
+   *
+   * This method is async and it should be used with await keyword or as a `Promise`.
+   *
+   * @param {string} profile - profile name in registry or URL to JSON Schema
+   * @throws {DataPackageError} raises error if something goes wrong
+   * @returns {Profile} returns profile class instance
    */
   static async load(profile) {
 
@@ -35,7 +44,9 @@ class Profile {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#profile
+   * Name
+   *
+   * @returns {string}
    */
   get name() {
     if (!this._jsonschema.title) return null
@@ -43,14 +54,19 @@ class Profile {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#profile
+   * JsonSchema
+   *
+   * @returns {Object}
    */
   get jsonschema() {
     return this._jsonschema
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#profile
+   * Validate a data package `descriptor` against the profile.
+   *
+   * @param {Object} descriptor - retrieved and dereferenced data package descriptor
+   * @returns {Object} returns a `{valid, errors}` object
    */
   validate(descriptor) {
     const errors = []
