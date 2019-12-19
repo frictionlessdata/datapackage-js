@@ -1,5 +1,5 @@
 require('regenerator-runtime/runtime')
-const {Package} = require('./package')
+const { Package } = require('./package')
 const {Resource} = require('./resource')
 const {Profile} = require('./profile')
 const {validate} = require('./validate')

@@ -15,12 +15,27 @@ const config = require('./config')
 
 // Module API
 
+/**
+ * Package representation
+ */
 class Package {
 
   // Public
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Factory method to instantiate `Package` class.
+   *
+   * This method is async and it should be used with await keyword or as a `Promise`.
+   *
+   * @param {string|Object} descriptor - package descriptor as local path, url or object.
+   *   If ththe path has a `zip` file extension it will be unzipped
+   *   to the temp directory first.
+   * @param {string} basePath - base path for all relative paths
+   * @param {boolean} strict - strict flag to alter validation behavior.
+   *   Setting it to `true` leads to throwing errors on any operation
+   *   with invalid descriptor
+   * @throws {DataPackageError} raises error if something goes wrong
+   * @returns {Package} returns data package class instance
    */
   static async load(descriptor={}, {basePath, strict=false}={}) {
 
@@ -50,14 +65,22 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Validation status
+   *
+   * It always `true` in strict mode.
+   *
+   * @returns {Boolean} returns validation status
    */
   get valid() {
     return this._errors.length === 0 && this.resources.every(resource => resource.valid)
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Validation errors
+   *
+   * It always empty in strict mode.
+   *
+   * @returns {Error[]} returns validation errors
    */
   get errors() {
     const errors = cloneDeep(this._errors)
@@ -70,14 +93,18 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Profile
+   *
+   * @returns {Profile}
    */
   get profile() {
     return this._profile
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Descriptor
+   *
+   * @returns {Object} schema descriptor
    */
   get descriptor() {
     // Never use this.descriptor inside this class (!!!)
@@ -85,28 +112,38 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Resources
+   *
+   * @returns {Resoruce[]}
    */
   get resources() {
     return this._resources
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Resource names
+   *
+   * @returns {string[]}
    */
   get resourceNames() {
     return this._resources.map(resource => resource.name)
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Return a resource
+   *
+   * @param {string} name
+   * @returns {Resource|null} resource instance if exists
    */
   getResource(name) {
     return this._resources.find(resource => resource.name === name) || null
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Add a resource
+   *
+   * @param {Object} descriptor
+   * @returns {Resource} added resource instance
    */
   addResource(descriptor) {
     if (!this._currentDescriptor.resources) this._currentDescriptor.resources = []
@@ -116,7 +153,10 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Remove a resource
+   *
+   * @param {string} name
+   * @returns {(Resource|null)} removed resource instance if exists
    */
   removeResource(name) {
     const resource = this.getResource(name)
@@ -129,7 +169,10 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Infer metadata
+   *
+   * @param {string} pattern
+   * @returns {Object}
    */
   async infer(pattern=false) {
 
@@ -173,7 +216,26 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Update package instance if there are in-place changes in the descriptor.
+   *
+   * @example
+   *
+   * ```javascript
+   * const dataPackage = await Package.load({
+   *     name: 'package',
+   *     resources: [{name: 'resource', data: ['data']}]
+   * })
+   *
+   * dataPackage.name // package
+   * dataPackage.descriptor.name = 'renamed-package'
+   * dataPackage.name // package
+   * dataPackage.commit()
+   * dataPackage.name // renamed-package
+   * ```
+   *
+   * @param {boolean} strict - alter `strict` mode for further work
+   * @throws {DataPackageError} raises any error occurred in the process
+   * @returns {Boolean} returns true on success and false if not modified
    */
   commit({strict}={}) {
     if (isBoolean(strict)) this._strict = strict
@@ -184,7 +246,14 @@ class Package {
   }
 
   /**
-   * https://github.com/frictionlessdata/datapackage-js#package
+   * Save data package to target destination.
+   *
+   * If target path has a  zip file extension the package will be zipped and
+   * saved entirely. If it has a json file extension only the descriptor will be saved.
+   *
+   * @param {string} target - path where to save a data package
+   * @param {DataPackageError} raises error if something goes wrong
+   * @param {boolean} returns true on success
    */
   save(target) {
     return new Promise((resolve, reject) => {
