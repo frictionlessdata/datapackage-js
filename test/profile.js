@@ -1,9 +1,8 @@
 const axios = require('axios')
-const {assert} = require('chai')
-const {catchError} = require('./helpers')
+const { assert } = require('chai')
+const { catchError } = require('./helpers')
 const AxiosMock = require('axios-mock-adapter')
-const {Profile} = require('../src/profile')
-
+const { Profile } = require('../src/profile')
 
 // Constants
 
@@ -15,18 +14,20 @@ const PROFILES = [
   'tabular-data-resource',
 ]
 
-
 // Tests
 
 describe('Profile', () => {
-
   describe('#load', () => {
     let http
 
-    beforeEach(() => {http = new AxiosMock(axios)})
-    afterEach(() => {http.restore()})
+    beforeEach(() => {
+      http = new AxiosMock(axios)
+    })
+    afterEach(() => {
+      http.restore()
+    })
 
-    PROFILES.forEach(name => {
+    PROFILES.forEach((name) => {
       it(`load registry "${name}" profile`, async () => {
         const jsonschema = require(`../src/profiles/${name}.json`)
         const profile = await Profile.load(name)
@@ -69,13 +70,11 @@ describe('Profile', () => {
       assert.instanceOf(error, Error)
       assert.include(error.message, 'Can not retrieve remote')
     })
-
   })
 
   describe('#validate', () => {
-
     it('returns true for valid descriptor', async () => {
-      const descriptor = {resources: [{name: 'name', data: ['data']}]}
+      const descriptor = { resources: [{ name: 'name', data: ['data'] }] }
       const profile = await Profile.load('data-package')
       assert.isOk(profile.validate(descriptor))
     })
@@ -83,19 +82,17 @@ describe('Profile', () => {
     it('errors for invalid descriptor', async () => {
       const descriptor = {}
       const profile = await Profile.load('data-package')
-      const {valid, errors} = profile.validate(descriptor)
+      const { valid, errors } = profile.validate(descriptor)
       assert.deepEqual(valid, false)
       assert.instanceOf(errors[0], Error)
       assert.include(errors[0].message, 'Missing required property')
     })
-
   })
 
   // TODO: recover https://github.com/frictionlessdata/specs/issues/616
   describe.skip('#up-to-date', () => {
-
-    PROFILES.forEach(name => {
-      it(`profile ${name} should be up-to-date`, async function() {
+    PROFILES.forEach((name) => {
+      it(`profile ${name} should be up-to-date`, async function () {
         if (process.env.USER_ENV === 'browser') this.skip()
         if (process.env.TRAVIS_BRANCH !== 'master') this.skip()
         const profile = await Profile.load(name)
@@ -103,7 +100,5 @@ describe('Profile', () => {
         assert.deepEqual(profile.jsonschema, response.data)
       })
     })
-
   })
-
 })

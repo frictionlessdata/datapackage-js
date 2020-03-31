@@ -5,13 +5,12 @@ const isString = require('lodash/isString')
 const isBoolean = require('lodash/isBoolean')
 const cloneDeep = require('lodash/cloneDeep')
 const isUndefined = require('lodash/isUndefined')
-const {promisify} = require('util')
-const {Profile} = require('./profile')
-const {Resource} = require('./resource')
-const {DataPackageError} = require('./errors')
+const { promisify } = require('util')
+const { Profile } = require('./profile')
+const { Resource } = require('./resource')
+const { DataPackageError } = require('./errors')
 const helpers = require('./helpers')
 const config = require('./config')
-
 
 // Module API
 
@@ -19,7 +18,6 @@ const config = require('./config')
  * Package representation
  */
 class Package {
-
   // Public
 
   /**
@@ -37,8 +35,7 @@ class Package {
    * @throws {DataPackageError} raises error if something goes wrong
    * @returns {Package} returns data package class instance
    */
-  static async load(descriptor={}, {basePath, strict=false}={}) {
-
+  static async load(descriptor = {}, { basePath, strict = false } = {}) {
     // Extract zip
     // TODO:
     // it's first iteration of the zip loading implementation
@@ -57,11 +54,9 @@ class Package {
     descriptor = await helpers.dereferencePackageDescriptor(descriptor, basePath)
 
     // Get profile
-    const profile = await Profile.load(
-      descriptor.profile || config.DEFAULT_DATA_PACKAGE_PROFILE)
+    const profile = await Profile.load(descriptor.profile || config.DEFAULT_DATA_PACKAGE_PROFILE)
 
-    return new Package(descriptor, {basePath, strict, profile})
-
+    return new Package(descriptor, { basePath, strict, profile })
   }
 
   /**
@@ -72,7 +67,7 @@ class Package {
    * @returns {Boolean} returns validation status
    */
   get valid() {
-    return this._errors.length === 0 && this.resources.every(resource => resource.valid)
+    return this._errors.length === 0 && this.resources.every((resource) => resource.valid)
   }
 
   /**
@@ -126,7 +121,7 @@ class Package {
    * @returns {string[]}
    */
   get resourceNames() {
-    return this._resources.map(resource => resource.name)
+    return this._resources.map((resource) => resource.name)
   }
 
   /**
@@ -136,7 +131,7 @@ class Package {
    * @returns {Resource|null} resource instance if exists
    */
   getResource(name) {
-    return this._resources.find(resource => resource.name === name) || null
+    return this._resources.find((resource) => resource.name === name) || null
   }
 
   /**
@@ -161,7 +156,7 @@ class Package {
   removeResource(name) {
     const resource = this.getResource(name)
     if (resource) {
-      const predicat = resource => resource.name !== name
+      const predicat = (resource) => resource.name !== name
       this._currentDescriptor.resources = this._currentDescriptor.resources.filter(predicat)
       this._build()
     }
@@ -174,11 +169,9 @@ class Package {
    * @param {string} pattern
    * @returns {Object}
    */
-  async infer(pattern=false) {
-
+  async infer(pattern = false) {
     // Files
     if (pattern) {
-
       // It's broswer
       if (config.IS_BROWSER) {
         throw new DataPackageError('Browser is not supported for pattern infer')
@@ -192,9 +185,8 @@ class Package {
       // Add resources
       const files = await findFiles(pattern, this._basePath)
       for (const file of files) {
-        this.addResource({path: file})
+        this.addResource({ path: file })
       }
-
     }
 
     // Resources
@@ -206,7 +198,7 @@ class Package {
 
     // Profile
     if (this._nextDescriptor.profile === config.DEFAULT_DATA_PACKAGE_PROFILE) {
-      if (this.resources.length && this.resources.every(resouce => resouce.tabular)) {
+      if (this.resources.length && this.resources.every((resouce) => resouce.tabular)) {
         this._currentDescriptor.profile = 'tabular-data-package'
         this._build()
       }
@@ -237,7 +229,7 @@ class Package {
    * @throws {DataPackageError} raises any error occurred in the process
    * @returns {Boolean} returns true on success and false if not modified
    */
-  commit({strict}={}) {
+  commit({ strict } = {}) {
     if (isBoolean(strict)) this._strict = strict
     else if (isEqual(this._currentDescriptor, this._nextDescriptor)) return false
     this._currentDescriptor = cloneDeep(this._nextDescriptor)
@@ -257,15 +249,13 @@ class Package {
    */
   save(target) {
     return new Promise((resolve, reject) => {
-
       // Save descriptor to json
       if (target.endsWith('.json')) {
         const contents = JSON.stringify(this._currentDescriptor, null, 4)
-        fs.writeFile(target, contents, error => (!error) ? resolve() : reject(error))
+        fs.writeFile(target, contents, (error) => (!error ? resolve() : reject(error)))
 
-      // Save package to zip
+        // Save package to zip
       } else {
-
         // Not supported in browser
         if (config.IS_BROWSER) {
           throw new DataPackageError('Zip is not supported in browser')
@@ -287,26 +277,24 @@ class Package {
 
         // Write zip
         zip
-          .generateNodeStream({type: 'nodebuffer', streamFiles: true})
-          .pipe(fs.createWriteStream(target).on('error', error => reject(error)))
-          .on('error', error => reject(error))
+          .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+          .pipe(fs.createWriteStream(target).on('error', (error) => reject(error)))
+          .on('error', (error) => reject(error))
           .on('finish', () => resolve(true))
-
       }
-
     })
   }
 
   // Private
 
-  constructor(descriptor, {basePath, strict, profile}={}) {
-
+  constructor(descriptor, { basePath, strict, profile } = {}) {
     // Handle deprecated resource.path.url
-    for (const resource of (descriptor.resources || [])) {
+    for (const resource of descriptor.resources || []) {
       if (resource.url) {
         console.warn(
           `Resource property "url: <url>" is deprecated.
-           Please use "path: <url>" instead.`)
+           Please use "path: <url>" instead.`
+        )
         resource.path = resource.url
         delete resource.url
       }
@@ -323,18 +311,16 @@ class Package {
 
     // Build package
     this._build()
-
   }
 
   _build() {
-
     // Process descriptor
     this._currentDescriptor = helpers.expandPackageDescriptor(this._currentDescriptor)
     this._nextDescriptor = cloneDeep(this._currentDescriptor)
 
     // Validate descriptor
     this._errors = []
-    const {valid, errors} = this._profile.validate(this._currentDescriptor)
+    const { valid, errors } = this._profile.validate(this._currentDescriptor)
     if (!valid) {
       this._errors = errors
       if (this._strict) {
@@ -347,23 +333,24 @@ class Package {
     this._resources.length = (this._currentDescriptor.resources || []).length
     for (const [index, descriptor] of (this._currentDescriptor.resources || []).entries()) {
       const resource = this._resources[index]
-      if (!resource || !isEqual(resource.descriptor, descriptor) ||
-          (resource.schema && resource.schema.foreignKeys.length)) {
+      if (
+        !resource ||
+        !isEqual(resource.descriptor, descriptor) ||
+        (resource.schema && resource.schema.foreignKeys.length)
+      ) {
         this._resources[index] = new Resource(descriptor, {
-          strict: this._strict, basePath: this._basePath, dataPackage: this,
+          strict: this._strict,
+          basePath: this._basePath,
+          dataPackage: this,
         })
       }
     }
-
   }
-
 }
-
 
 // Internal
 
 async function extractZip(descriptor) {
-
   // Not supported in browser
   if (config.IS_BROWSER) {
     throw new DataPackageError('Zip is not supported in browser')
@@ -381,7 +368,6 @@ async function extractZip(descriptor) {
 
   // Save zip to tempdir
   for (const [name, item] of Object.entries(zip.files)) {
-
     // Get path/descriptor
     const path = `${tempdir}/${name}`
     if (path.endsWith('datapackage.json')) {
@@ -392,30 +378,26 @@ async function extractZip(descriptor) {
     if (item.dir) {
       await promisify(fs.mkdir)(path)
 
-    // File
+      // File
     } else {
       const contents = await item.async('nodebuffer')
       await promisify(fs.writeFile)(path, contents)
     }
-
   }
 
   return descriptor
-
 }
-
 
 function findFiles(pattern, basePath) {
   const glob = require('glob')
   return new Promise((resolve, reject) => {
-    const options = {cwd: basePath, ignore: 'node_modules/**'}
+    const options = { cwd: basePath, ignore: 'node_modules/**' }
     glob(pattern, options, (error, files) => {
       if (error) reject(error)
       resolve(files)
     })
   })
 }
-
 
 // System
 

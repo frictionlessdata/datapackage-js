@@ -1,5 +1,4 @@
-const {Package} = require('./package')
-
+const { Package } = require('./package')
 
 // Module API
 
@@ -9,12 +8,11 @@ const {Package} = require('./package')
  * @param {string} pattern - glob file pattern
  * @returns {Object} returns data package descriptor
  */
-async function infer(pattern, {basePath}={}) {
-  const dataPackage = await Package.load({}, {basePath})
+async function infer(pattern, { basePath } = {}) {
+  const dataPackage = await Package.load({}, { basePath })
   const descriptor = await dataPackage.infer(pattern)
   return descriptor
 }
-
 
 // System
 

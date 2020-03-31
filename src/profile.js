@@ -1,9 +1,8 @@
 const tv4 = require('tv4')
 const axios = require('axios')
 const isString = require('lodash/isString')
-const {DataPackageError} = require('./errors')
+const { DataPackageError } = require('./errors')
 const helpers = require('./helpers')
-
 
 // Module API
 
@@ -11,7 +10,6 @@ const helpers = require('./helpers')
  * Profile representation
  */
 class Profile {
-
   // Public
 
   /**
@@ -24,7 +22,6 @@ class Profile {
    * @returns {Profile} returns profile class instance
    */
   static async load(profile) {
-
     // Remote
     if (isString(profile) && helpers.isRemotePath(profile)) {
       let jsonschema = _cache[profile]
@@ -74,11 +71,14 @@ class Profile {
     // Basic validation
     const validation = tv4.validateMultiple(descriptor, this._jsonschema)
     for (const validationError of validation.errors) {
-      errors.push(new Error(
-        `Descriptor validation error:
+      errors.push(
+        new Error(
+          `Descriptor validation error:
         ${validationError.message}
         at "${validationError.dataPath}" in descriptor and
-        at "${validationError.schemaPath}" in profile`))
+        at "${validationError.schemaPath}" in profile`
+        )
+      )
     }
 
     return {
@@ -90,7 +90,6 @@ class Profile {
   // Private
 
   constructor(profile) {
-
     // Registry
     if (isString(profile)) {
       try {
@@ -102,14 +101,11 @@ class Profile {
 
     this._jsonschema = profile
   }
-
 }
-
 
 // Internal
 
 const _cache = {}
-
 
 // System
 

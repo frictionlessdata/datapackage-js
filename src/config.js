@@ -1,6 +1,6 @@
 // Module API
 
-const IS_BROWSER = (typeof window !== 'undefined')
+const IS_BROWSER = typeof window !== 'undefined'
 const TABULAR_FORMATS = ['csv', 'tsv', 'xls', 'xlsx']
 const DEFAULT_DATA_PACKAGE_PROFILE = 'data-package'
 const DEFAULT_RESOURCE_PROFILE = 'data-resource'
@@ -17,7 +17,6 @@ const DEFAULT_DIALECT = {
   header: true,
   caseSensitiveHeader: false,
 }
-
 
 // System
 

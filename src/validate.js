@@ -1,5 +1,4 @@
-const {Package} = require('./package')
-
+const { Package } = require('./package')
 
 // Module API
 
@@ -10,10 +9,9 @@ const {Package} = require('./package')
  * @return {Object} returns a `{valid, errors}` object
  */
 async function validate(descriptor) {
-  const {valid, errors} = await Package.load(descriptor)
-  return {valid, errors}
+  const { valid, errors } = await Package.load(descriptor)
+  return { valid, errors }
 }
-
 
 // System
 

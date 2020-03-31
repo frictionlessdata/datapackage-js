@@ -1,13 +1,10 @@
-const {assert} = require('chai')
+const { assert } = require('chai')
 const tableschema = require('tableschema')
-const {DataPackageError} = require('../src/errors')
-
+const { DataPackageError } = require('../src/errors')
 
 // Tests
 
-
 describe('DataPackageError', () => {
-
   it('should work with one error', () => {
     const error = new DataPackageError('message')
     assert.deepEqual(error.message, 'message')
@@ -45,5 +42,4 @@ describe('DataPackageError', () => {
       assert.deepEqual(error instanceof tableschema.errors.TableSchemaError, true)
     }
   })
-
 })

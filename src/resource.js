@@ -1,9 +1,9 @@
 const fs = require('fs')
 const axios = require('axios')
-const {Buffer} = require('buffer')
+const { Buffer } = require('buffer')
 const pathModule = require('path')
 const urljoin = require('url-join')
-const {Readable} = require('stream')
+const { Readable } = require('stream')
 const assign = require('lodash/assign')
 const isEqual = require('lodash/isEqual')
 const isArray = require('lodash/isArray')
@@ -12,12 +12,11 @@ const isBoolean = require('lodash/isBoolean')
 const cloneDeep = require('lodash/cloneDeep')
 const isUndefined = require('lodash/isUndefined')
 const S2A = require('stream-to-async-iterator').default
-const {Table, Schema} = require('tableschema')
-const {DataPackageError} = require('./errors')
-const {Profile} = require('./profile')
+const { Table, Schema } = require('tableschema')
+const { DataPackageError } = require('./errors')
+const { Profile } = require('./profile')
 const helpers = require('./helpers')
 const config = require('./config')
-
 
 // Module API
 
@@ -25,7 +24,6 @@ const config = require('./config')
  * Resource representation
  */
 class Resource {
-
   // Public
 
   /**
@@ -41,8 +39,7 @@ class Resource {
    * @throws {DataPackageError} raises error if something goes wrong
    * @returns {Resource} returns resource class instance
    */
-  static async load(descriptor={}, {basePath, strict=false}={}) {
-
+  static async load(descriptor = {}, { basePath, strict = false } = {}) {
     // Get base path
     if (isUndefined(basePath)) {
       basePath = helpers.locateDescriptor(descriptor)
@@ -52,7 +49,7 @@ class Resource {
     descriptor = await helpers.retrieveDescriptor(descriptor)
     descriptor = await helpers.dereferenceResourceDescriptor(descriptor, basePath)
 
-    return new Resource(descriptor, {basePath, strict})
+    return new Resource(descriptor, { basePath, strict })
   }
 
   /**
@@ -217,8 +214,7 @@ class Resource {
    *  - `{header1: value1, header2: value2}` - keyed
    *  - `[rowNumber, [header1, header2], [value1, value2]]` - extended
    */
-  async iter({relations=false, ...options}={}) {
-
+  async iter({ relations = false, ...options } = {}) {
     // Error for non tabular
     if (!this.tabular) {
       throw new DataPackageError('Methods iter/read are not supported for non tabular data')
@@ -229,7 +225,7 @@ class Resource {
       relations = await this._getRelations()
     }
 
-    return await this._getTable().iter({relations, ...options})
+    return await this._getTable().iter({ relations, ...options })
   }
 
   /**
@@ -243,8 +239,7 @@ class Resource {
    *  - `{header1: value1, header2: value2}` - keyed
    *  - `[rowNumber, [header1, header2], [value1, value2]]` - extended
    */
-  async read({relations=false, ...options}={}) {
-
+  async read({ relations = false, ...options } = {}) {
     // Error for non tabular
     if (!this.tabular) {
       throw new DataPackageError('Methods iter/read are not supported for non tabular data')
@@ -255,7 +250,7 @@ class Resource {
       relations = await this._getRelations()
     }
 
-    return await this._getTable().read({relations, ...options})
+    return await this._getTable().read({ relations, ...options })
   }
 
   /**
@@ -267,7 +262,7 @@ class Resource {
    * @returns {boolean} returns True if no issues
    */
   async checkRelations() {
-    await this.read({relations: true})
+    await this.read({ relations: true })
     return true
   }
 
@@ -277,15 +272,14 @@ class Resource {
    * @param {boolean} stream - Node Stream will be returned
    * @returns {Iterator|Stream} returns Iterator/Stream
    */
-  async rawIter({stream=false}={}) {
-
+  async rawIter({ stream = false } = {}) {
     // Error for inline
     if (this.inline) {
       throw new DataPackageError('Methods iter/read are not supported for inline data')
     }
 
     const byteStream = await createByteStream(this.source, this.remote)
-    return (stream) ? byteStream : new S2A(byteStream)
+    return stream ? byteStream : new S2A(byteStream)
   }
 
   /**
@@ -294,10 +288,12 @@ class Resource {
    * @returns {Buffer} returns Buffer with resource data
    */
   rawRead() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       let bytes
-      this.rawIter({stream: true}).then(stream => {
-        stream.on('data', data => {bytes = (bytes) ? Buffer.concat([bytes, data]) : data})
+      this.rawIter({ stream: true }).then((stream) => {
+        stream.on('data', (data) => {
+          bytes = bytes ? Buffer.concat([bytes, data]) : data
+        })
         stream.on('end', () => resolve(bytes))
       })
     })
@@ -325,7 +321,6 @@ class Resource {
 
     // Only for non inline
     if (!this.inline) {
-
       // Format
       if (!descriptor.format) {
         descriptor.format = this._sourceInspection.format
@@ -343,10 +338,9 @@ class Resource {
           const iterator = await this.rawIter()
           const bytes = (await iterator.next()).value
           const encoding = jschardet.detect(bytes).encoding.toLowerCase()
-          descriptor.encoding = (encoding === 'ascii') ? 'utf-8' : encoding
+          descriptor.encoding = encoding === 'ascii' ? 'utf-8' : encoding
         }
       }
-
     }
 
     // Schema
@@ -377,7 +371,7 @@ class Resource {
    * @throws DataPackageError raises error if something goes wrong
    * @returns {boolean} returns true on success and false if not modified
    */
-  commit({strict}={}) {
+  commit({ strict } = {}) {
     if (isBoolean(strict)) this._strict = strict
     else if (isEqual(this._currentDescriptor, this._nextDescriptor)) return false
     this._currentDescriptor = cloneDeep(this._nextDescriptor)
@@ -398,19 +392,19 @@ class Resource {
   save(target) {
     return new Promise((resolve, reject) => {
       const contents = JSON.stringify(this._currentDescriptor, null, 4)
-      fs.writeFile(target, contents, error => (!error) ? resolve() : reject(error))
+      fs.writeFile(target, contents, (error) => (!error ? resolve() : reject(error)))
     })
   }
 
   // Private
 
-  constructor(descriptor={}, {basePath, strict=false, dataPackage}={}) {
-
+  constructor(descriptor = {}, { basePath, strict = false, dataPackage } = {}) {
     // Handle deprecated resource.path.url
     if (descriptor.url) {
       console.warn(
         `Resource property "url: <url>" is deprecated.
-         Please use "path: <url>" instead.`)
+         Please use "path: <url>" instead.`
+      )
       descriptor.path = descriptor.url
       delete descriptor.url
     }
@@ -426,25 +420,26 @@ class Resource {
 
     // Build resource
     this._build()
-
   }
 
   _build() {
-
     // Process descriptor
     this._currentDescriptor = helpers.expandResourceDescriptor(this._currentDescriptor)
     this._nextDescriptor = cloneDeep(this._currentDescriptor)
 
     // Inspect source
     this._sourceInspection = inspectSource(
-      this._currentDescriptor.data, this._currentDescriptor.path, this._basePath)
+      this._currentDescriptor.data,
+      this._currentDescriptor.path,
+      this._basePath
+    )
 
     // Instantiate profile
     this._profile = new Profile(this._currentDescriptor.profile)
 
     // Validate descriptor
     this._errors = []
-    const {valid, errors} = this._profile.validate(this._currentDescriptor)
+    const { valid, errors } = this._profile.validate(this._currentDescriptor)
     if (!valid) {
       this._errors = errors
       if (this._strict) {
@@ -452,12 +447,10 @@ class Resource {
         throw new DataPackageError(message, errors)
       }
     }
-
   }
 
   _getTable() {
     if (!this._table) {
-
       // Resource -> Regular
       if (!this.tabular) {
         return null
@@ -477,7 +470,7 @@ class Resource {
       if (dialect) {
         if (dialect.header === false || config.DEFAULT_DIALECT.header === false) {
           const fields = (descriptor.schema || {}).fields || []
-          options.headers = fields.length ? fields.map(field => field.name) : null
+          options.headers = fields.length ? fields.map((field) => field.name) : null
         }
         helpers.validateDialect(dialect)
         for (const key of DIALECT_KEYS) {
@@ -486,16 +479,13 @@ class Resource {
       }
       const schemaDescriptor = this._currentDescriptor.schema
       const schema = schemaDescriptor ? new Schema(schemaDescriptor) : null
-      this._table = new Table(this.source, {schema, ...options})
-
+      this._table = new Table(this.source, { schema, ...options })
     }
     return this._table
   }
 
-
   async _getRelations() {
     if (!this._relations) {
-
       // Prepare resources
       const resources = {}
       if (this._getTable() && this._getTable().schema) {
@@ -514,10 +504,9 @@ class Resource {
         this._relations[resource] = this._relations[resource] || []
         const data = resource ? this._dataPackage.getResource(resource) : this
         if (data.tabular) {
-          this._relations[resource] = await data.read({keyed: true})
+          this._relations[resource] = await data.read({ keyed: true })
         }
       }
-
     }
     return this._relations
   }
@@ -527,9 +516,7 @@ class Resource {
   get table() {
     return this._getTable()
   }
-
 }
-
 
 // Internal
 
@@ -541,7 +528,6 @@ const DIALECT_KEYS = [
   'escapeChar',
   'skipInitialSpace',
 ]
-
 
 function inspectSource(data, path, basePath) {
   const inspection = {}
@@ -556,15 +542,14 @@ function inspectSource(data, path, basePath) {
     inspection.source = null
     inspection.blank = true
 
-  // Inline
+    // Inline
   } else if (data) {
     inspection.source = data
     inspection.inline = true
     inspection.tabular = isArray(data) && data.every(isObject)
 
-  // Local/Remote
+    // Local/Remote
   } else if (path.length === 1) {
-
     // Remote
     if (helpers.isRemotePath(path[0])) {
       inspection.source = path[0]
@@ -573,9 +558,8 @@ function inspectSource(data, path, basePath) {
       inspection.source = urljoin(basePath, path[0])
       inspection.remote = true
 
-    // Local
+      // Local
     } else {
-
       // Path is not safe
       if (!helpers.isSafePath(path[0])) {
         throw new DataPackageError(`Local path "${path[0]}" is not safe`)
@@ -595,17 +579,16 @@ function inspectSource(data, path, basePath) {
     inspection.name = pathModule.basename(path[0], `.${inspection.format}`)
     inspection.tabular = config.TABULAR_FORMATS.includes(inspection.format)
 
-  // Multipart Local/Remote
+    // Multipart Local/Remote
   } else if (path.length > 1) {
-    const inspections = path.map(item => inspectSource(null, item, basePath))
+    const inspections = path.map((item) => inspectSource(null, item, basePath))
     assign(inspection, inspections[0])
-    inspection.source = inspections.map(item => item.source)
+    inspection.source = inspections.map((item) => item.source)
     inspection.multipart = true
   }
 
   return inspection
 }
-
 
 async function createByteStream(source, remote) {
   let stream
@@ -618,11 +601,11 @@ async function createByteStream(source, remote) {
       stream.push(response.data)
       stream.push(null)
     } else {
-      const response = await axios.get(source, {responseType: 'stream'})
+      const response = await axios.get(source, { responseType: 'stream' })
       stream = response.data
     }
 
-  // Local source
+    // Local source
   } else {
     if (config.IS_BROWSER) {
       throw new DataPackageError('Local paths are not supported in the browser')
@@ -633,7 +616,6 @@ async function createByteStream(source, remote) {
 
   return stream
 }
-
 
 // System
 

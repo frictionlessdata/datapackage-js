@@ -1,86 +1,17 @@
-extends:
-  airbnb
-
-env:
-  es6: true
-  node: true
-  mocha: true
-  browser: true
-
-parserOptions:
-  sourceType: module
-
-rules:
-  quotes:
-    - error
-    - single
-    - avoid-escape
-  semi:
-    - error
-    - never
-  no-empty:
-    - error
-    - allowEmptyCatch: true
-  no-use-before-define:
-    - off
-    - nofunc
-  one-var:
-    - off
-  eqeqeq:
-    - error
-    - smart
-  no-unused-vars:
-    - error
-  no-param-reassign:
-    - off
-  no-cond-assign:
-    - error
-    - except-parens
-  arrow-parens:
-    - error
-    - as-needed
-  object-curly-spacing:
-    - off
-  no-underscore-dangle:
-    - off
-  class-methods-use-this:
-    - off
-  arrow-body-style:
-    - off
-  padded-blocks:
-    - off
-  global-require:
-    - off
-  no-restricted-syntax:
-    - error
-    - WithStatement
-  no-unused-expressions:
-    - off
-  func-names:
-    - off
-  space-before-function-paren:
-    - off
-  block-spacing:
-    - off
-  space-infix-ops:
-    - off
-  consistent-return:
-    - off
-  no-shadow:
-    - off
-  no-console:
-    - off
-  no-continue:
-    - off
-  no-prototype-builtins:
-    - off
-  no-lonely-if:
-    - off
-  no-confusing-arrow:
-    - off
-  import/no-dynamic-require:
-    - off
-  import/newline-after-import:
-    - off
-  import/prefer-default-export:
-    - off
+{
+  "parser": "babel-eslint",
+  "extends": [
+    "standard",
+  ],
+  "env": {
+    "mocha": true
+  },
+  "rules": {
+    "no-prototype-builtins": "off",
+    "space-before-function-paren": "off",
+    "comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline"
+    }]
+  }
+}

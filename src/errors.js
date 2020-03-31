@@ -1,6 +1,5 @@
 const tableschema = require('tableschema')
 
-
 // Module API
 
 /**
@@ -12,7 +11,6 @@ const DataPackageError = tableschema.errors.DataPackageError
  * Base class for the all TableSchema errors.
  */
 const TableSchemaError = tableschema.errors.TableSchemaError
-
 
 // System
 
