@@ -30,7 +30,7 @@
     "test": "NODE_ENV=testing nyc mocha && karma start"
   },
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "glob": "^7.1.2",
     "jschardet": "^1.5.1",
     "json-pointer": "^0.6.0",
