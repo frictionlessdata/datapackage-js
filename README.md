@@ -35,8 +35,8 @@ A library for working with [Data Packages](http://specs.frictionlessdata.io/data
   - [Package](#package)
   - [Resource](#resource)
   - [Profile](#profile)
-  - [validate(descriptor) ⇒ <code>Object</code>](#validatedescriptor-%E2%87%92-codeobjectcode)
-  - [infer(pattern) ⇒ <code>Object</code>](#inferpattern-%E2%87%92-codeobjectcode)
+  - [validate(descriptor) ⇒ `Object`](#validatedescriptor-%E2%87%92-codeobjectcode)
+  - [infer(pattern) ⇒ `Object`](#inferpattern-%E2%87%92-codeobjectcode)
   - [DataPackageError](#datapackageerror)
   - [TableSchemaError](#tableschemaerror)
 - [Contributing](#contributing)
@@ -472,104 +472,104 @@ Package representation
 
 * [Package](#Package)
     * _instance_
-        * [.valid](#Package+valid) ⇒ <code>Boolean</code>
-        * [.errors](#Package+errors) ⇒ <code>Array.&lt;Error&gt;</code>
-        * [.profile](#Package+profile) ⇒ <code>Profile</code>
-        * [.descriptor](#Package+descriptor) ⇒ <code>Object</code>
-        * [.resources](#Package+resources) ⇒ <code>Array.&lt;Resoruce&gt;</code>
-        * [.resourceNames](#Package+resourceNames) ⇒ <code>Array.&lt;string&gt;</code>
-        * [.getResource(name)](#Package+getResource) ⇒ <code>Resource</code> \| <code>null</code>
-        * [.addResource(descriptor)](#Package+addResource) ⇒ <code>Resource</code>
-        * [.removeResource(name)](#Package+removeResource) ⇒ <code>Resource</code> \| <code>null</code>
-        * [.infer(pattern)](#Package+infer) ⇒ <code>Object</code>
-        * [.commit(strict)](#Package+commit) ⇒ <code>Boolean</code>
+        * [.valid](#Package+valid) ⇒ `Boolean`
+        * [.errors](#Package+errors) ⇒ `Array.&lt;Error&gt;`
+        * [.profile](#Package+profile) ⇒ `Profile`
+        * [.descriptor](#Package+descriptor) ⇒ `Object`
+        * [.resources](#Package+resources) ⇒ `Array.&lt;Resoruce&gt;`
+        * [.resourceNames](#Package+resourceNames) ⇒ `Array.&lt;string&gt;`
+        * [.getResource(name)](#Package+getResource) ⇒ `Resource` \| `null`
+        * [.addResource(descriptor)](#Package+addResource) ⇒ `Resource`
+        * [.removeResource(name)](#Package+removeResource) ⇒ `Resource` \| `null`
+        * [.infer(pattern)](#Package+infer) ⇒ `Object`
+        * [.commit(strict)](#Package+commit) ⇒ `Boolean`
         * [.save(target, raises, returns)](#Package+save)
     * _static_
-        * [.load(descriptor, basePath, strict)](#Package.load) ⇒ [<code>Package</code>](#Package)
+        * [.load(descriptor, basePath, strict)](#Package.load) ⇒ [`Package`](#Package)
 
 
-#### package.valid ⇒ <code>Boolean</code>
+#### package.valid ⇒ `Boolean`
 Validation status
 
 It always `true` in strict mode.
 
-**Returns**: <code>Boolean</code> - returns validation status  
+**Returns**: `Boolean` - returns validation status  
 
-#### package.errors ⇒ <code>Array.&lt;Error&gt;</code>
+#### package.errors ⇒ `Array.&lt;Error&gt;`
 Validation errors
 
 It always empty in strict mode.
 
-**Returns**: <code>Array.&lt;Error&gt;</code> - returns validation errors  
+**Returns**: `Array.&lt;Error&gt;` - returns validation errors  
 
-#### package.profile ⇒ <code>Profile</code>
+#### package.profile ⇒ `Profile`
 Profile
 
 
-#### package.descriptor ⇒ <code>Object</code>
+#### package.descriptor ⇒ `Object`
 Descriptor
 
-**Returns**: <code>Object</code> - schema descriptor  
+**Returns**: `Object` - schema descriptor  
 
-#### package.resources ⇒ <code>Array.&lt;Resoruce&gt;</code>
+#### package.resources ⇒ `Array.&lt;Resoruce&gt;`
 Resources
 
 
-#### package.resourceNames ⇒ <code>Array.&lt;string&gt;</code>
+#### package.resourceNames ⇒ `Array.&lt;string&gt;`
 Resource names
 
 
-#### package.getResource(name) ⇒ <code>Resource</code> \| <code>null</code>
+#### package.getResource(name) ⇒ `Resource` \| `null`
 Return a resource
 
-**Returns**: <code>Resource</code> \| <code>null</code> - resource instance if exists  
+**Returns**: `Resource` \| `null` - resource instance if exists  
 
 | Param | Type |
 | --- | --- |
-| name | <code>string</code> | 
+| name | `string` | 
 
 
-#### package.addResource(descriptor) ⇒ <code>Resource</code>
+#### package.addResource(descriptor) ⇒ `Resource`
 Add a resource
 
-**Returns**: <code>Resource</code> - added resource instance  
+**Returns**: `Resource` - added resource instance  
 
 | Param | Type |
 | --- | --- |
-| descriptor | <code>Object</code> | 
+| descriptor | `Object` | 
 
 
-#### package.removeResource(name) ⇒ <code>Resource</code> \| <code>null</code>
+#### package.removeResource(name) ⇒ `Resource` \| `null`
 Remove a resource
 
-**Returns**: <code>Resource</code> \| <code>null</code> - removed resource instance if exists  
+**Returns**: `Resource` \| `null` - removed resource instance if exists  
 
 | Param | Type |
 | --- | --- |
-| name | <code>string</code> | 
+| name | `string` | 
 
 
-#### package.infer(pattern) ⇒ <code>Object</code>
+#### package.infer(pattern) ⇒ `Object`
 Infer metadata
 
 
 | Param | Type | Default |
 | --- | --- | --- |
-| pattern | <code>string</code> | <code>false</code> | 
+| pattern | `string` | `false` | 
 
 
-#### package.commit(strict) ⇒ <code>Boolean</code>
+#### package.commit(strict) ⇒ `Boolean`
 Update package instance if there are in-place changes in the descriptor.
 
-**Returns**: <code>Boolean</code> - returns true on success and false if not modified  
+**Returns**: `Boolean` - returns true on success and false if not modified  
 **Throws**:
 
-- <code>DataPackageError</code> raises any error occurred in the process
+- `DataPackageError` raises any error occurred in the process
 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| strict | <code>boolean</code> | alter `strict` mode for further work |
+| strict | `boolean` | alter `strict` mode for further work |
 
 **Example**  
 ```javascript
@@ -594,27 +594,27 @@ saved entirely. If it has a json file extension only the descriptor will be save
 
 | Param | Type | Description |
 | --- | --- | --- |
-| target | <code>string</code> | path where to save a data package |
-| raises | <code>DataPackageError</code> | error if something goes wrong |
-| returns | <code>boolean</code> | true on success |
+| target | `string` | path where to save a data package |
+| raises | `DataPackageError` | error if something goes wrong |
+| returns | `boolean` | true on success |
 
 
-#### Package.load(descriptor, basePath, strict) ⇒ [<code>Package</code>](#Package)
+#### Package.load(descriptor, basePath, strict) ⇒ [`Package`](#Package)
 Factory method to instantiate `Package` class.
 
 This method is async and it should be used with await keyword or as a `Promise`.
 
-**Returns**: [<code>Package</code>](#Package) - returns data package class instance  
+**Returns**: [`Package`](#Package) - returns data package class instance  
 **Throws**:
 
-- <code>DataPackageError</code> raises error if something goes wrong
+- `DataPackageError` raises error if something goes wrong
 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| descriptor | <code>string</code> \| <code>Object</code> | package descriptor as local path, url or object.   If ththe path has a `zip` file extension it will be unzipped   to the temp directory first. |
-| basePath | <code>string</code> | base path for all relative paths |
-| strict | <code>boolean</code> | strict flag to alter validation behavior.   Setting it to `true` leads to throwing errors on any operation   with invalid descriptor |
+| descriptor | `string` \| `Object` | package descriptor as local path, url or object.   If ththe path has a `zip` file extension it will be unzipped   to the temp directory first. |
+| basePath | `string` | base path for all relative paths |
+| strict | `boolean` | strict flag to alter validation behavior.   Setting it to `true` leads to throwing errors on any operation   with invalid descriptor |
 
 
 ### Resource
@@ -623,99 +623,99 @@ Resource representation
 
 * [Resource](#Resource)
     * _instance_
-        * [.valid](#Resource+valid) ⇒ <code>Boolean</code>
-        * [.errors](#Resource+errors) ⇒ <code>Array.&lt;Error&gt;</code>
-        * [.profile](#Resource+profile) ⇒ <code>Profile</code>
-        * [.descriptor](#Resource+descriptor) ⇒ <code>Object</code>
-        * [.name](#Resource+name) ⇒ <code>string</code>
-        * [.inline](#Resource+inline) ⇒ <code>boolean</code>
-        * [.local](#Resource+local) ⇒ <code>boolean</code>
-        * [.remote](#Resource+remote) ⇒ <code>boolean</code>
-        * [.multipart](#Resource+multipart) ⇒ <code>boolean</code>
-        * [.tabular](#Resource+tabular) ⇒ <code>boolean</code>
-        * [.source](#Resource+source) ⇒ <code>Array</code> \| <code>string</code>
-        * [.headers](#Resource+headers) ⇒ <code>Array.&lt;string&gt;</code>
-        * [.schema](#Resource+schema) ⇒ <code>tableschema.Schema</code>
-        * [.iter(keyed, extended, cast, forceCast, relations, stream)](#Resource+iter) ⇒ <code>AsyncIterator</code> \| <code>Stream</code>
-        * [.read(limit)](#Resource+read) ⇒ <code>Array.&lt;Array&gt;</code> \| <code>Array.&lt;Object&gt;</code>
-        * [.checkRelations()](#Resource+checkRelations) ⇒ <code>boolean</code>
-        * [.rawIter(stream)](#Resource+rawIter) ⇒ <code>Iterator</code> \| <code>Stream</code>
-        * [.rawRead()](#Resource+rawRead) ⇒ <code>Buffer</code>
-        * [.infer()](#Resource+infer) ⇒ <code>Object</code>
-        * [.commit(strict)](#Resource+commit) ⇒ <code>boolean</code>
-        * [.save(target)](#Resource+save) ⇒ <code>boolean</code>
+        * [.valid](#Resource+valid) ⇒ `Boolean`
+        * [.errors](#Resource+errors) ⇒ `Array.&lt;Error&gt;`
+        * [.profile](#Resource+profile) ⇒ `Profile`
+        * [.descriptor](#Resource+descriptor) ⇒ `Object`
+        * [.name](#Resource+name) ⇒ `string`
+        * [.inline](#Resource+inline) ⇒ `boolean`
+        * [.local](#Resource+local) ⇒ `boolean`
+        * [.remote](#Resource+remote) ⇒ `boolean`
+        * [.multipart](#Resource+multipart) ⇒ `boolean`
+        * [.tabular](#Resource+tabular) ⇒ `boolean`
+        * [.source](#Resource+source) ⇒ `Array` \| `string`
+        * [.headers](#Resource+headers) ⇒ `Array.&lt;string&gt;`
+        * [.schema](#Resource+schema) ⇒ `tableschema.Schema`
+        * [.iter(keyed, extended, cast, forceCast, relations, stream)](#Resource+iter) ⇒ `AsyncIterator` \| `Stream`
+        * [.read(limit)](#Resource+read) ⇒ `Array.&lt;Array&gt;` \| `Array.&lt;Object&gt;`
+        * [.checkRelations()](#Resource+checkRelations) ⇒ `boolean`
+        * [.rawIter(stream)](#Resource+rawIter) ⇒ `Iterator` \| `Stream`
+        * [.rawRead()](#Resource+rawRead) ⇒ `Buffer`
+        * [.infer()](#Resource+infer) ⇒ `Object`
+        * [.commit(strict)](#Resource+commit) ⇒ `boolean`
+        * [.save(target)](#Resource+save) ⇒ `boolean`
     * _static_
-        * [.load(descriptor, basePath, strict)](#Resource.load) ⇒ [<code>Resource</code>](#Resource)
+        * [.load(descriptor, basePath, strict)](#Resource.load) ⇒ [`Resource`](#Resource)
 
 
-#### resource.valid ⇒ <code>Boolean</code>
+#### resource.valid ⇒ `Boolean`
 Validation status
 
 It always `true` in strict mode.
 
-**Returns**: <code>Boolean</code> - returns validation status  
+**Returns**: `Boolean` - returns validation status  
 
-#### resource.errors ⇒ <code>Array.&lt;Error&gt;</code>
+#### resource.errors ⇒ `Array.&lt;Error&gt;`
 Validation errors
 
 It always empty in strict mode.
 
-**Returns**: <code>Array.&lt;Error&gt;</code> - returns validation errors  
+**Returns**: `Array.&lt;Error&gt;` - returns validation errors  
 
-#### resource.profile ⇒ <code>Profile</code>
+#### resource.profile ⇒ `Profile`
 Profile
 
 
-#### resource.descriptor ⇒ <code>Object</code>
+#### resource.descriptor ⇒ `Object`
 Descriptor
 
-**Returns**: <code>Object</code> - schema descriptor  
+**Returns**: `Object` - schema descriptor  
 
-#### resource.name ⇒ <code>string</code>
+#### resource.name ⇒ `string`
 Name
 
 
-#### resource.inline ⇒ <code>boolean</code>
+#### resource.inline ⇒ `boolean`
 Whether resource is inline
 
 
-#### resource.local ⇒ <code>boolean</code>
+#### resource.local ⇒ `boolean`
 Whether resource is local
 
 
-#### resource.remote ⇒ <code>boolean</code>
+#### resource.remote ⇒ `boolean`
 Whether resource is remote
 
 
-#### resource.multipart ⇒ <code>boolean</code>
+#### resource.multipart ⇒ `boolean`
 Whether resource is multipart
 
 
-#### resource.tabular ⇒ <code>boolean</code>
+#### resource.tabular ⇒ `boolean`
 Whether resource is tabular
 
 
-#### resource.source ⇒ <code>Array</code> \| <code>string</code>
+#### resource.source ⇒ `Array` \| `string`
 Source
 
 Combination of `resource.source` and `resource.inline/local/remote/multipart`
 provides predictable interface to work with resource data.
 
 
-#### resource.headers ⇒ <code>Array.&lt;string&gt;</code>
+#### resource.headers ⇒ `Array.&lt;string&gt;`
 Headers
 
 > Only for tabular resources
 
-**Returns**: <code>Array.&lt;string&gt;</code> - data source headers  
+**Returns**: `Array.&lt;string&gt;` - data source headers  
 
-#### resource.schema ⇒ <code>tableschema.Schema</code>
+#### resource.schema ⇒ `tableschema.Schema`
 Schema
 
 > Only for tabular resources
 
 
-#### resource.iter(keyed, extended, cast, forceCast, relations, stream) ⇒ <code>AsyncIterator</code> \| <code>Stream</code>
+#### resource.iter(keyed, extended, cast, forceCast, relations, stream) ⇒ `AsyncIterator` \| `Stream`
 Iterate through the table data
 
 > Only for tabular resources
@@ -724,77 +724,77 @@ And emits rows cast based on table schema (async for loop).
 With a `stream` flag instead of async iterator a Node stream will be returned.
 Data casting can be disabled.
 
-**Returns**: <code>AsyncIterator</code> \| <code>Stream</code> - async iterator/stream of rows:
+**Returns**: `AsyncIterator` \| `Stream` - async iterator/stream of rows:
  - `[value1, value2]` - base
  - `{header1: value1, header2: value2}` - keyed
  - `[rowNumber, [header1, header2], [value1, value2]]` - extended  
 **Throws**:
 
-- <code>TableSchemaError</code> raises any error occurred in this process
+- `TableSchemaError` raises any error occurred in this process
 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| keyed | <code>boolean</code> | iter keyed rows |
-| extended | <code>boolean</code> | iter extended rows |
-| cast | <code>boolean</code> | disable data casting if false |
-| forceCast | <code>boolean</code> | instead of raising on the first row with cast error   return an error object to replace failed row. It will allow   to iterate over the whole data file even if it's not compliant to the schema.   Example of output stream:     `[['val1', 'val2'], TableSchemaError, ['val3', 'val4'], ...]` |
-| relations | <code>boolean</code> | if true foreign key fields will be   checked and resolved to its references |
-| stream | <code>boolean</code> | return Node Readable Stream of table rows |
+| keyed | `boolean` | iter keyed rows |
+| extended | `boolean` | iter extended rows |
+| cast | `boolean` | disable data casting if false |
+| forceCast | `boolean` | instead of raising on the first row with cast error   return an error object to replace failed row. It will allow   to iterate over the whole data file even if it's not compliant to the schema.   Example of output stream:     `[['val1', 'val2'], TableSchemaError, ['val3', 'val4'], ...]` |
+| relations | `boolean` | if true foreign key fields will be   checked and resolved to its references |
+| stream | `boolean` | return Node Readable Stream of table rows |
 
 
-#### resource.read(limit) ⇒ <code>Array.&lt;Array&gt;</code> \| <code>Array.&lt;Object&gt;</code>
+#### resource.read(limit) ⇒ `Array.&lt;Array&gt;` \| `Array.&lt;Object&gt;`
 Read the table data into memory
 
 > Only for tabular resources; the API is the same as `resource.iter` has except for:
 
-**Returns**: <code>Array.&lt;Array&gt;</code> \| <code>Array.&lt;Object&gt;</code> - list of rows:
+**Returns**: `Array.&lt;Array&gt;` \| `Array.&lt;Object&gt;` - list of rows:
  - `[value1, value2]` - base
  - `{header1: value1, header2: value2}` - keyed
  - `[rowNumber, [header1, header2], [value1, value2]]` - extended  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| limit | <code>integer</code> | limit of rows to read |
+| limit | `integer` | limit of rows to read |
 
 
-#### resource.checkRelations() ⇒ <code>boolean</code>
+#### resource.checkRelations() ⇒ `boolean`
 It checks foreign keys and raises an exception if there are integrity issues.
 
 > Only for tabular resources
 
-**Returns**: <code>boolean</code> - returns True if no issues  
+**Returns**: `boolean` - returns True if no issues  
 **Throws**:
 
-- <code>DataPackageError</code> raises if there are integrity issues
+- `DataPackageError` raises if there are integrity issues
 
 
-#### resource.rawIter(stream) ⇒ <code>Iterator</code> \| <code>Stream</code>
+#### resource.rawIter(stream) ⇒ `Iterator` \| `Stream`
 Iterate over data chunks as bytes. If `stream` is true Node Stream will be returned.
 
-**Returns**: <code>Iterator</code> \| <code>Stream</code> - returns Iterator/Stream  
+**Returns**: `Iterator` \| `Stream` - returns Iterator/Stream  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| stream | <code>boolean</code> | Node Stream will be returned |
+| stream | `boolean` | Node Stream will be returned |
 
 
-#### resource.rawRead() ⇒ <code>Buffer</code>
+#### resource.rawRead() ⇒ `Buffer`
 Returns resource data as bytes.
 
-**Returns**: <code>Buffer</code> - returns Buffer with resource data  
+**Returns**: `Buffer` - returns Buffer with resource data  
 
-#### resource.infer() ⇒ <code>Object</code>
+#### resource.infer() ⇒ `Object`
 Infer resource metadata like name, format, mediatype, encoding, schema and profile.
 
 It commits this changes into resource instance.
 
-**Returns**: <code>Object</code> - returns resource descriptor  
+**Returns**: `Object` - returns resource descriptor  
 
-#### resource.commit(strict) ⇒ <code>boolean</code>
+#### resource.commit(strict) ⇒ `boolean`
 Update resource instance if there are in-place changes in the descriptor.
 
-**Returns**: <code>boolean</code> - returns true on success and false if not modified  
+**Returns**: `boolean` - returns true on success and false if not modified  
 **Throws**:
 
 - DataPackageError raises error if something goes wrong
@@ -802,41 +802,41 @@ Update resource instance if there are in-place changes in the descriptor.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| strict | <code>boolean</code> | alter `strict` mode for further work |
+| strict | `boolean` | alter `strict` mode for further work |
 
 
-#### resource.save(target) ⇒ <code>boolean</code>
+#### resource.save(target) ⇒ `boolean`
 Save resource to target destination.
 
 > For now only descriptor will be saved.
 
-**Returns**: <code>boolean</code> - returns true on success  
+**Returns**: `boolean` - returns true on success  
 **Throws**:
 
-- <code>DataPackageError</code> raises error if something goes wrong
+- `DataPackageError` raises error if something goes wrong
 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| target | <code>string</code> | path where to save a resource |
+| target | `string` | path where to save a resource |
 
 
-#### Resource.load(descriptor, basePath, strict) ⇒ [<code>Resource</code>](#Resource)
+#### Resource.load(descriptor, basePath, strict) ⇒ [`Resource`](#Resource)
 Factory method to instantiate `Resource` class.
 
 This method is async and it should be used with await keyword or as a `Promise`.
 
-**Returns**: [<code>Resource</code>](#Resource) - returns resource class instance  
+**Returns**: [`Resource`](#Resource) - returns resource class instance  
 **Throws**:
 
-- <code>DataPackageError</code> raises error if something goes wrong
+- `DataPackageError` raises error if something goes wrong
 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| descriptor | <code>string</code> \| <code>Object</code> | resource descriptor as local path, url or object |
-| basePath | <code>string</code> | base path for all relative paths |
-| strict | <code>boolean</code> | strict flag to alter validation behavior.   Setting it to `true` leads to throwing errors on   any operation with invalid descriptor |
+| descriptor | `string` \| `Object` | resource descriptor as local path, url or object |
+| basePath | `string` | base path for all relative paths |
+| strict | `boolean` | strict flag to alter validation behavior.   Setting it to `true` leads to throwing errors on   any operation with invalid descriptor |
 
 
 ### Profile
@@ -845,65 +845,65 @@ Profile representation
 
 * [Profile](#Profile)
     * _instance_
-        * [.name](#Profile+name) ⇒ <code>string</code>
-        * [.jsonschema](#Profile+jsonschema) ⇒ <code>Object</code>
-        * [.validate(descriptor)](#Profile+validate) ⇒ <code>Object</code>
+        * [.name](#Profile+name) ⇒ `string`
+        * [.jsonschema](#Profile+jsonschema) ⇒ `Object`
+        * [.validate(descriptor)](#Profile+validate) ⇒ `Object`
     * _static_
-        * [.load(profile)](#Profile.load) ⇒ [<code>Profile</code>](#Profile)
+        * [.load(profile)](#Profile.load) ⇒ [`Profile`](#Profile)
 
 
-#### profile.name ⇒ <code>string</code>
+#### profile.name ⇒ `string`
 Name
 
 
-#### profile.jsonschema ⇒ <code>Object</code>
+#### profile.jsonschema ⇒ `Object`
 JsonSchema
 
 
-#### profile.validate(descriptor) ⇒ <code>Object</code>
+#### profile.validate(descriptor) ⇒ `Object`
 Validate a data package `descriptor` against the profile.
 
-**Returns**: <code>Object</code> - returns a `{valid, errors}` object  
+**Returns**: `Object` - returns a `{valid, errors}` object  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| descriptor | <code>Object</code> | retrieved and dereferenced data package descriptor |
+| descriptor | `Object` | retrieved and dereferenced data package descriptor |
 
 
-#### Profile.load(profile) ⇒ [<code>Profile</code>](#Profile)
+#### Profile.load(profile) ⇒ [`Profile`](#Profile)
 Factory method to instantiate `Profile` class.
 
 This method is async and it should be used with await keyword or as a `Promise`.
 
-**Returns**: [<code>Profile</code>](#Profile) - returns profile class instance  
+**Returns**: [`Profile`](#Profile) - returns profile class instance  
 **Throws**:
 
-- <code>DataPackageError</code> raises error if something goes wrong
+- `DataPackageError` raises error if something goes wrong
 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| profile | <code>string</code> | profile name in registry or URL to JSON Schema |
+| profile | `string` | profile name in registry or URL to JSON Schema |
 
 
-### validate(descriptor) ⇒ <code>Object</code>
+### validate(descriptor) ⇒ `Object`
 This function is async so it has to be used with `await` keyword or as a `Promise`.
 
-**Returns**: <code>Object</code> - returns a `{valid, errors}` object  
+**Returns**: `Object` - returns a `{valid, errors}` object  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| descriptor | <code>string</code> \| <code>Object</code> | data package descriptor (local/remote path or object) |
+| descriptor | `string` \| `Object` | data package descriptor (local/remote path or object) |
 
 
-### infer(pattern) ⇒ <code>Object</code>
+### infer(pattern) ⇒ `Object`
 This function is async so it has to be used with `await` keyword or as a `Promise`.
 
-**Returns**: <code>Object</code> - returns data package descriptor  
+**Returns**: `Object` - returns data package descriptor  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| pattern | <code>string</code> | glob file pattern |
+| pattern | `string` | glob file pattern |
 
 
 ### DataPackageError
