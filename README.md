@@ -1,9 +1,9 @@
 # datapackage-js
 
-[![Travis](https://travis-ci.org/frictionlessdata/datapackage-js.svg?branch=master)](https://travis-ci.org/frictionlessdata/datapackage-js)
-[![Coveralls](https://coveralls.io/repos/github/frictionlessdata/datapackage-js/badge.svg?branch=master)](https://coveralls.io/github/frictionlessdata/datapackage-js?branch=master)
-[![NPM](https://img.shields.io/npm/v/datapackage.svg)](https://www.npmjs.com/package/datapackage)
-[![Codebase](https://img.shields.io/badge/codebase-github-brightgreen)](https://github.com/frictionlessdata/datapackage-js)
+[![Build](https://img.shields.io/github/workflow/status/frictionlessdata/tableschema-js/general/main)](https://github.com/frictionlessdata/datapackage-js/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/frictionlessdata/datapackage-js/main)](https://codecov.io/gh/frictionlessdata/datapackage-js)
+[![Registry](https://img.shields.io/npm/v/frictionless-datapackage-js.svg)](https://www.npmjs.com/package/frictionless-datapackage-js)
+[![Codebase](https://img.shields.io/badge/github-main-brightgreen)](https://github.com/frictionlessdata/datapackage-js)
 [![Support](https://img.shields.io/badge/support-discord-brightgreen)](https://discordapp.com/invite/Sewv6av)
 
 A library for working with [Data Packages](http://specs.frictionlessdata.io/data-package/).
@@ -493,14 +493,14 @@ Validation status
 
 It always `true` in strict mode.
 
-**Returns**: `Boolean` - returns validation status  
+**Returns**: `Boolean` - returns validation status
 
 #### package.errors ⇒ `Array.&lt;Error&gt;`
 Validation errors
 
 It always empty in strict mode.
 
-**Returns**: `Array.&lt;Error&gt;` - returns validation errors  
+**Returns**: `Array.&lt;Error&gt;` - returns validation errors
 
 #### package.profile ⇒ `Profile`
 Profile
@@ -509,7 +509,7 @@ Profile
 #### package.descriptor ⇒ `Object`
 Descriptor
 
-**Returns**: `Object` - schema descriptor  
+**Returns**: `Object` - schema descriptor
 
 #### package.resources ⇒ `Array.&lt;Resoruce&gt;`
 Resources
@@ -522,31 +522,31 @@ Resource names
 #### package.getResource(name) ⇒ `Resource` \| `null`
 Return a resource
 
-**Returns**: `Resource` \| `null` - resource instance if exists  
+**Returns**: `Resource` \| `null` - resource instance if exists
 
 | Param | Type |
 | --- | --- |
-| name | `string` | 
+| name | `string` |
 
 
 #### package.addResource(descriptor) ⇒ `Resource`
 Add a resource
 
-**Returns**: `Resource` - added resource instance  
+**Returns**: `Resource` - added resource instance
 
 | Param | Type |
 | --- | --- |
-| descriptor | `Object` | 
+| descriptor | `Object` |
 
 
 #### package.removeResource(name) ⇒ `Resource` \| `null`
 Remove a resource
 
-**Returns**: `Resource` \| `null` - removed resource instance if exists  
+**Returns**: `Resource` \| `null` - removed resource instance if exists
 
 | Param | Type |
 | --- | --- |
-| name | `string` | 
+| name | `string` |
 
 
 #### package.infer(pattern) ⇒ `Object`
@@ -555,13 +555,13 @@ Infer metadata
 
 | Param | Type | Default |
 | --- | --- | --- |
-| pattern | `string` | `false` | 
+| pattern | `string` | `false` |
 
 
 #### package.commit(strict) ⇒ `Boolean`
 Update package instance if there are in-place changes in the descriptor.
 
-**Returns**: `Boolean` - returns true on success and false if not modified  
+**Returns**: `Boolean` - returns true on success and false if not modified
 **Throws**:
 
 - `DataPackageError` raises any error occurred in the process
@@ -571,7 +571,7 @@ Update package instance if there are in-place changes in the descriptor.
 | --- | --- | --- |
 | strict | `boolean` | alter `strict` mode for further work |
 
-**Example**  
+**Example**
 ```javascript
 const dataPackage = await Package.load({
     name: 'package',
@@ -604,7 +604,7 @@ Factory method to instantiate `Package` class.
 
 This method is async and it should be used with await keyword or as a `Promise`.
 
-**Returns**: [`Package`](#Package) - returns data package class instance  
+**Returns**: [`Package`](#Package) - returns data package class instance
 **Throws**:
 
 - `DataPackageError` raises error if something goes wrong
@@ -653,14 +653,14 @@ Validation status
 
 It always `true` in strict mode.
 
-**Returns**: `Boolean` - returns validation status  
+**Returns**: `Boolean` - returns validation status
 
 #### resource.errors ⇒ `Array.&lt;Error&gt;`
 Validation errors
 
 It always empty in strict mode.
 
-**Returns**: `Array.&lt;Error&gt;` - returns validation errors  
+**Returns**: `Array.&lt;Error&gt;` - returns validation errors
 
 #### resource.profile ⇒ `Profile`
 Profile
@@ -669,7 +669,7 @@ Profile
 #### resource.descriptor ⇒ `Object`
 Descriptor
 
-**Returns**: `Object` - schema descriptor  
+**Returns**: `Object` - schema descriptor
 
 #### resource.name ⇒ `string`
 Name
@@ -707,7 +707,7 @@ Headers
 
 > Only for tabular resources
 
-**Returns**: `Array.&lt;string&gt;` - data source headers  
+**Returns**: `Array.&lt;string&gt;` - data source headers
 
 #### resource.schema ⇒ `tableschema.Schema`
 Schema
@@ -727,7 +727,7 @@ Data casting can be disabled.
 **Returns**: `AsyncIterator` \| `Stream` - async iterator/stream of rows:
  - `[value1, value2]` - base
  - `{header1: value1, header2: value2}` - keyed
- - `[rowNumber, [header1, header2], [value1, value2]]` - extended  
+ - `[rowNumber, [header1, header2], [value1, value2]]` - extended
 **Throws**:
 
 - `TableSchemaError` raises any error occurred in this process
@@ -751,7 +751,7 @@ Read the table data into memory
 **Returns**: `Array.&lt;Array&gt;` \| `Array.&lt;Object&gt;` - list of rows:
  - `[value1, value2]` - base
  - `{header1: value1, header2: value2}` - keyed
- - `[rowNumber, [header1, header2], [value1, value2]]` - extended  
+ - `[rowNumber, [header1, header2], [value1, value2]]` - extended
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -763,7 +763,7 @@ It checks foreign keys and raises an exception if there are integrity issues.
 
 > Only for tabular resources
 
-**Returns**: `boolean` - returns True if no issues  
+**Returns**: `boolean` - returns True if no issues
 **Throws**:
 
 - `DataPackageError` raises if there are integrity issues
@@ -772,7 +772,7 @@ It checks foreign keys and raises an exception if there are integrity issues.
 #### resource.rawIter(stream) ⇒ `Iterator` \| `Stream`
 Iterate over data chunks as bytes. If `stream` is true Node Stream will be returned.
 
-**Returns**: `Iterator` \| `Stream` - returns Iterator/Stream  
+**Returns**: `Iterator` \| `Stream` - returns Iterator/Stream
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -782,19 +782,19 @@ Iterate over data chunks as bytes. If `stream` is true Node Stream will be retur
 #### resource.rawRead() ⇒ `Buffer`
 Returns resource data as bytes.
 
-**Returns**: `Buffer` - returns Buffer with resource data  
+**Returns**: `Buffer` - returns Buffer with resource data
 
 #### resource.infer() ⇒ `Object`
 Infer resource metadata like name, format, mediatype, encoding, schema and profile.
 
 It commits this changes into resource instance.
 
-**Returns**: `Object` - returns resource descriptor  
+**Returns**: `Object` - returns resource descriptor
 
 #### resource.commit(strict) ⇒ `boolean`
 Update resource instance if there are in-place changes in the descriptor.
 
-**Returns**: `boolean` - returns true on success and false if not modified  
+**Returns**: `boolean` - returns true on success and false if not modified
 **Throws**:
 
 - DataPackageError raises error if something goes wrong
@@ -810,7 +810,7 @@ Save resource to target destination.
 
 > For now only descriptor will be saved.
 
-**Returns**: `boolean` - returns true on success  
+**Returns**: `boolean` - returns true on success
 **Throws**:
 
 - `DataPackageError` raises error if something goes wrong
@@ -826,7 +826,7 @@ Factory method to instantiate `Resource` class.
 
 This method is async and it should be used with await keyword or as a `Promise`.
 
-**Returns**: [`Resource`](#Resource) - returns resource class instance  
+**Returns**: [`Resource`](#Resource) - returns resource class instance
 **Throws**:
 
 - `DataPackageError` raises error if something goes wrong
@@ -863,7 +863,7 @@ JsonSchema
 #### profile.validate(descriptor) ⇒ `Object`
 Validate a data package `descriptor` against the profile.
 
-**Returns**: `Object` - returns a `{valid, errors}` object  
+**Returns**: `Object` - returns a `{valid, errors}` object
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -875,7 +875,7 @@ Factory method to instantiate `Profile` class.
 
 This method is async and it should be used with await keyword or as a `Promise`.
 
-**Returns**: [`Profile`](#Profile) - returns profile class instance  
+**Returns**: [`Profile`](#Profile) - returns profile class instance
 **Throws**:
 
 - `DataPackageError` raises error if something goes wrong
@@ -889,7 +889,7 @@ This method is async and it should be used with await keyword or as a `Promise`.
 ### validate(descriptor) ⇒ `Object`
 This function is async so it has to be used with `await` keyword or as a `Promise`.
 
-**Returns**: `Object` - returns a `{valid, errors}` object  
+**Returns**: `Object` - returns a `{valid, errors}` object
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -899,7 +899,7 @@ This function is async so it has to be used with `await` keyword or as a `Promis
 ### infer(pattern) ⇒ `Object`
 This function is async so it has to be used with `await` keyword or as a `Promise`.
 
-**Returns**: `Object` - returns data package descriptor  
+**Returns**: `Object` - returns data package descriptor
 
 | Param | Type | Description |
 | --- | --- | --- |
